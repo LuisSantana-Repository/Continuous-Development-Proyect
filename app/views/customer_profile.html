@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Stamin-Up - My Profile</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <style type="text/tailwindcss">
+      @layer base {
+        :root {
+          --primary: #0f66bd;
+          --background-light: #ffffff;
+          --background-dark: #101922;
+          --blue-accent: #3b82f6;
+          --green-accent: #10b981;
+        }
+      }
+
+      /* Star rating styles */
+      .star-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .star-rating .star {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+
+      .star-rating .star:hover {
+        transform: scale(1.2);
+      }
+
+      .tag-button {
+        transition: all 0.2s ease;
+      }
+
+      .tag-button.active {
+        background-color: var(--green-accent);
+        color: white;
+        border-color: var(--green-accent);
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "var(--primary)",
+              "background-light": "var(--background-light)",
+              "background-dark": "var(--background-dark)",
+              "blue-accent": "var(--blue-accent)",
+              "green-accent": "var(--green-accent)",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "1rem",
+              xl: "1.5rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("DOM fully loaded");
+
+        // Get rate & review modal elements
+        const rateModal = document.getElementById("rate-review-modal");
+        const rateButtons = document.querySelectorAll(".rate-now-btn");
+        const closeRateModalBtn = document.getElementById("close-rate-modal");
+        const cancelRateBtn = document.getElementById("cancel-review");
+
+        console.log("Rate buttons found:", rateButtons.length);
+
+        // Get service details modal elements
+        const detailsModal = document.getElementById("service-details-modal");
+        const detailsButtons = document.querySelectorAll(".view-details-btn");
+        const closeDetailsModalBtn = document.getElementById(
+          "close-details-modal"
+        );
+        const closeDetailsBtn = document.getElementById("close-details-btn");
+        const reportServiceBtn = document.getElementById("report-service-btn");
+
+        console.log("Details buttons found:", detailsButtons.length);
+
+        // Get edit profile modal elements
+        const editProfileModal = document.getElementById("edit-profile-modal");
+        const editProfileBtn = document.getElementById("edit-profile-btn");
+        const closeEditProfileModalBtn = document.getElementById(
+          "close-edit-profile-modal"
+        );
+        const cancelEditProfileBtn = document.getElementById(
+          "cancel-edit-profile"
+        );
+        const saveProfileBtn = document.getElementById("save-profile");
+
+        // Elementos relacionados con la foto podrían no existir
+        const changePhotoBtn = document.getElementById("change-photo-btn");
+        const photoUploadInput = document.getElementById("photo-upload");
+        const profilePreview = document.getElementById("profile-preview");
+        const successMessage = document.getElementById("success-message");
+
+        // Get notifications modal elements
+        const notificationsModal = document.getElementById(
+          "notifications-modal"
+        );
+        const notificationsBtn = document.getElementById("notifications-btn");
+        const closeNotificationsModalBtn = document.getElementById(
+          "close-notifications-modal"
+        );
+        const markAllReadBtn = document.getElementById("mark-all-read");
+        const viewAllNotificationsBtn = document.getElementById(
+          "view-all-notifications"
+        );
+
+        // Rating functionality
+        const stars = document.querySelectorAll(".star-rating .star");
+        let currentRating = 0;
+
+        // Tag buttons
+        const tagButtons = document.querySelectorAll(".tag-button");
+
+        // Open notifications modal when notification bell is clicked
+        notificationsBtn.addEventListener("click", function () {
+          notificationsModal.classList.remove("hidden");
+        });
+
+        // Close notifications modal functions
+        function closeNotificationsModal() {
+          notificationsModal.classList.add("hidden");
+        }
+
+        closeNotificationsModalBtn.addEventListener(
+          "click",
+          closeNotificationsModal
+        );
+
+        // Close notifications modal when clicking outside
+        notificationsModal.addEventListener("click", function (e) {
+          if (e.target === notificationsModal) {
+            closeNotificationsModal();
+          }
+        });
+
+        // Mark all as read functionality
+        markAllReadBtn.addEventListener("click", function () {
+          const unreadDots = document.querySelectorAll(
+            ".notification-unread-dot"
+          );
+          unreadDots.forEach((dot) => dot.classList.add("hidden"));
+
+          const notificationItems =
+            document.querySelectorAll(".notification-item");
+          notificationItems.forEach((item) => {
+            item.classList.remove("bg-slate-50");
+            item.classList.add("bg-white");
+          });
+
+          // Hide counter badge on the notification bell
+          document
+            .querySelector("#notifications-btn span:nth-child(2)")
+            .classList.add("hidden");
+        });
+
+        // Close edit profile modal functions
+        function closeEditProfileModal() {
+          if (editProfileModal) {
+            editProfileModal.classList.add("hidden");
+          }
+        }
+
+        // Open edit profile modal when Edit profile button is clicked
+        if (editProfileBtn && editProfileModal) {
+          editProfileBtn.addEventListener("click", function () {
+            editProfileModal.classList.remove("hidden");
+          });
+        }
+
+        // Close edit profile modal button listeners
+        if (closeEditProfileModalBtn) {
+          closeEditProfileModalBtn.addEventListener(
+            "click",
+            closeEditProfileModal
+          );
+        }
+        if (cancelEditProfileBtn) {
+          cancelEditProfileBtn.addEventListener("click", closeEditProfileModal);
+        }
+
+        // Close edit profile modal when clicking outside
+        if (editProfileModal) {
+          editProfileModal.addEventListener("click", function (e) {
+            if (e.target === editProfileModal) {
+              closeEditProfileModal();
+            }
+          });
+        }
+
+        // Change photo functionality - verificar si existen los elementos
+        if (changePhotoBtn && photoUploadInput) {
+          changePhotoBtn.addEventListener("click", function () {
+            photoUploadInput.click();
+          });
+        }
+
+        if (photoUploadInput && profilePreview) {
+          photoUploadInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                profilePreview.src = e.target.result;
+              };
+              reader.readAsDataURL(file);
+            }
+          });
+        }
+
+        // Save profile changes
+        saveProfileBtn.addEventListener("click", function () {
+          // Here you would normally send the data to the server
+
+          // Show success message
+          successMessage.classList.remove("opacity-0");
+          successMessage.classList.add("opacity-100");
+
+          // Update profile information on the page
+          const fullName = document.getElementById("full-name").value;
+          const phone = document.getElementById("phone").value;
+          const address = document.getElementById("address").value;
+
+          // Update the visible profile info
+          document.querySelector("h1.text-2xl.font-bold").textContent =
+            fullName;
+          document.querySelector(
+            "p.flex.items-center.gap-2:nth-child(2)"
+          ).innerHTML =
+            '<span class="material-symbols-outlined text-base text-slate-400">phone</span>' +
+            phone;
+          document.querySelector(
+            "p.flex.items-center.gap-2:nth-child(3)"
+          ).innerHTML =
+            '<span class="material-symbols-outlined text-base text-slate-400">location_on</span>' +
+            address;
+
+          // Also update profile pictures if changed
+          const profilePics = document.querySelectorAll(
+            ".h-9.w-9.rounded-full, .h-24.w-24.rounded-full"
+          );
+          profilePics.forEach((pic) => {
+            pic.src = profilePreview.src;
+          });
+
+          // Hide success message after 3 seconds
+          setTimeout(function () {
+            successMessage.classList.remove("opacity-100");
+            successMessage.classList.add("opacity-0");
+          }, 3000);
+
+          // Close modal after a delay
+          setTimeout(closeEditProfileModal, 1500);
+        });
+
+        // Función directa para abrir el modal de calificación
+        function openRateModal(button) {
+          console.log("Opening rate modal");
+
+          // Verificar que el modal existe
+          const modal = document.getElementById("rate-review-modal");
+          if (!modal) {
+            console.error("Rate modal not found by ID");
+            return;
+          }
+
+          modal.classList.remove("hidden");
+
+          // Set provider name and photo based on the clicked service
+          try {
+            const providerName = button
+              .closest("div")
+              .querySelector(".font-semibold")
+              .textContent.trim();
+            document.getElementById("provider-name").textContent = providerName;
+
+            // Get service date
+            const serviceDate = button
+              .closest("div")
+              .querySelector(".text-slate-500:nth-child(3)")
+              .textContent.trim();
+            document.getElementById("service-date").textContent = serviceDate;
+          } catch (e) {
+            console.error("Error setting provider details:", e);
+          }
+
+          // Reset form if function exists
+          if (typeof resetForm === "function") {
+            resetForm();
+          }
+        }
+
+        // Función directa para abrir el modal de detalles
+        function openDetailsModal(button) {
+          console.log("Opening details modal");
+
+          // Verificar que el modal existe
+          const modal = document.getElementById("service-details-modal");
+          if (!modal) {
+            console.error("Details modal not found by ID");
+            return;
+          }
+
+          modal.classList.remove("hidden");
+
+          try {
+            // Para Alex Ramirez, ya tenemos los datos prefijados en el modal
+            // pero aún así podríamos actualizarlos dinámicamente si fuera necesario
+            document.getElementById("details-provider-name").textContent =
+              "Alex Ramirez";
+            document.getElementById("details-service-category").textContent =
+              "Plumbing";
+            document.getElementById("details-service-date").textContent =
+              "May 20, 2024";
+            document.getElementById("details-status").textContent = "Completed";
+            document.getElementById("details-rating").textContent = "(4.0)";
+
+            // Asegurarse de que se muestre el contenedor de valoración
+            document
+              .getElementById("details-rating-container")
+              .classList.remove("hidden");
+          } catch (e) {
+            console.error("Error setting details content:", e);
+          }
+        }
+
+        // Solo agregar listeners si se encontraron botones
+        if (rateButtons && rateButtons.length > 0) {
+          console.log(
+            "Adding listeners to",
+            rateButtons.length,
+            "rate buttons"
+          );
+          // Open rate modal when Rate Now button is clicked
+          rateButtons.forEach((button) => {
+            button.addEventListener("click", function (e) {
+              e.preventDefault();
+              console.log("Rate button clicked");
+              openRateModal(this);
+            });
+          });
+        } else {
+          console.error("No rate buttons found");
+        }
+
+        if (detailsButtons && detailsButtons.length > 0) {
+          console.log(
+            "Adding listeners to",
+            detailsButtons.length,
+            "details buttons"
+          );
+          // Open details modal when View Details button is clicked
+          detailsButtons.forEach((button) => {
+            button.addEventListener("click", function (e) {
+              e.preventDefault();
+              console.log("Details button clicked");
+              openDetailsModal(this);
+            });
+          });
+        } else {
+          console.error("No details buttons found");
+        }
+
+        // Agregar también handlers directos para los botones usando delegación de eventos
+        document.body.addEventListener("click", function (e) {
+          if (
+            e.target.classList.contains("rate-now-btn") ||
+            e.target.closest(".rate-now-btn")
+          ) {
+            e.preventDefault();
+            openRateModal(e.target.closest(".rate-now-btn") || e.target);
+          }
+
+          if (
+            e.target.classList.contains("view-details-btn") ||
+            e.target.closest(".view-details-btn")
+          ) {
+            e.preventDefault();
+            openDetailsModal(e.target.closest(".view-details-btn") || e.target);
+          }
+        });
+
+        // Close rate modal functions
+        function closeRateModal() {
+          if (rateModal) {
+            rateModal.classList.add("hidden");
+          }
+        }
+
+        // Add event listeners only if elements exist
+        if (closeRateModalBtn) {
+          closeRateModalBtn.addEventListener("click", closeRateModal);
+        }
+        if (cancelRateBtn) {
+          cancelRateBtn.addEventListener("click", closeRateModal);
+        }
+
+        // Close rate modal when clicking outside
+        if (rateModal) {
+          rateModal.addEventListener("click", function (e) {
+            if (e.target === rateModal) {
+              closeRateModal();
+            }
+          });
+        }
+
+        // Close details modal functions
+        function closeDetailsModal() {
+          if (detailsModal) {
+            detailsModal.classList.add("hidden");
+          }
+        }
+
+        // Add event listeners only if elements exist
+        if (closeDetailsModalBtn) {
+          closeDetailsModalBtn.addEventListener("click", closeDetailsModal);
+        }
+        if (closeDetailsBtn) {
+          closeDetailsBtn.addEventListener("click", closeDetailsModal);
+        }
+
+        // Close details modal when clicking outside
+        if (detailsModal) {
+          detailsModal.addEventListener("click", function (e) {
+            if (e.target === detailsModal) {
+              closeDetailsModal();
+            }
+          });
+        }
+
+        // Report service button
+        if (reportServiceBtn) {
+          reportServiceBtn.addEventListener("click", function () {
+            alert("Service reported. Our team will review your case shortly.");
+            closeDetailsModal();
+          });
+        } else {
+          console.error("Report service button not found");
+        }
+
+        // Agregar handler para el botón de reporte usando delegación de eventos
+        document.body.addEventListener("click", function (e) {
+          if (
+            e.target.id === "report-service-btn" ||
+            e.target.closest("#report-service-btn")
+          ) {
+            alert("Service reported. Our team will review your case shortly.");
+            closeDetailsModal();
+          }
+        });
+
+        // Star rating functionality
+        stars.forEach((star, index) => {
+          star.addEventListener("click", () => {
+            currentRating = index + 1;
+            updateStars();
+          });
+
+          star.addEventListener("mouseover", () => {
+            highlightStars(index);
+          });
+
+          star.addEventListener("mouseout", () => {
+            updateStars();
+          });
+        });
+
+        function highlightStars(index) {
+          stars.forEach((star, i) => {
+            star.textContent = i <= index ? "star" : "star_border";
+            star.classList.toggle("text-amber-400", i <= index);
+            star.classList.toggle("text-slate-300", i > index);
+          });
+        }
+
+        function updateStars() {
+          stars.forEach((star, i) => {
+            star.textContent = i < currentRating ? "star" : "star_border";
+            star.classList.toggle("text-amber-400", i < currentRating);
+            star.classList.toggle("text-slate-300", i >= currentRating);
+          });
+        }
+
+        // Tag buttons functionality
+        tagButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            button.classList.toggle("active");
+          });
+        });
+
+        // Submit review
+        document
+          .getElementById("submit-review")
+          .addEventListener("click", function () {
+            // Here you would normally send the data to a server
+
+            // For demo, we'll just close the modal
+            closeRateModal();
+
+            // Optionally show a success message
+            alert("Review submitted successfully!");
+          });
+
+        // Reset form state
+        function resetForm() {
+          currentRating = 0;
+          updateStars();
+          document.getElementById("review-comment").value = "";
+          document.getElementById("recommend-provider").checked = false;
+          tagButtons.forEach((button) => {
+            button.classList.remove("active");
+          });
+        }
+      });
+    </script>
+  </head>
+  <body class="bg-background-light font-display text-slate-800">
+    <div class="flex min-h-screen w-full flex-col">
+      <header
+        class="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-background-light/80 backdrop-blur"
+      >
+        <div
+          class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-16"
+        >
+          <div class="flex items-center gap-4">
+            <svg
+              class="h-6 w-6 text-primary"
+              fill="none"
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"
+                fill="currentColor"
+              ></path>
+            </svg>
+            <h2 class="text-lg font-bold text-slate-900">Stamin-Up</h2>
+          </div>
+          <nav class="hidden items-center gap-8 md:flex">
+            <a
+              class="text-sm font-medium text-slate-700 transition-colors duration-150 ease-in-out hover:text-primary"
+              href="#"
+              >How it Works</a
+            >
+            <a
+              class="text-sm font-medium text-slate-700 transition-colors duration-150 ease-in-out hover:text-primary"
+              href="#"
+              >Categories</a
+            >
+            <a
+              class="text-sm font-medium text-slate-700 transition-colors duration-150 ease-in-out hover:text-primary"
+              href="#"
+              >Support</a
+            >
+          </nav>
+          <div class="flex items-center gap-4">
+            <button id="notifications-btn" class="relative">
+              <span class="material-symbols-outlined text-slate-600"
+                >notifications</span
+              >
+              <span
+                class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-accent text-[10px] font-bold leading-4 text-white"
+                >3</span
+              >
+            </button>
+            <button class="md:hidden">
+              <span class="material-symbols-outlined">menu</span>
+            </button>
+          </div>
+        </div>
+      </header>
+      <main class="flex-grow bg-[#F6F7F8] py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 gap-12 lg:grid-cols-3">
+            <div class="lg:col-span-1">
+              <div class="space-y-8">
+                <div class="rounded-lg bg-white p-6 shadow-sm">
+                  <div class="flex flex-col items-center">
+                    <h1 class="mt-4 text-2xl font-bold text-slate-900">
+                      Sophia Chen
+                    </h1>
+                    <div
+                      class="mt-4 space-y-3 text-center text-sm text-slate-600"
+                    >
+                      <p class="flex items-center gap-2">
+                        <span
+                          class="material-symbols-outlined text-base text-slate-400"
+                          >email</span
+                        >
+                        sophia.chen@example.com
+                      </p>
+                      <p class="flex items-center gap-2">
+                        <span
+                          class="material-symbols-outlined text-base text-slate-400"
+                          >phone</span
+                        >
+                        (555) 123-4567
+                      </p>
+                      <p class="flex items-center gap-2">
+                        <span
+                          class="material-symbols-outlined text-base text-slate-400"
+                          >location_on</span
+                        >
+                        San Francisco, CA
+                      </p>
+                    </div>
+                    <button
+                      id="edit-profile-btn"
+                      class="mt-6 w-full rounded-full bg-blue-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+                    >
+                      Edit profile
+                    </button>
+                  </div>
+                </div>
+                <div class="space-y-4">
+                  <h2 class="text-xl font-bold text-slate-900">
+                    Quick settings
+                  </h2>
+                  <div class="grid grid-cols-2 gap-4">
+                    <a
+                      class="flex flex-col items-center justify-center space-y-2 rounded-lg bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md"
+                      href="#"
+                    >
+                      <span
+                        class="material-symbols-outlined text-3xl text-blue-accent"
+                        >person</span
+                      >
+                      <span class="text-sm font-medium text-slate-700"
+                        >My info</span
+                      >
+                    </a>
+                    <a
+                      class="flex flex-col items-center justify-center space-y-2 rounded-lg bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md"
+                      href="#"
+                    >
+                      <span
+                        class="material-symbols-outlined text-3xl text-blue-accent"
+                        >contact_mail</span
+                      >
+                      <span class="text-sm font-medium text-slate-700"
+                        >Contact methods</span
+                      >
+                    </a>
+                    <a
+                      class="flex flex-col items-center justify-center space-y-2 rounded-lg bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md"
+                      href="#"
+                    >
+                      <span
+                        class="material-symbols-outlined text-3xl text-blue-accent"
+                        >security</span
+                      >
+                      <span class="text-sm font-medium text-slate-700"
+                        >Security</span
+                      >
+                    </a>
+                    <a
+                      class="flex flex-col items-center justify-center space-y-2 rounded-lg bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md"
+                      href="#"
+                    >
+                      <span
+                        class="material-symbols-outlined text-3xl text-blue-accent"
+                        >assessment</span
+                      >
+                      <span class="text-sm font-medium text-slate-700"
+                        >Reports</span
+                      >
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="lg:col-span-2">
+              <div class="space-y-12">
+                <div>
+                  <h2 class="text-xl font-bold text-slate-900 mb-4">
+                    Pending reviews
+                  </h2>
+                  <div class="space-y-4">
+                    <div class="rounded-lg bg-white p-5 shadow-sm">
+                      <div
+                        class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div>
+                          <p class="font-semibold text-slate-800">
+                            Ethan Carter
+                          </p>
+                          <p class="text-sm text-slate-500">Electrical</p>
+                          <p class="text-sm text-slate-500">
+                            Completed on: June 15, 2024
+                          </p>
+                        </div>
+                        <button
+                          class="rate-now-btn w-full sm:w-auto rounded-full bg-green-accent px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+                        >
+                          Rate now
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h2 class="text-xl font-bold text-slate-900 mb-4">
+                    Service history
+                  </h2>
+                  <div class="space-y-4">
+                    <div class="rounded-lg bg-white p-5 shadow-sm">
+                      <div
+                        class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div class="flex-grow">
+                          <div class="flex items-center justify-between">
+                            <p class="font-semibold text-slate-800">
+                              Alex Ramirez
+                            </p>
+                            <span
+                              class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
+                              >Completed</span
+                            >
+                          </div>
+                          <p class="text-sm text-slate-500">Plumbing</p>
+                          <p class="text-sm text-slate-500">May 20, 2024</p>
+                          <div class="mt-2 flex items-center">
+                            <span
+                              class="material-symbols-outlined text-lg text-amber-400"
+                              >star</span
+                            >
+                            <span
+                              class="material-symbols-outlined text-lg text-amber-400"
+                              >star</span
+                            >
+                            <span
+                              class="material-symbols-outlined text-lg text-amber-400"
+                              >star</span
+                            >
+                            <span
+                              class="material-symbols-outlined text-lg text-amber-400"
+                              >star</span
+                            >
+                            <span
+                              class="material-symbols-outlined text-lg text-slate-300"
+                              >star</span
+                            >
+                            <span class="ml-2 text-sm text-slate-500"
+                              >(4.0)</span
+                            >
+                          </div>
+                        </div>
+                        <button
+                          class="view-details-btn w-full sm:w-auto flex-shrink-0 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+                        >
+                          View details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer class="bg-slate-100">
+        <div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div
+            class="flex flex-col items-center justify-between gap-6 md:flex-row"
+          >
+            <div class="flex items-center gap-4">
+              <svg
+                class="h-6 w-6 text-primary"
+                fill="none"
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"
+                  fill="currentColor"
+                ></path>
+              </svg>
+              <p class="text-sm text-slate-600">
+                © 2024 Stamin-Up. All rights reserved.
+              </p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+              <a
+                class="text-slate-600 transition-colors duration-150 ease-in-out hover:text-primary"
+                href="#"
+                >Terms</a
+              >
+              <a
+                class="text-slate-600 transition-colors duration-150 ease-in-out hover:text-primary"
+                href="#"
+                >Privacy</a
+              >
+              <a
+                class="text-slate-600 transition-colors duration-150 ease-in-out hover:text-primary"
+                href="#"
+                >Support</a
+              >
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Rate & Review Modal -->
+    <div
+      id="rate-review-modal"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50 hidden"
+    >
+      <div
+        class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 my-8 animate-fade-in"
+      >
+        <!-- Modal Header -->
+        <div
+          class="flex items-center justify-between p-6 border-b border-slate-200"
+        >
+          <h2 class="text-xl font-bold text-slate-900">Rate your service</h2>
+          <button
+            id="close-rate-modal"
+            class="text-slate-500 hover:text-slate-800"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
+          <!-- Provider info -->
+          <div class="flex items-center gap-4">
+            <img
+              alt="Provider"
+              class="h-14 w-14 rounded-full object-cover"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwTlYw7V3NQAvlDqNtAOdFiJ_BjS7gihyBCyL6DGCciTJIqqCViQ17434hlZzD42q-oMSK97PdsJmiwMepuIM_63ZpCempxJkay1oFmMoLOm7HGuMV4f69QLzcPJRlto1kwb8KOgtqoZdNVp72gB-RA2sQWgmlwUZJOoiKqxgVFZOZU71nMhLVuHQQ_fw-ds4_sJkYJbtDTRwFM_I7k9LbKFYFrvVujA36ffm_66waDiZ5RmL2v_jk4-qR_om3b-S_HtmZDDVpbtHA"
+            />
+            <div>
+              <h3 id="provider-name" class="font-semibold text-slate-900">
+                Ethan Carter
+              </h3>
+              <p class="text-sm text-slate-500">Service Provider</p>
+            </div>
+          </div>
+
+          <!-- Star Rating -->
+          <div class="space-y-2">
+            <label class="block font-medium text-slate-700">Your Rating</label>
+            <div class="star-rating flex gap-1">
+              <span
+                class="star material-symbols-outlined text-2xl text-slate-300 cursor-pointer"
+                >star_border</span
+              >
+              <span
+                class="star material-symbols-outlined text-2xl text-slate-300 cursor-pointer"
+                >star_border</span
+              >
+              <span
+                class="star material-symbols-outlined text-2xl text-slate-300 cursor-pointer"
+                >star_border</span
+              >
+              <span
+                class="star material-symbols-outlined text-2xl text-slate-300 cursor-pointer"
+                >star_border</span
+              >
+              <span
+                class="star material-symbols-outlined text-2xl text-slate-300 cursor-pointer"
+                >star_border</span
+              >
+            </div>
+          </div>
+
+          <!-- Comment -->
+          <div class="space-y-2">
+            <label for="review-comment" class="block font-medium text-slate-700"
+              >Write your comment (optional)</label
+            >
+            <textarea
+              id="review-comment"
+              rows="3"
+              class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-accent focus:ring-blue-accent"
+              placeholder="Share your experience..."
+            ></textarea>
+          </div>
+
+          <!-- Quick Tags -->
+          <div class="space-y-2">
+            <label class="block font-medium text-slate-700">Quick Tags</label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                class="tag-button rounded-full border border-slate-300 bg-white px-3 py-1 text-sm font-medium text-slate-700"
+              >
+                Punctual
+              </button>
+              <button
+                class="tag-button rounded-full border border-slate-300 bg-white px-3 py-1 text-sm font-medium text-slate-700"
+              >
+                Friendly
+              </button>
+              <button
+                class="tag-button rounded-full border border-slate-300 bg-white px-3 py-1 text-sm font-medium text-slate-700"
+              >
+                Professional
+              </button>
+              <button
+                class="tag-button rounded-full border border-slate-300 bg-white px-3 py-1 text-sm font-medium text-slate-700"
+              >
+                Clean work
+              </button>
+            </div>
+          </div>
+
+          <!-- Recommendation -->
+          <div class="flex items-center gap-2">
+            <input
+              id="recommend-provider"
+              type="checkbox"
+              class="h-4 w-4 rounded border-slate-300 text-blue-accent focus:ring-blue-accent"
+            />
+            <label
+              for="recommend-provider"
+              class="text-sm font-medium text-slate-700"
+            >
+              Would you recommend this provider?
+            </label>
+          </div>
+
+          <!-- Service Info -->
+          <div class="rounded-lg bg-slate-50 p-4">
+            <p class="text-sm text-slate-600">
+              <span class="font-medium">Status:</span>
+              <span id="service-date">Service completed on June 15, 2024</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="px-6 py-4 bg-slate-50 rounded-b-lg">
+          <div class="flex flex-col sm:flex-row-reverse gap-3">
+            <button
+              id="submit-review"
+              class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent bg-gradient-to-r from-blue-accent to-green-accent px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-accent focus:ring-offset-2"
+            >
+              Submit Review
+            </button>
+            <button
+              id="cancel-review"
+              class="w-full sm:w-auto inline-flex justify-center rounded-md border border-slate-300 bg-white px-6 py-3 text-base font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Details Modal -->
+    <div
+      id="service-details-modal"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50 hidden"
+    >
+      <div
+        class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 my-8 animate-fade-in"
+      >
+        <!-- Modal Header -->
+        <div
+          class="flex items-center justify-between p-6 border-b border-slate-200"
+        >
+          <h2 class="text-xl font-bold text-slate-900">Service Details</h2>
+          <button
+            id="close-details-modal"
+            class="text-slate-500 hover:text-slate-800"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
+          <!-- Provider info section -->
+          <div class="flex items-center gap-4">
+            <img
+              alt="Provider"
+              class="h-14 w-14 rounded-full object-cover"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwTlYw7V3NQAvlDqNtAOdFiJ_BjS7gihyBCyL6DGCciTJIqqCViQ17434hlZzD42q-oMSK97PdsJmiwMepuIM_63ZpCempxJkay1oFmMoLOm7HGuMV4f69QLzcPJRlto1kwb8KOgtqoZdNVp72gB-RA2sQWgmlwUZJOoiKqxgVFZOZU71nMhLVuHQQ_fw-ds4_sJkYJbtDTRwFM_I7k9LbKFYFrvVujA36ffm_66waDiZ5RmL2v_jk4-qR_om3b-S_HtmZDDVpbtHA"
+            />
+            <div>
+              <div class="flex items-center gap-3">
+                <h3
+                  id="details-provider-name"
+                  class="font-semibold text-slate-900"
+                >
+                  Alex Ramirez
+                </h3>
+                <span
+                  id="details-status"
+                  class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
+                >
+                  Completed
+                </span>
+              </div>
+              <p id="details-service-category" class="text-sm text-slate-500">
+                Plumbing
+              </p>
+              <div id="details-rating-container" class="mt-2 flex items-center">
+                <span class="material-symbols-outlined text-lg text-amber-400"
+                  >star</span
+                >
+                <span class="material-symbols-outlined text-lg text-amber-400"
+                  >star</span
+                >
+                <span class="material-symbols-outlined text-lg text-amber-400"
+                  >star</span
+                >
+                <span class="material-symbols-outlined text-lg text-amber-400"
+                  >star</span
+                >
+                <span class="material-symbols-outlined text-lg text-slate-300"
+                  >star</span
+                >
+                <span id="details-rating" class="ml-2 text-sm text-slate-500"
+                  >(4.0)</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Details Section -->
+          <div class="rounded-lg bg-slate-50 p-4 space-y-4">
+            <div>
+              <h4 class="font-semibold text-slate-800">Plumbing Service</h4>
+              <p class="mt-1 text-sm text-slate-600">
+                Pipe repair and maintenance service for kitchen sink area.
+              </p>
+            </div>
+
+            <div class="space-y-3 pt-2">
+              <div class="flex items-center text-sm text-slate-700">
+                <span
+                  class="material-symbols-outlined text-base mr-3 text-blue-accent"
+                  >calendar_today</span
+                >
+                <span id="details-service-date">May 20, 2024</span>
+              </div>
+              <div class="flex items-center text-sm text-slate-700">
+                <span
+                  class="material-symbols-outlined text-base mr-3 text-blue-accent"
+                  >schedule</span
+                >
+                <span>10:00 AM - 12:00 PM</span>
+              </div>
+              <div class="flex items-center text-sm text-slate-700">
+                <span
+                  class="material-symbols-outlined text-base mr-3 text-blue-accent"
+                  >location_on</span
+                >
+                <span>123 Main St, San Francisco, CA</span>
+              </div>
+              <div class="flex items-center text-sm text-slate-700">
+                <span
+                  class="material-symbols-outlined text-base mr-3 text-blue-accent"
+                  >payments</span
+                >
+                <span>$150.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes Section -->
+          <div>
+            <h4 class="font-semibold text-slate-800">Service Notes</h4>
+            <div
+              class="mt-2 rounded-lg border border-slate-200 p-4 text-sm text-slate-600"
+            >
+              <p>
+                Replaced leaking pipe under the kitchen sink and cleaned
+                drainage system. All fixtures are now working properly.
+                Recommended regular maintenance every 6 months.
+              </p>
+            </div>
+          </div>
+
+          <!-- Chat Preview -->
+          <div class="border-t border-slate-200 pt-4">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-medium text-slate-700">
+                <span
+                  class="material-symbols-outlined text-sm align-middle mr-1"
+                  >chat</span
+                >
+                Conversation available in messages
+              </p>
+              <a href="#" class="text-sm text-blue-accent hover:underline"
+                >View Chat</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="px-6 py-4 bg-slate-50 rounded-b-lg">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button
+              id="close-details-btn"
+              class="w-full sm:w-auto inline-flex justify-center rounded-md border border-slate-300 bg-white px-6 py-3 text-base font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+            >
+              Close
+            </button>
+            <button
+              id="report-service-btn"
+              class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent bg-red-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            >
+              Report Service
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div
+      id="edit-profile-modal"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50 hidden"
+    >
+      <div
+        class="bg-white rounded-lg shadow-lg w-full max-w-2xl mx-4 my-8 animate-fade-in"
+      >
+        <!-- Modal Header -->
+        <div
+          class="flex items-center justify-between p-6 border-b border-slate-200"
+        >
+          <h2 class="text-xl font-bold text-slate-900">Edit Profile</h2>
+          <button
+            id="close-edit-profile-modal"
+            class="text-slate-500 hover:text-slate-800"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
+          <form id="edit-profile-form">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Personal Information -->
+              <div class="space-y-4">
+                <div>
+                  <label
+                    for="full-name"
+                    class="block text-sm font-medium text-slate-700"
+                    >Full Name</label
+                  >
+                  <div class="mt-1 relative rounded-md shadow-sm">
+                    <span
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                    >
+                      <span class="material-symbols-outlined text-slate-400"
+                        >person</span
+                      >
+                    </span>
+                    <input
+                      type="text"
+                      id="full-name"
+                      name="fullName"
+                      class="pl-10 block w-full rounded-md border-slate-300 focus:border-blue-accent focus:ring-blue-accent"
+                      value="Sophia Chen"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    for="email"
+                    class="block text-sm font-medium text-slate-700"
+                    >Email</label
+                  >
+                  <div class="mt-1 relative rounded-md shadow-sm">
+                    <span
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                    >
+                      <span class="material-symbols-outlined text-slate-400"
+                        >email</span
+                      >
+                    </span>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      class="pl-10 block w-full rounded-md border-slate-300 bg-slate-50 focus:border-blue-accent focus:ring-blue-accent"
+                      value="sophia.chen@example.com"
+                      readonly
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    for="phone"
+                    class="block text-sm font-medium text-slate-700"
+                    >Phone Number</label
+                  >
+                  <div class="mt-1 relative rounded-md shadow-sm">
+                    <span
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                    >
+                      <span class="material-symbols-outlined text-slate-400"
+                        >phone</span
+                      >
+                    </span>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      class="pl-10 block w-full rounded-md border-slate-300 focus:border-blue-accent focus:ring-blue-accent"
+                      value="(555) 123-4567"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Additional Information -->
+              <div class="space-y-4">
+                <div>
+                  <label
+                    for="address"
+                    class="block text-sm font-medium text-slate-700"
+                    >Address</label
+                  >
+                  <div class="mt-1 relative rounded-md shadow-sm">
+                    <span
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                    >
+                      <span class="material-symbols-outlined text-slate-400"
+                        >location_on</span
+                      >
+                    </span>
+                    <input
+                      type="text"
+                      id="address"
+                      name="address"
+                      class="pl-10 block w-full rounded-md border-slate-300 focus:border-blue-accent focus:ring-blue-accent"
+                      value="San Francisco, CA"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label class="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="visibility"
+                      name="visibility"
+                      class="h-4 w-4 rounded border-slate-300 text-blue-accent focus:ring-blue-accent"
+                      checked
+                    />
+                    <span class="text-sm font-medium text-slate-700"
+                      >Show my profile in searches</span
+                    >
+                  </label>
+                  <p class="mt-1 text-xs text-slate-500 pl-6">
+                    When enabled, service providers can find your profile
+                  </p>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Modal Footer -->
+        <div
+          class="sticky bottom-0 px-6 py-4 bg-slate-50 rounded-b-lg border-t border-slate-200"
+        >
+          <div class="flex justify-between items-center">
+            <div
+              id="success-message"
+              class="text-green-600 text-sm font-medium opacity-0 transition-opacity"
+            >
+              <span class="material-symbols-outlined align-middle mr-1"
+                >check_circle</span
+              >
+              Profile updated successfully
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+              <button
+                id="cancel-edit-profile"
+                class="order-2 sm:order-1 w-full sm:w-auto inline-flex justify-center rounded-md border border-slate-300 bg-white px-6 py-3 text-base font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+              >
+                Cancel
+              </button>
+              <button
+                id="save-profile"
+                class="order-1 sm:order-2 w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent bg-gradient-to-r from-blue-accent to-green-accent px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-accent focus:ring-offset-2"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div
+      id="notifications-modal"
+      class="fixed inset-0 z-50 flex items-start justify-center pt-20 overflow-y-auto bg-black bg-opacity-50 hidden"
+    >
+      <div
+        class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 animate-fade-in"
+      >
+        <!-- Modal Header -->
+        <div
+          class="flex items-center justify-between p-4 border-b border-slate-200"
+        >
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg font-bold text-slate-900">Notifications</h2>
+            <span
+              class="inline-flex items-center justify-center bg-blue-accent text-white rounded-full h-5 w-5 text-xs font-medium"
+              >3</span
+            >
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              id="mark-all-read"
+              class="text-xs text-blue-accent hover:underline font-medium"
+            >
+              Mark all as read
+            </button>
+            <button
+              id="close-notifications-modal"
+              class="text-slate-500 hover:text-slate-800"
+            >
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="max-h-[60vh] overflow-y-auto">
+          <!-- Today Section -->
+          <div class="p-2">
+            <h3 class="text-xs font-medium text-slate-500 px-3 py-2">TODAY</h3>
+            <div class="space-y-1">
+              <!-- Message notification -->
+              <div
+                class="notification-item flex items-start gap-3 p-3 rounded-lg bg-slate-50 cursor-pointer hover:bg-slate-100"
+              >
+                <div class="flex-shrink-0 mt-1">
+                  <span class="material-symbols-outlined text-green-accent"
+                    >chat</span
+                  >
+                </div>
+                <div class="flex-grow min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <h4 class="font-medium text-slate-900 truncate">
+                      New message from Alex Ramirez
+                    </h4>
+                    <div class="flex items-center gap-1">
+                      <div
+                        class="notification-unread-dot h-2 w-2 rounded-full bg-blue-accent"
+                      ></div>
+                      <span class="text-xs text-slate-500 whitespace-nowrap"
+                        >5 min ago</span
+                      >
+                    </div>
+                  </div>
+                  <p class="text-sm text-slate-600 line-clamp-2">
+                    Hello Sophia, I wanted to follow up on the plumbing service.
+                    Are you satisfied with the work?
+                  </p>
+                </div>
+              </div>
+
+              <!-- Appointment notification -->
+              <div
+                class="notification-item flex items-start gap-3 p-3 rounded-lg bg-slate-50 cursor-pointer hover:bg-slate-100"
+              >
+                <div class="flex-shrink-0 mt-1">
+                  <span class="material-symbols-outlined text-blue-accent"
+                    >calendar_today</span
+                  >
+                </div>
+                <div class="flex-grow min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <h4 class="font-medium text-slate-900 truncate">
+                      Upcoming appointment
+                    </h4>
+                    <div class="flex items-center gap-1">
+                      <div
+                        class="notification-unread-dot h-2 w-2 rounded-full bg-blue-accent"
+                      ></div>
+                      <span class="text-xs text-slate-500 whitespace-nowrap"
+                        >1 hour ago</span
+                      >
+                    </div>
+                  </div>
+                  <p class="text-sm text-slate-600 line-clamp-2">
+                    Reminder: Electrical service with Michael Brown tomorrow at
+                    2:00 PM.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- This Week Section -->
+          <div class="p-2">
+            <h3 class="text-xs font-medium text-slate-500 px-3 py-2">
+              THIS WEEK
+            </h3>
+            <div class="space-y-1">
+              <!-- Review notification -->
+              <div
+                class="notification-item flex items-start gap-3 p-3 rounded-lg bg-slate-50 cursor-pointer hover:bg-slate-100"
+              >
+                <div class="flex-shrink-0 mt-1">
+                  <span class="material-symbols-outlined text-amber-400"
+                    >star</span
+                  >
+                </div>
+                <div class="flex-grow min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <h4 class="font-medium text-slate-900 truncate">
+                      Review reminder
+                    </h4>
+                    <div class="flex items-center gap-1">
+                      <div
+                        class="notification-unread-dot h-2 w-2 rounded-full bg-blue-accent"
+                      ></div>
+                      <span class="text-xs text-slate-500 whitespace-nowrap"
+                        >2 days ago</span
+                      >
+                    </div>
+                  </div>
+                  <p class="text-sm text-slate-600 line-clamp-2">
+                    You haven't reviewed your recent service with Ethan Carter
+                    yet.
+                  </p>
+                </div>
+              </div>
+
+              <!-- System notification -->
+              <div
+                class="notification-item flex items-start gap-3 p-3 rounded-lg bg-white cursor-pointer hover:bg-slate-100"
+              >
+                <div class="flex-shrink-0 mt-1">
+                  <span class="material-symbols-outlined text-slate-500"
+                    >info</span
+                  >
+                </div>
+                <div class="flex-grow min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <h4 class="font-medium text-slate-900 truncate">
+                      System update
+                    </h4>
+                    <span class="text-xs text-slate-500 whitespace-nowrap"
+                      >Oct 2</span
+                    >
+                  </div>
+                  <p class="text-sm text-slate-600 line-clamp-2">
+                    We've updated our privacy policy. Please review the changes.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Promotion notification -->
+              <div
+                class="notification-item flex items-start gap-3 p-3 rounded-lg bg-white cursor-pointer hover:bg-slate-100"
+              >
+                <div class="flex-shrink-0 mt-1">
+                  <span class="material-symbols-outlined text-violet-500"
+                    >sell</span
+                  >
+                </div>
+                <div class="flex-grow min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <h4 class="font-medium text-slate-900 truncate">
+                      Special offer
+                    </h4>
+                    <span class="text-xs text-slate-500 whitespace-nowrap"
+                      >Oct 1</span
+                    >
+                  </div>
+                  <p class="text-sm text-slate-600 line-clamp-2">
+                    Get 15% off on your next cleaning service. Valid until
+                    October 15.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-4 border-t border-slate-200">
+          <button
+            id="view-all-notifications"
+            class="w-full py-2 text-center text-sm font-medium text-blue-accent hover:underline"
+          >
+            View all notifications
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-out;
+      }
+
+      /* Limit text to 2 lines with ellipsis */
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    </style>
+  </body>
+</html>

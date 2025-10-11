@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Stamin-Up</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0f66bd",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              display: ["Inter"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "1rem",
+              xl: "1.5rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-200"
+  >
+    <div class="flex min-h-screen w-full flex-col">
+      <header
+        class="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-background-light/80 backdrop-blur dark:border-slate-800/80 dark:bg-background-dark/80"
+      >
+        <div
+          class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+        >
+          <div class="flex items-center gap-4">
+            <svg
+              class="h-6 w-6 text-primary"
+              fill="none"
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"
+                fill="currentColor"
+              ></path>
+            </svg>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+              Stamin-Up
+            </h2>
+          </div>
+          <nav class="hidden items-center gap-8 md:flex">
+            <a
+              class="text-sm font-medium text-slate-700 transition-colors duration-150 ease-in-out hover:text-primary dark:text-slate-300 dark:hover:text-primary"
+              href="#"
+              >How it Works</a
+            >
+            <a
+              class="text-sm font-medium text-slate-700 transition-colors duration-150 ease-in-out hover:text-primary dark:text-slate-300 dark:hover:text-primary"
+              href="#"
+              >Categories</a
+            >
+            <a
+              class="text-sm font-medium text-slate-700 transition-colors duration-150 ease-in-out hover:text-primary dark:text-slate-300 dark:hover:text-primary"
+              href="#"
+              >Support</a
+            >
+          </nav>
+          <div class="flex items-center gap-4">
+            <a
+              class="hidden rounded-full px-4 py-2 text-sm font-semibold text-slate-700 transition-colors duration-150 ease-in-out hover:bg-slate-200/50 dark:text-slate-300 dark:hover:bg-slate-800/50 sm:block"
+              href="#"
+              >Login</a
+            >
+            <a
+              class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-opacity duration-150 ease-in-out hover:opacity-90"
+              href="#"
+              >Sign Up</a
+            >
+            <button class="md:hidden">
+              <span class="material-symbols-outlined">menu</span>
+            </button>
+          </div>
+        </div>
+      </header>
+      <main class="flex-grow">
+        <section
+          class="relative flex min-h-[60vh] items-center justify-center bg-cover bg-center py-20"
+          style="
+            background-image: linear-gradient(
+                rgba(0, 0, 0, 0.3),
+                rgba(0, 0, 0, 0.6)
+              ),
+              url('https://lh3.googleusercontent.com/aida-public/AB6AXuC1_9zoG5SGcBadXGvBFACs74CFvbRfiIkx53bKkZzGjk0ony7O1MFgsEhhCs5vTEDZ9rq8q-CO5dAA0YISaBsCwnMgd_F2BIgRderuCJE-UGZJcd2pI5xmStP3umYLTe81L--HPvz4ycGdnuLOB2HabAV8Mwg2LfkLL3em3n-9M387vKSzClXioRudC2TdWxWfLuzA3gvxg3pHrqB8PFm34eWK79EVopQtvycvcHcAGDuOL162MFyvvGABj9_m_RJLiJMgzqpOEVX2');
+          "
+        >
+          <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-black text-white md:text-6xl">
+              Encuentra proveedores confiables cerca de ti.
+            </h1>
+            <p class="mt-4 max-w-2xl mx-auto text-lg text-white/90">
+              Conéctate con profesionales de confianza para todas tus
+              necesidades de servicio.
+            </p>
+            <div class="mx-auto mt-10 max-w-4xl">
+              <div
+                class="grid grid-cols-1 gap-2 rounded-lg bg-white p-2 dark:bg-slate-800/50 sm:grid-cols-2 lg:grid-cols-4 lg:rounded-full"
+              >
+                <div class="flex items-center">
+                  <span class="material-symbols-outlined pl-3 text-slate-500"
+                    >construction</span
+                  >
+                  <input
+                    class="w-full border-none bg-transparent p-3 text-slate-900 placeholder-slate-500 focus:ring-0 dark:text-white dark:placeholder-slate-400"
+                    placeholder="¿Qué servicio necesitas?"
+                    type="text"
+                  />
+                </div>
+                <div
+                  class="flex items-center border-t border-slate-200 dark:border-slate-700 sm:border-t-0 sm:border-l"
+                >
+                  <span class="material-symbols-outlined pl-3 text-slate-500"
+                    >location_on</span
+                  >
+                  <input
+                    class="w-full border-none bg-transparent p-3 text-slate-900 placeholder-slate-500 focus:ring-0 dark:text-white dark:placeholder-slate-400"
+                    placeholder="Ubicación"
+                    type="text"
+                  />
+                </div>
+                <div
+                  class="flex items-center border-t border-slate-200 dark:border-slate-700 lg:border-t-0 lg:border-l"
+                >
+                  <span class="material-symbols-outlined pl-3 text-slate-500"
+                    >calendar_today</span
+                  >
+                  <input
+                    class="w-full border-none bg-transparent p-3 text-slate-900 placeholder-slate-500 focus:ring-0 dark:text-white dark:placeholder-slate-400"
+                    placeholder="Fecha"
+                    type="date"
+                  />
+                </div>
+                <button
+                  class="col-span-1 rounded-full bg-primary px-6 py-3 text-white font-semibold transition-opacity duration-150 ease-in-out hover:opacity-90 lg:col-span-1"
+                >
+                  Buscar
+                </button>
+              </div>
+            </div>
+            <div class="mt-6 flex flex-wrap justify-center gap-2">
+              <button
+                class="rounded-full border border-white/30 bg-white/20 px-4 py-1.5 text-sm text-white transition-colors duration-150 ease-in-out hover:bg-white/30"
+              >
+                Plomería
+              </button>
+              <button
+                class="rounded-full border border-white/30 bg-white/20 px-4 py-1.5 text-sm text-white transition-colors duration-150 ease-in-out hover:bg-white/30"
+              >
+                Plagas
+              </button>
+              <button
+                class="rounded-full border border-white/30 bg-white/20 px-4 py-1.5 text-sm text-white transition-colors duration-150 ease-in-out hover:bg-white/30"
+              >
+                Electricidad
+              </button>
+              <button
+                class="rounded-full border border-white/30 bg-white/20 px-4 py-1.5 text-sm text-white transition-colors duration-150 ease-in-out hover:bg-white/30"
+              >
+                Limpieza
+              </button>
+            </div>
+            <div
+              class="mt-6 flex items-center justify-center gap-4 text-sm text-white"
+            >
+              <div class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-lg text-emerald-400"
+                  >verified_user</span
+                >
+                <span>Perfiles Verificados (INE)</span>
+              </div>
+              <span class="text-white/50">•</span>
+              <div class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-lg text-amber-400"
+                  >star</span
+                >
+                <span>4.8 Estrellas</span>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="py-16 sm:py-24">
+          <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2
+              class="text-center text-3xl font-bold text-slate-900 dark:text-white"
+            >
+              Explora Categorías Populares
+            </h2>
+            <div
+              class="mt-12 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6"
+            >
+              <div class="group flex flex-col items-center gap-3">
+                <div
+                  class="relative w-full overflow-hidden rounded-lg pt-[100%]"
+                >
+                  <img
+                    alt="Plumbing"
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-150 ease-in-out group-hover:scale-105"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx0P_uKjOAkVHx1Ml9yZa9xxDV15dN5iwkP1m4hWdhF0JDH9E6mZCS6J7v-utMO6zHpmgKnHI3GOdmz3pBWz2mnMYqMdoa1vEWoVf3ndLpS_F0BbU7V4jmwiH_0eO-JYxv6O_O3ljbbe_db9V3EzRDmGdwKR8SyasOLAwIyZQSxRo4ThKdetNvQndtmjfwbr2JqVIFPU100klewEPb-vSV2U0nr8hAhKGUjoTTV5QEEFBBJm4WAXczRWBwfIMiJvTzEkDN867Ytv_P"
+                  />
+                </div>
+                <p class="font-semibold text-slate-800 dark:text-slate-200">
+                  Plomería
+                </p>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <div
+                  class="relative w-full overflow-hidden rounded-lg pt-[100%]"
+                >
+                  <img
+                    alt="Pest Control"
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-150 ease-in-out group-hover:scale-105"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEznhyz6EGaFBUF3DV-Yg8rHd0DMj0pOEE9YBgUOOfqLkp8vPTGkeIIfOArrKsJ8g7Kh3GUvVKduJbDG-tjz12b8Blivvx7gKMi5NJk4dCk18SVpbUYcfHpwbJ5toEada1a8KMcp2X_S1jnwMKNN0vQB2ZgxqW7UbmBiejulMcl8v4OI-5OVPXuIGzfNXn1RKTJP14dQwLptAbtmOUg2UTW1L1baVbSBJ0MN0Flc9AG5VSq3T--iapqtKIIoFu1yPJey6MKO5jpUK_"
+                  />
+                </div>
+                <p class="font-semibold text-slate-800 dark:text-slate-200">
+                  Plagas
+                </p>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <div
+                  class="relative w-full overflow-hidden rounded-lg pt-[100%]"
+                >
+                  <img
+                    alt="Electrical"
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-150 ease-in-out group-hover:scale-105"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuIihTa5Z6Vk_V9YaaO1qwLlc6BOpdm-7BNwpPYyQ85XPUjZ4Jli5k6CNk2cAuh0Rn8r6HDN18zeR81bzuxaiIl9R3QtYd0nMIp_x5BoDge-ue4JndZfswRwiGf9V_TXVlJ3ixOgOcG8yiegdvAvbJdce7SMlNiS4AW1OBYwk-cA-iCFVuugxniXU7DA8Mo9-6AKI24-nVoQbA5vkcQpXXLwzacmEHr8_cHd_Y-vGqHl8u5O4Q6M7nbOZRc2fMBUUFsOw5vxcYfPeq"
+                  />
+                </div>
+                <p class="font-semibold text-slate-800 dark:text-slate-200">
+                  Electricidad
+                </p>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <div
+                  class="relative w-full overflow-hidden rounded-lg pt-[100%]"
+                >
+                  <img
+                    alt="Cleaning"
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-150 ease-in-out group-hover:scale-105"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMFBptWYSfxduOzQg7ztL6wmb4ZIxR5ocRKcp8Hrl9Ryy2C4l7ZFAVNd5PnlhTnfIL_GhbKb9hxaQceo8WGcGggY8FWM74rmJ0vQ8m45GvRUM6JBoUAmRYHoEwnyzmgsH0Vu2bBJN1pKn5RLd6RSRADTDf3XMuiMulmEFHqsqn-2yxaQrczKvWoKBPFHkPp009PCrxoR8LzWft8eYRPRBkIsoVFwv1g19hNQqIxwIvcPTteCMk3U9pQEcNEEjeau6aqTxdMxH9O0yp"
+                  />
+                </div>
+                <p class="font-semibold text-slate-800 dark:text-slate-200">
+                  Limpieza
+                </p>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <div
+                  class="relative w-full overflow-hidden rounded-lg pt-[100%]"
+                >
+                  <img
+                    alt="Handyman"
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-150 ease-in-out group-hover:scale-105"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwFsrOI0O420ifc0ZS5eOta47g_m1615mXfgEqKYVz0_WyoUbITjklfVSuOH6InDdY5x7fMRdze13VZ9Nu6Ff_94Iuu7pkGcxkxuoZCtKpgFKz28mFVt0AhwpRMIccg01oRQuZ8Gf8snHGpI1WHjR6GOaxrURrSa-43Rb0KMiTIoNxmxyl1cNDUl3xjeQz0dsTBu7KznRuACfc1YuLPpR7nAiiDjMn-6bwkSZml1P7D_RUE-K6pSxBKKdNcNalakLhNrwGSXhLXwf4"
+                  />
+                </div>
+                <p class="font-semibold text-slate-800 dark:text-slate-200">
+                  Reparaciones
+                </p>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <div
+                  class="relative w-full overflow-hidden rounded-lg pt-[100%]"
+                >
+                  <img
+                    alt="Landscaping"
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-150 ease-in-out group-hover:scale-105"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWfPAqAuWs8qU_5dssuysyzSyjjHcZyiigzWIlVJZhsa2RXAIJsaids_z9zfRWZAmFyOyxBj0gVo8V7lZoF-EqqW68AQTgkg_4cTfhUE6myfmpCN9JfUk4brFaqPkHwuovpiHUaP4IwVGYoV6JJjP3wrwgUvkTQbogM0nIMaaUIMH2w1kRlQT461NpXYuGLoGKf8AL11nDBBaphbzjwY1xcnX4_IUzyfvz9Kh31hZG61hUWtTj3sUCJ8zHHD1LimS0egaI0qNFt4o8"
+                  />
+                </div>
+                <p class="font-semibold text-slate-800 dark:text-slate-200">
+                  Jardinería
+                </p>
+              </div>
+            </div>
+            <div class="mt-12 text-center">
+              <button
+                class="rounded-full bg-primary/10 px-6 py-3 font-semibold text-primary transition-colors duration-150 ease-in-out hover:bg-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30"
+              >
+                Ver Todas las Categorías
+              </button>
+            </div>
+          </div>
+        </section>
+        <section class="bg-slate-100 py-16 dark:bg-slate-900/50 sm:py-24">
+          <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2
+              class="text-center text-3xl font-bold text-slate-900 dark:text-white"
+            >
+              Proveedores Destacados
+            </h2>
+            <div
+              class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              <div
+                class="group overflow-hidden rounded-lg bg-background-light shadow-md transition-shadow duration-150 ease-in-out hover:shadow-xl dark:bg-background-dark"
+              >
+                <div class="relative">
+                  <img
+                    alt="Alex Ramirez"
+                    class="h-56 w-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJdDCEtkwX10lqoGpdLFANUdqFRnSsORUekcOAYx9VyQ8CPTynAteSgmfbaJkLYo6GjzYEcEdQgfrmVM_KgmH3WCKWN7Td26E42KjMHocCkwotBwp-NyW4HoLHVfJp8g75IqMzbzfvx2OsjXRNEDIfEtGkbFoUeRbf2YkSfnEV3cv5hAJSXM3wu48LnlZMmRtjZpsJBwqzYfiWzu8gPGgS13wG7ek2A5QZv1JGNJzEFy8ie09-A_uct-XuHGBHIqH5g86mgw4ScfUW"
+                  />
+                  <div
+                    class="absolute top-3 right-3 rounded-full bg-emerald-100/80 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/80 dark:text-emerald-200"
+                  >
+                    Disponible esta semana
+                  </div>
+                </div>
+                <div class="p-6">
+                  <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                    Alex Ramirez
+                  </h3>
+                  <p class="mt-1 text-slate-600 dark:text-slate-400">
+                    Servicios de Plomería
+                  </p>
+                </div>
+              </div>
+              <div
+                class="group overflow-hidden rounded-lg bg-background-light shadow-md transition-shadow duration-150 ease-in-out hover:shadow-xl dark:bg-background-dark"
+              >
+                <div class="relative">
+                  <img
+                    alt="Sophia Chen"
+                    class="h-56 w-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWv_wjEa_9vCfWaklY7FmnxsE-uDivP2m7e-D2zOZKAgHnWinrEgSlpAw-QxjXojuPOLaYEJAMs1ofgCT-UZ-MhAUYXnH90UdI2e4AUHbk3mIv1xeCSeY2SiBuJyAndOiJmLYiXwaTCcAjc-FUe_3MDWTRE8qNf8BPNASfXHifs3gPXIhOU854xgKVGyCu3eE4erwMkDYa3CKtW-oXcUsge0dXwaXt5AFb4f37PMEu0kDdIYjYHPjcN5tFVv7Ort0hsfdGPRuk8AXO"
+                  />
+                </div>
+                <div class="p-6">
+                  <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                    Sophia Chen
+                  </h3>
+                  <p class="mt-1 text-slate-600 dark:text-slate-400">
+                    Control de Plagas
+                  </p>
+                </div>
+              </div>
+              <div
+                class="group overflow-hidden rounded-lg bg-background-light shadow-md transition-shadow duration-150 ease-in-out hover:shadow-xl dark:bg-background-dark"
+              >
+                <div class="relative">
+                  <img
+                    alt="Ethan Carter"
+                    class="h-56 w-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUcsMjBqb9KdYqOskZjhnAOqK4dSyp7078dhK2jPVS4kicOOAfcbrt0B02LZ4amEYl4xKPu-wdx_lrhIhiLUqmJVobG6wVULmRr8fWFbUcyvGB9_D6iNpLww3mvzqZYoR5WRVWXu8BuUgZASUBxLx5Vu-e4PTaX80RqY6Lii1dzgGSWWHblPZUEr0e-P83JCzDwg4Bgsahw4xEQ2jndnvC-Pt4yrswHhbRLDPHn4xmgBfO4T-D8F7HG3-4J6PfGaETkYyRXLGcAw1Z"
+                  />
+                  <div
+                    class="absolute top-3 right-3 rounded-full bg-emerald-100/80 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/80 dark:text-emerald-200"
+                  >
+                    Disponible esta semana
+                  </div>
+                </div>
+                <div class="p-6">
+                  <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                    Ethan Carter
+                  </h3>
+                  <p class="mt-1 text-slate-600 dark:text-slate-400">
+                    Servicios Eléctricos
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="py-16 sm:py-24">
+          <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+              <h2 class="text-3xl font-bold text-slate-900 dark:text-white">
+                ¿Cómo Funciona?
+              </h2>
+              <p
+                class="mx-auto mt-4 max-w-2xl text-lg text-slate-600 dark:text-slate-400"
+              >
+                Encuentra y contrata al proveedor perfecto en tres simples
+                pasos.
+              </p>
+            </div>
+            <div class="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+              <div
+                class="rounded-lg border border-slate-200 bg-white p-8 text-center dark:border-slate-800 dark:bg-slate-900"
+              >
+                <div
+                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary"
+                >
+                  <span class="material-symbols-outlined text-3xl">search</span>
+                </div>
+                <h3
+                  class="mt-6 text-xl font-bold text-slate-900 dark:text-white"
+                >
+                  1. Busca
+                </h3>
+                <p class="mt-2 text-slate-600 dark:text-slate-400">
+                  Encuentra el proveedor adecuado para tus necesidades.
+                </p>
+              </div>
+              <div
+                class="rounded-lg border border-slate-200 bg-white p-8 text-center dark:border-slate-800 dark:bg-slate-900"
+              >
+                <div
+                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary"
+                >
+                  <span class="material-symbols-outlined text-3xl">chat</span>
+                </div>
+                <h3
+                  class="mt-6 text-xl font-bold text-slate-900 dark:text-white"
+                >
+                  2. Agenda y Chatea
+                </h3>
+                <p class="mt-2 text-slate-600 dark:text-slate-400">
+                  Conecta y coordina los detalles del servicio.
+                </p>
+              </div>
+              <div
+                class="rounded-lg border border-slate-200 bg-white p-8 text-center dark:border-slate-800 dark:bg-slate-900"
+              >
+                <div
+                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary"
+                >
+                  <span class="material-symbols-outlined text-3xl">grade</span>
+                </div>
+                <h3
+                  class="mt-6 text-xl font-bold text-slate-900 dark:text-white"
+                >
+                  3. Califica
+                </h3>
+                <p class="mt-2 text-slate-600 dark:text-slate-400">
+                  Deja tu opinión y ayuda a otros a elegir.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="bg-primary/5 py-16 dark:bg-primary/10 sm:py-24">
+          <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-4xl text-center">
+              <h2 class="text-3xl font-bold text-slate-900 dark:text-white">
+                ¿Listo para empezar?
+              </h2>
+              <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
+                Únete a nuestra comunidad de clientes satisfechos y proveedores
+                de confianza.
+              </p>
+              <div class="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                <a
+                  class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity duration-150 ease-in-out hover:opacity-90"
+                  href="#"
+                  >Crear cuenta de cliente</a
+                >
+                <a
+                  class="rounded-full bg-slate-200 px-8 py-3 font-semibold text-slate-800 transition-colors duration-150 ease-in-out hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  href="#"
+                  >Registrarme como proveedor</a
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer class="bg-slate-100 dark:bg-slate-900/50">
+        <div class="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
+          <div
+            class="flex flex-col items-center justify-between gap-6 md:flex-row"
+          >
+            <div class="flex items-center gap-4">
+              <svg
+                class="h-6 w-6 text-primary"
+                fill="none"
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"
+                  fill="currentColor"
+                ></path>
+              </svg>
+              <p class="text-sm text-slate-600 dark:text-slate-400">
+                © 2024 Stamin-Up. Todos los derechos reservados.
+              </p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+              <a
+                class="text-slate-600 transition-colors duration-150 ease-in-out hover:text-primary dark:text-slate-400 dark:hover:text-primary"
+                href="#"
+                >Términos</a
+              >
+              <a
+                class="text-slate-600 transition-colors duration-150 ease-in-out hover:text-primary dark:text-slate-400 dark:hover:text-primary"
+                href="#"
+                >Privacidad</a
+              >
+              <a
+                class="text-slate-600 transition-colors duration-150 ease-in-out hover:text-primary dark:text-slate-400 dark:hover:text-primary"
+                href="#"
+                >Soporte</a
+              >
+              <a
+                class="text-slate-600 transition-colors duration-150 ease-in-out hover:text-primary dark:text-slate-400 dark:hover:text-primary"
+                href="#"
+                >Estado del Sistema</a
+              >
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

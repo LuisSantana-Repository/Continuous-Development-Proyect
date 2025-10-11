@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Stamin-Up - Sign Up</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <style type="text/tailwindcss">
+      @layer base {
+        :root {
+          --primary: #0f66bd;
+          --background-light: #ffffff;
+          --background-dark: #101922;
+          --blue-accent: #3b82f6;
+          --green-accent: #10b981;
+        }
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "var(--primary)",
+              "background-light": "var(--background-light)",
+              "background-dark": "var(--background-dark)",
+              "blue-accent": "var(--blue-accent)",
+              "green-accent": "var(--green-accent)",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "1rem",
+              xl: "1.5rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+      function switchAccountType(type) {
+        const providerFields = document.getElementById("provider-fields");
+        const customerButton = document.getElementById("customer-button");
+        const providerButton = document.getElementById("provider-button");
+        if (type === "provider") {
+          providerFields.style.display = "block";
+          providerButton.classList.add(
+            "bg-green-accent",
+            "text-white",
+            "border-green-accent"
+          );
+          providerButton.classList.remove(
+            "bg-white",
+            "text-slate-700",
+            "border-slate-300"
+          );
+          customerButton.classList.add(
+            "bg-white",
+            "text-slate-700",
+            "border-slate-300"
+          );
+          customerButton.classList.remove(
+            "bg-blue-accent",
+            "text-white",
+            "border-blue-accent"
+          );
+        } else {
+          providerFields.style.display = "none";
+          customerButton.classList.add(
+            "bg-blue-accent",
+            "text-white",
+            "border-blue-accent"
+          );
+          customerButton.classList.remove(
+            "bg-white",
+            "text-slate-700",
+            "border-slate-300"
+          );
+          providerButton.classList.add(
+            "bg-white",
+            "text-slate-700",
+            "border-slate-300"
+          );
+          providerButton.classList.remove(
+            "bg-green-accent",
+            "text-white",
+            "border-green-accent"
+          );
+        }
+      }
+    </script>
+  </head>
+  <body class="bg-background-light font-display text-slate-800">
+    <div class="flex min-h-screen w-full flex-col">
+      <header
+        class="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-background-light/80 backdrop-blur"
+      >
+        <div
+          class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-16"
+        >
+          <div class="flex items-center gap-4">
+            <svg
+              class="h-6 w-6 text-primary"
+              fill="none"
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"
+                fill="currentColor"
+              ></path>
+            </svg>
+            <h2 class="text-lg font-bold text-slate-900">Stamin-Up</h2>
+          </div>
+          <a
+            class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 ease-in-out hover:bg-slate-50"
+            href="#"
+          >
+            <span class="material-symbols-outlined text-base">home</span> Back
+            to home
+          </a>
+        </div>
+      </header>
+      <main
+        class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      >
+        <div class="w-full max-w-lg space-y-8">
+          <div class="bg-white p-8 sm:p-10 shadow-lg rounded-xl">
+            <div class="space-y-6">
+              <h2
+                class="text-center text-3xl font-bold tracking-tight text-slate-900"
+              >
+                Create account
+              </h2>
+              <div class="grid grid-cols-2 gap-4">
+                <button
+                  class="w-full py-3 px-4 text-sm font-semibold rounded-lg border transition-colors bg-blue-accent text-white border-blue-accent"
+                  id="customer-button"
+                  onclick="switchAccountType('customer')"
+                >
+                  Customer
+                </button>
+                <button
+                  class="w-full py-3 px-4 text-sm font-semibold rounded-lg border transition-colors bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                  id="provider-button"
+                  onclick="switchAccountType('provider')"
+                >
+                  Provider
+                </button>
+              </div>
+              <div class="space-y-5">
+                <div>
+                  <label class="sr-only" for="full-name">Full name</label>
+                  <input
+                    class="relative block w-full appearance-none rounded-lg border border-slate-300 px-3 py-3 text-slate-900 placeholder-slate-500 focus:z-10 focus:border-blue-accent focus:outline-none focus:ring-blue-accent sm:text-sm"
+                    id="full-name"
+                    name="full-name"
+                    placeholder="Full name"
+                    required=""
+                    type="text"
+                  />
+                </div>
+                <div>
+                  <label class="sr-only" for="email">Email address</label>
+                  <input
+                    autocomplete="email"
+                    class="relative block w-full appearance-none rounded-lg border border-slate-300 px-3 py-3 text-slate-900 placeholder-slate-500 focus:z-10 focus:border-blue-accent focus:outline-none focus:ring-blue-accent sm:text-sm"
+                    id="email"
+                    name="email"
+                    placeholder="Email address"
+                    required=""
+                    type="email"
+                  />
+                </div>
+                <div>
+                  <label class="sr-only" for="password">Password</label>
+                  <input
+                    autocomplete="new-password"
+                    class="relative block w-full appearance-none rounded-lg border border-slate-300 px-3 py-3 text-slate-900 placeholder-slate-500 focus:z-10 focus:border-blue-accent focus:outline-none focus:ring-blue-accent sm:text-sm"
+                    id="password"
+                    name="password"
+                    placeholder="Password"
+                    required=""
+                    type="password"
+                  />
+                </div>
+                <div>
+                  <label class="sr-only" for="confirm-password"
+                    >Confirm password</label
+                  >
+                  <input
+                    autocomplete="new-password"
+                    class="relative block w-full appearance-none rounded-lg border border-slate-300 px-3 py-3 text-slate-900 placeholder-slate-500 focus:z-10 focus:border-blue-accent focus:outline-none focus:ring-blue-accent sm:text-sm"
+                    id="confirm-password"
+                    name="confirm-password"
+                    placeholder="Confirm password"
+                    required=""
+                    type="password"
+                  />
+                </div>
+                <div
+                  class="space-y-5"
+                  id="provider-fields"
+                  style="display: none"
+                >
+                  <div>
+                    <label class="sr-only" for="service-name"
+                      >Service name</label
+                    >
+                    <input
+                      class="relative block w-full appearance-none rounded-lg border border-slate-300 px-3 py-3 text-slate-900 placeholder-slate-500 focus:z-10 focus:border-green-accent focus:outline-none focus:ring-green-accent sm:text-sm"
+                      id="service-name"
+                      name="service-name"
+                      placeholder="Service name (e.g., Plumbing, Electrician)"
+                      type="text"
+                    />
+                  </div>
+                  <div>
+                    <label class="sr-only" for="coverage-area"
+                      >Coverage area</label
+                    >
+                    <input
+                      class="relative block w-full appearance-none rounded-lg border border-slate-300 px-3 py-3 text-slate-900 placeholder-slate-500 focus:z-10 focus:border-green-accent focus:outline-none focus:ring-green-accent sm:text-sm"
+                      id="coverage-area"
+                      name="coverage-area"
+                      placeholder="Coverage area (e.g., San Francisco Bay Area)"
+                      type="text"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="flex h-5 items-center">
+                  <input
+                    class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-blue-accent"
+                    id="terms"
+                    name="terms"
+                    type="checkbox"
+                  />
+                </div>
+                <div class="ml-3 text-sm">
+                  <label class="text-slate-600" for="terms"
+                    >I accept the
+                    <a
+                      class="font-medium text-primary hover:text-blue-accent"
+                      href="#"
+                      >Terms and Conditions</a
+                    ></label
+                  >
+                </div>
+              </div>
+              <div>
+                <button
+                  class="group relative flex w-full justify-center rounded-lg border border-transparent bg-primary py-3 px-4 text-base font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-accent focus:ring-offset-2"
+                  type="submit"
+                >
+                  Sign up
+                </button>
+              </div>
+              <div class="text-center text-sm text-slate-600">
+                Already have an account?
+                <a
+                  class="font-medium text-primary hover:text-blue-accent"
+                  href="#"
+                  >Log in</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer class="bg-slate-100 mt-auto">
+        <div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div
+            class="flex flex-col items-center justify-between gap-6 md:flex-row"
+          >
+            <div class="flex items-center gap-4">
+              <svg
+                class="h-6 w-6 text-primary"
+                fill="none"
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"
+                  fill="currentColor"
+                ></path>
+              </svg>
+              <p class="text-sm text-slate-600">
+                © 2024 Stamin-Up. All rights reserved.
+              </p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+              <a
+                class="text-slate-600 transition-colors duration-150 ease-in-out hover:text-primary"
+                href="#"
+                >Terms</a
+              >
+              <a
+                class="text-slate-600 transition-colors duration-150 ease-in-out hover:text-primary"
+                href="#"
+                >Privacy</a
+              >
+              <a
+                class="text-slate-600 transition-colors duration-150 ease-in-out hover:text-primary"
+                href="#"
+                >Support</a
+              >
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Stamin-Up - Login</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <link href="/css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="bg-background-light font-display text-slate-800">
+    <div class="flex min-h-screen w-full flex-col">
+      <!-- Include header component -->
+      <div id="header-container"></div>
+
+      <main
+        class="flex-grow flex items-center justify-center"
+      >
+        <!-- Include login form component -->
+        <div id="login-form-container"></div>
+      </main>
+      <!-- Include footer component -->
+      <div id="footer-container"></div>
+    </div>
+
+    <!-- Script to load components -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Load header
+        fetch("/views/components/header.html")
+          .then((response) => response.text())
+          .then((data) => {
+            document.getElementById("header-container").innerHTML = data;
+          });
+
+        // Load login form
+        fetch("/views/components/login-form.html")
+          .then((response) => response.text())
+          .then((data) => {
+            document.getElementById("login-form-container").innerHTML = data;
+          });
+
+        // Load footer
+        fetch("/views/components/footer.html")
+          .then((response) => response.text())
+          .then((data) => {
+            document.getElementById("footer-container").innerHTML = data;
+          });
+      });
+    </script>
+  </body>
+</html>
