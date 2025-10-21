@@ -1,0 +1,182 @@
+{
+  "testEvents": [
+    {
+      "name": "Test Register User (Non-Provider)",
+      "event": {
+        "version": "2.0",
+        "routeKey": "POST /register",
+        "rawPath": "/register",
+        "requestContext": {
+          "http": {
+            "method": "POST",
+            "path": "/register"
+          }
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": "{\"email\":\"test@example.com\",\"password\":\"SecurePass123!\",\"username\":\"testuser\",\"INE\":{\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\",\"contentType\":\"image/png\"},\"provider\":false,\"Foto\":{\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\",\"contentType\":\"image/png\"},\"Latitude\":20.6597,\"Longitude\":-103.3496}"
+      }
+    },
+    {
+      "name": "Test Register Provider",
+      "event": {
+        "version": "2.0",
+        "routeKey": "POST /register",
+        "rawPath": "/register",
+        "requestContext": {
+          "http": {
+            "method": "POST",
+            "path": "/register"
+          }
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": "{\"email\":\"provider@example.com\",\"password\":\"ProviderPass123!\",\"username\":\"provideruser\",\"INE\":{\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\",\"contentType\":\"image/png\"},\"provider\":true,\"Foto\":{\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\",\"contentType\":\"image/png\"},\"Latitude\":20.6597,\"Longitude\":-103.3496,\"work\":{\"workname\":\"Plumbing Services\",\"description\":\"Professional plumbing repairs and installations\",\"base_price\":500,\"Service_Type\":1,\"Job_Permit\":{\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\",\"contentType\":\"image/png\"},\"Latitude\":20.6597,\"Longitude\":-103.3496,\"Time_Available\":[\"09:00-12:00\",\"14:00-18:00\"]}}"
+      }
+    },
+    {
+      "name": "Test Login",
+      "event": {
+        "version": "2.0",
+        "routeKey": "POST /login",
+        "rawPath": "/login",
+        "requestContext": {
+          "http": {
+            "method": "POST",
+            "path": "/login"
+          }
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": "{\"email\":\"test@example.com\",\"password\":\"SecurePass123!\"}"
+      }
+    },
+    {
+      "name": "Test Get My Data (Replace TOKEN)",
+      "event": {
+        "version": "2.0",
+        "routeKey": "GET /me",
+        "rawPath": "/me",
+        "requestContext": {
+          "http": {
+            "method": "GET",
+            "path": "/me"
+          }
+        },
+        "headers": {
+          "authorization": "Bearer YOUR_JWT_TOKEN_HERE",
+          "content-type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "Test Missing Token",
+      "event": {
+        "version": "2.0",
+        "routeKey": "GET /me",
+        "rawPath": "/me",
+        "requestContext": {
+          "http": {
+            "method": "GET",
+            "path": "/me"
+          }
+        },
+        "headers": {
+          "content-type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "Test 404 Not Found",
+      "event": {
+        "version": "2.0",
+        "routeKey": "GET /unknown",
+        "rawPath": "/unknown",
+        "requestContext": {
+          "http": {
+            "method": "GET",
+            "path": "/unknown"
+          }
+        },
+        "headers": {
+          "content-type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "Test Register - Missing Fields",
+      "event": {
+        "version": "2.0",
+        "routeKey": "POST /register",
+        "rawPath": "/register",
+        "requestContext": {
+          "http": {
+            "method": "POST",
+            "path": "/register"
+          }
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": "{\"email\":\"incomplete@example.com\",\"password\":\"Pass123!\"}"
+      }
+    },
+    {
+      "name": "Test Register - Provider Missing Work",
+      "event": {
+        "version": "2.0",
+        "routeKey": "POST /register",
+        "rawPath": "/register",
+        "requestContext": {
+          "http": {
+            "method": "POST",
+            "path": "/register"
+          }
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": "{\"email\":\"providernowork@example.com\",\"password\":\"ProviderPass123!\",\"username\":\"providernowork\",\"INE\":{\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\",\"contentType\":\"image/png\"},\"provider\":true,\"Foto\":{\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\",\"contentType\":\"image/png\"},\"Latitude\":20.6597,\"Longitude\":-103.3496}"
+      }
+    },
+    {
+      "name": "Test Login - Invalid Credentials",
+      "event": {
+        "version": "2.0",
+        "routeKey": "POST /login",
+        "rawPath": "/login",
+        "requestContext": {
+          "http": {
+            "method": "POST",
+            "path": "/login"
+          }
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": "{\"email\":\"test@example.com\",\"password\":\"WrongPassword\"}"
+      }
+    },
+    {
+      "name": "Test CORS Preflight",
+      "event": {
+        "version": "2.0",
+        "routeKey": "OPTIONS /register",
+        "rawPath": "/register",
+        "requestContext": {
+          "http": {
+            "method": "OPTIONS",
+            "path": "/register"
+          }
+        },
+        "headers": {
+          "origin": "https://example.com",
+          "access-control-request-method": "POST"
+        }
+      }
+    }
+  ]
+}
