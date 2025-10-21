@@ -1,0 +1,130 @@
+[
+  {
+    "id": "srv-001",
+    "title": "Fugas de Agua",
+    "description": "Servicio profesional de detección y reparación de fugas en tuberías, llaves y conexiones. Incluye diagnóstico completo y garantía.",
+    "provider": {
+      "id": "prv-001",
+      "name": "Carlos Méndez",
+      "email": "carlos@example.com",
+      "phone": "+52 55 1234 5678",
+      "avatarUrl": "https://i.pravatar.cc/150?img=12",
+      "bio": "Plomero certificado con 10 años de experiencia",
+      "rating": 4.8,
+      "completedJobs": 245,
+      "verified": true,
+      "joinedDate": "2022-03-15"
+    },
+    "category": {
+      "id": "plumbing",
+      "name": "Plomería",
+      "slug": "plomeria",
+      "description": "Reparación y mantenimiento de tuberías"
+    },
+    "price": 350,
+    "priceType": "fixed",
+    "imageUrl": "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800",
+    "rating": 4.8,
+    "reviewCount": 127,
+    "featured": true,
+    "tags": ["urgente", "garantía", "certificado"],
+    "availability": ["lunes", "martes", "miércoles", "jueves", "viernes"],
+    "createdAt": "2024-01-15T10:00:00Z"
+  },
+  {
+    "id": "srv-002",
+    "title": "Instalación Eléctrica",
+    "description": "Instalación de sistemas eléctricos para casas y oficinas. Incluye cableado, contactos, apagadores y tablero eléctrico.",
+    "provider": {
+      "id": "prv-002",
+      "name": "Ana García",
+      "email": "ana@example.com",
+      "phone": "+52 55 9876 5432",
+      "avatarUrl": "https://i.pravatar.cc/150?img=12",
+      "bio": "Electricista certificada con especialización en instalaciones residenciales",
+      "rating": 4.9,
+      "completedJobs": 189,
+      "verified": true,
+      "joinedDate": "2021-08-20"
+    },
+    "category": {
+      "id": "electrical",
+      "name": "Electricidad",
+      "slug": "electricidad",
+      "description": "Instalación y reparación eléctrica"
+    },
+    "price": 150,
+    "priceType": "hourly",
+    "imageUrl": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800",
+    "rating": 4.9,
+    "reviewCount": 98,
+    "featured": true,
+    "tags": ["certificado", "garantía", "experiencia"],
+    "availability": ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
+    "createdAt": "2024-02-01T14:30:00Z"
+  },
+  {
+    "id": "srv-003",
+    "title": "Pintura de Interiores",
+    "description": "Servicio profesional de pintura para interiores. Incluye preparación de superficies, pintura de alta calidad y limpieza final.",
+    "provider": {
+      "id": "prv-003",
+      "name": "Roberto Sánchez",
+      "email": "roberto@example.com",
+      "phone": "+52 55 5555 1234",
+      "avatarUrl": "https://i.pravatar.cc/150?img=12",
+      "bio": "Pintor profesional especializado en acabados de alta calidad",
+      "rating": 4.7,
+      "completedJobs": 312,
+      "verified": true,
+      "joinedDate": "2020-05-10"
+    },
+    "category": {
+      "id": "painting",
+      "name": "Pintura",
+      "slug": "pintura",
+      "description": "Pintura interior y exterior"
+    },
+    "price": 200,
+    "priceType": "hourly",
+    "imageUrl": "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=800",
+    "rating": 4.7,
+    "reviewCount": 156,
+    "featured": true,
+    "tags": ["experiencia", "garantía"],
+    "availability": ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
+    "createdAt": "2024-01-20T09:15:00Z"
+  },
+  {
+    "id": "srv-004",
+    "title": "Limpieza de Hogar",
+    "description": "Servicio completo de limpieza profunda para tu hogar. Incluye todas las habitaciones, cocina, baños y áreas comunes.",
+    "provider": {
+      "id": "prv-004",
+      "name": "María López",
+      "email": "maria@example.com",
+      "phone": "+52 55 7777 8888",
+      "avatarUrl": "https://i.pravatar.cc/150?img=12",
+      "bio": "Servicio de limpieza profesional con productos ecológicos",
+      "rating": 5.0,
+      "completedJobs": 421,
+      "verified": true,
+      "joinedDate": "2019-11-05"
+    },
+    "category": {
+      "id": "cleaning",
+      "name": "Limpieza",
+      "slug": "limpieza",
+      "description": "Servicios de limpieza profunda"
+    },
+    "price": 800,
+    "priceType": "fixed",
+    "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800",
+    "rating": 5.0,
+    "reviewCount": 203,
+    "featured": true,
+    "tags": ["certificado", "mejor valorado"],
+    "availability": ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"],
+    "createdAt": "2024-02-10T11:00:00Z"
+  }
+]

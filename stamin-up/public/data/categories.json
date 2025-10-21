@@ -1,0 +1,38 @@
+[
+  {
+    "id": "plumbing",
+    "name": "Plomería",
+    "slug": "plomeria",
+    "description": "Reparación y mantenimiento de tuberías, llaves y sistemas de agua"
+  },
+  {
+    "id": "electrical",
+    "name": "Electricidad",
+    "slug": "electricidad",
+    "description": "Instalación y reparación de sistemas eléctricos"
+  },
+  {
+    "id": "painting",
+    "name": "Pintura",
+    "slug": "pintura",
+    "description": "Pintura interior y exterior de casas y oficinas"
+  },
+  {
+    "id": "cleaning",
+    "name": "Limpieza",
+    "slug": "limpieza",
+    "description": "Servicios de limpieza profunda y mantenimiento"
+  },
+  {
+    "id": "gardening",
+    "name": "Jardinería",
+    "slug": "jardineria",
+    "description": "Cuidado y diseño de jardines y áreas verdes"
+  },
+  {
+    "id": "repairs",
+    "name": "Reparaciones",
+    "slug": "reparaciones",
+    "description": "Reparaciones generales del hogar"
+  }
+]

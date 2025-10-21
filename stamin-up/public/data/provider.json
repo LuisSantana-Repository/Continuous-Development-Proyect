@@ -1,0 +1,14 @@
+{
+  "id": "prov_001",
+  "name": "Pelayito pelayo",
+  "email": "carlos.rodriguez@example.com",
+  "phone": "+52 55 1234 5678",
+  "address": "Ciudad de México, México",
+  "profileImage": "/images/goku.jpg",
+  "bio": "Plomero profesional con más de 10 años de experiencia en instalaciones residenciales y comerciales.",
+  "rating": 4.8,
+  "completedJobs": 156,
+  "verified": true,
+  "joinedDate": "2020-03-15",
+  "memberSince": "2020-03-15"
+}
