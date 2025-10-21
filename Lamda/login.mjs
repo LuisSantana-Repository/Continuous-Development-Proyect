@@ -17,25 +17,12 @@ const INE_PREFIX = "INE/";
 const WORK_PERMIT = "Work_permit/";
 
 async function getDbConfig() {
-  if (process.env.DB_SECRET_ARN) {
-    if (!cachedSecret) {
-      const res = await sm.send(new GetSecretValueCommand({ SecretId: process.env.DB_SECRET_ARN }));
-      cachedSecret = JSON.parse(res.SecretString);
-    }
-    return {
-      host: cachedSecret.proxy_endpoint || cachedSecret.host,
-      user: cachedSecret.username,
-      password: cachedSecret.password,
-      database: cachedSecret.dbname,
-      port: cachedSecret.port || 3306
-    };
-  }
   return {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    port: +(process.env.DB_PORT || 3306)
+    host: "mysql-rds-hot.cd28y48wmxoz.mx-central-1.rds.amazonaws.com",
+    user: "admin",
+    password: "3deAsada.",
+    database: "my-sql-rds-hot",
+    port: 3306
   };
 }
 
