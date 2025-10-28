@@ -8,7 +8,6 @@ import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3
 import { DynamoDBClient, PutItemCommand, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuid } from "uuid";
-import {router as healthRouter} from './src/routes/health.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +16,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Make pools available to routes
+app.locals.getPrimaryPool = getPrimaryPool;
+app.locals.getSecondaryPool = getSecondaryPool;
+
 
 // ==================== AWS CONFIG ====================
 // Detecta si es desarrollo local o producción
@@ -200,6 +204,17 @@ async function getProviderWork(user_id) {
      checks.status = "unhealthy";
      checks.checks.database = { status: "error", message: error.message };
    }
+
+   // check Database Secondary
+    try {
+      const dbSecondary = await getSecondaryPool();
+      await dbSecondary.execute("SELECT 1 as ping");
+      checks.checks.database_secondary = { status: "ok", message: "Connected" };
+    } catch (error) {
+      checks.status = "unhealthy";
+      checks.checks.database_secondary = { status: "error", message: error.message };
+    }
+
    // Check S3
    try {
      await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: "test" }));
@@ -211,6 +226,16 @@ async function getProviderWork(user_id) {
        checks.checks.s3 = { status: "warning", message: error.message };
      }
    }
+
+   // Check DynamoDB
+    try {
+      await dynamodb.send(new GetItemCommand({ TableName: DYNAMODB_TABLE, Key: { userId: { S: "healthcheck" } } }));
+      checks.checks.dynamodb = { status: "ok", message: "Accessible" };
+    } catch (error) {
+      checks.checks.dynamodb = { status: "warning", message: error.message };
+    }
+
+
    const statusCode = checks.status === "healthy" ? 200 : 503;
    res.status(statusCode).json(checks);
  });
@@ -366,18 +391,32 @@ app.get('/me', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.status(200).json({ message: "Welcome to the API server!" });
+});
+
+
+
+
+
+import { router as healthRouter } from './src/routes/health.js';
+app.use('/health2', healthRouter);
+
+
+//IMPORTANTE DEJAR AL FINAL
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: "not found" });
 });
-
 // Start server
-// app.listen(PORT, () => {
-//   console.log(`🚀 API Server running on http://localhost:${PORT}`);
-//   console.log(`📊 Health check: http://localhost:${PORT}/health`);
-//   console.log(`🗄️  Database: ${process.env.DB_HOST}:${process.env.DB_PORT}`);
-//   console.log(`☁️  S3 Endpoint: ${process.env.AWS_ENDPOINT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`🚀 API Server running on http://localhost:${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`🗄️  Database: ${process.env.DB_HOST}:${process.env.DB_PORT}`);
+  console.log(`☁️  S3 Endpoint: ${process.env.AWS_ENDPOINT}`);
+  //connsole log root
+  console.log(`🌐 API Root: http://localhost:${PORT}/`);
+});
 
 
-app.use('/health', healthRouter);
+

@@ -4,7 +4,7 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon --legacy-watch server.js",
     "start": "node server.js",
     "test:connections": "node scripts/health.test.js"
   },
