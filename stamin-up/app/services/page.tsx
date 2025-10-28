@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ServiceCard from "@/components/ServiceCard";
 import { Service } from "@/types";
@@ -9,7 +9,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function ServicesPage() {
+function ServicesContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") || "";
   const category = searchParams.get("category") || "";
@@ -95,5 +95,32 @@ export default function ServicesPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ServicesPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-gray-50 py-12">
+          <div className="container mx-auto px-6 md:px-12 lg:px-20">
+            <div className="mb-8">
+              <div className="mb-4 h-10 w-64 animate-pulse rounded bg-gray-200" />
+              <div className="h-12 w-full animate-pulse rounded bg-gray-200" />
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[...Array(8)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-96 animate-pulse rounded-2xl bg-gray-200"
+                />
+              ))}
+            </div>
+          </div>
+        </main>
+      }
+    >
+      <ServicesContent />
+    </Suspense>
   );
 }

@@ -259,7 +259,7 @@ export function ServiceRequestModal({
       e.target instanceof HTMLInputElement
     ) {
       e.preventDefault();
-      handleSubmit(e as any);
+      handleSubmit(e as React.FormEvent);
     }
   };
 

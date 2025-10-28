@@ -1,28 +1,52 @@
-# ---- deps ----
-FROM node:18-alpine AS deps
+# --- STAGE 1: build (con dev deps para compilar) ---
+FROM node:18-bookworm-slim AS builder
 WORKDIR /app
-ENV NEXT_TELEMETRY_DISABLED=1
-COPY package.json package-lock.json* ./
-RUN npm ci --production --ignore-scripts
+ENV DEBIAN_FRONTEND=noninteractive
 
-# ---- builder ----
-FROM node:18-alpine AS builder
-WORKDIR /app
-ENV NEXT_TELEMETRY_DISABLED=1
-COPY --from=deps /app/node_modules ./node_modules
+# (opcional) instalar herramientas del sistema necesarias para build
+RUN apt-get update && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# copiar lock + package para cache
+COPY package.json package-lock.json* ./
+
+# instalar todas las deps (dev + prod) para poder construir
+RUN npm ci
+
+# copiar código y construir Next (.next)
 COPY . .
 RUN npm run build
 
-# ---- runner ----
-FROM node:18-alpine AS runner
+# --- STAGE 2: runtime (limpia, sólo prod deps) ---
+FROM node:18-bookworm-slim AS runner
 WORKDIR /app
-RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 ENV NODE_ENV=production
-ENV PORT=3000
-COPY --chown=nextjs:nodejs --from=builder /app/.next/standalone ./
-COPY --chown=nextjs:nodejs --from=builder /app/.next/static ./.next/static
-COPY --chown=nextjs:nodejs --from=builder /app/public ./public
-USER nextjs
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s CMD wget -qO- --tries=1 --timeout=2 http://localhost:3000/ || exit 1
-CMD ["node", "server.js"]
+ENV DEBIAN_FRONTEND=noninteractive
+
+# utilidades mínimas (curl para healthcheck/debug)
+RUN apt-get update && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# copiar artefactos del build
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+
+# copiar package.json + lockfile (necesario para npm ci en runtime)
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/package-lock.json ./package-lock.json
+
+# instalar sólo deps de producción (usa --omit=dev para npm moderno)
+RUN npm ci --omit=dev
+
+# seguridad: cambiar ownership y usar usuario no-root
+RUN chown -R node:node /app
+USER node
+
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3001/ || exit 1
+
+# start (debe existir "start": "next start -p 3000" o equivalente en package.json)
+CMD ["npm", "start"]

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { ServiceHero } from "@/components/service-detail/ServiceHero";
 import { ServiceDetails } from "@/components/service-detail/ServiceDetails";
 import { ReviewsSection } from "@/components/service-detail/ReviewsSection";
@@ -83,12 +84,12 @@ export default function ServiceDetailPage() {
           <p className="body-base text-secondary mb-6">
             El servicio que buscas no existe o ha sido removido.
           </p>
-          <a
+          <Link
             href="/"
             className="inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors"
           >
             Volver al inicio
-          </a>
+          </Link>
         </div>
       </Section>
     );
