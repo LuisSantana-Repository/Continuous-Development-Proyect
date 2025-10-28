@@ -6,5 +6,5 @@ services:
       dockerfile: Dockerfile
     image: my-next-app:latest
     ports:
-      - "3000:3000"
+      - "3001:3001"
     restart: unless-stopped
