@@ -5,3 +5,12 @@ curl http://localhost:3000/health
 docker-compose build
 docker-compose up -d
 docker-compose restart api
+
+
+### Para correr el docker del front end
+
+- Dentro de la carpeta donde esta el dockerfile
+`docker build --progress=plain -t stamin-up-test:latest .`
+
+- Correr el container
+docker run -d --name stamin-up -p 3000:3000 stamin-up-test:latest
