@@ -11,3 +11,8 @@ npx create-next-app@latest my-next-app
 ```
 npm install
 ```
+
+### Run
+```
+npm run dev
+```
