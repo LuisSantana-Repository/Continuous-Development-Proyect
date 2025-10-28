@@ -8,6 +8,7 @@ import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3
 import { DynamoDBClient, PutItemCommand, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuid } from "uuid";
+import {router as healthRouter} from './src/routes/health.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -166,7 +167,7 @@ async function getS3ObjectSignedUrl(key, expiresIn = 3600) {
 }
 
 async function getProviderWork(user_id) {
-  const db = await getPool();
+  const db = await getPrimaryPool();
   const [rows] = await db.execute(
     `SELECT workname, description, base_price, Service_Type, Job_Permit, 
             Latitude, Longitude, Time_Available 
@@ -183,39 +184,36 @@ async function getProviderWork(user_id) {
 
 // ==================== ROUTES ====================
 
-// Health check
-app.get('/health', async (req, res) => {
-  const checks = {
-    timestamp: new Date().toISOString(),
-    status: "healthy",
-    checks: {}
-  };
-
-  // Check Database
-  try {
-    const db = await getPool();
-    await db.execute("SELECT 1 as ping");
-    checks.checks.database = { status: "ok", message: "Connected" };
-  } catch (error) {
-    checks.status = "unhealthy";
-    checks.checks.database = { status: "error", message: error.message };
-  }
-
-  // Check S3
-  try {
-    await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: "test" }));
-    checks.checks.s3 = { status: "ok", message: "Accessible" };
-  } catch (error) {
-    if (error.name === 'NoSuchKey') {
-      checks.checks.s3 = { status: "ok", message: "Accessible" };
-    } else {
-      checks.checks.s3 = { status: "warning", message: error.message };
-    }
-  }
-
-  const statusCode = checks.status === "healthy" ? 200 : 503;
-  res.status(statusCode).json(checks);
-});
+ //  Health check
+ app.get('/health', async (req, res) => {
+   const checks = {
+     timestamp: new Date().toISOString(),
+     status: "healthy",
+     checks: {}
+   };
+   // Check Database
+   try {
+     const db = await getPrimaryPool();
+     await db.execute("SELECT 1 as ping");
+     checks.checks.database = { status: "ok", message: "Connected" };
+   } catch (error) {
+     checks.status = "unhealthy";
+     checks.checks.database = { status: "error", message: error.message };
+   }
+   // Check S3
+   try {
+     await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: "test" }));
+     checks.checks.s3 = { status: "ok", message: "Accessible" };
+   } catch (error) {
+     if (error.name === 'NoSuchKey') {
+       checks.checks.s3 = { status: "ok", message: "Accessible" };
+     } else {
+       checks.checks.s3 = { status: "warning", message: error.message };
+     }
+   }
+   const statusCode = checks.status === "healthy" ? 200 : 503;
+   res.status(statusCode).json(checks);
+ });
 
 // Register endpoint
 app.post('/register', async (req, res) => {
@@ -249,7 +247,7 @@ app.post('/register', async (req, res) => {
     }
 
     const hash = await bcrypt.hash(password, 12);
-    const db = await getPool();
+    const db = await getPrimaryPool();
     const user_id = uuid();
 
     const ineKey = await uploadToS3(INE_PREFIX, INE.data, INE.contentType);
@@ -300,7 +298,7 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ error: "email and password are required" });
     }
 
-    const db = await getPool();
+    const db = await getPrimaryPool();
     const [rows] = await db.execute(
       "SELECT user_id, email, password_hash, provider FROM users WHERE email = ? LIMIT 1",
       [email.toLowerCase()]
@@ -342,7 +340,7 @@ app.get('/me', async (req, res) => {
 
     const payload = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ["HS256"] });
     const user_id = payload.sub;
-    const db = await getPool();
+    const db = await getPrimaryPool();
     
     const [rows] = await db.execute(
       "SELECT user_id, email, username, provider, Foto, Latitude, Longitude FROM users WHERE user_id = ? LIMIT 1",
@@ -374,9 +372,12 @@ app.use((req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 API Server running on http://localhost:${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🗄️  Database: ${process.env.DB_HOST}:${process.env.DB_PORT}`);
-  console.log(`☁️  S3 Endpoint: ${process.env.AWS_ENDPOINT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`🚀 API Server running on http://localhost:${PORT}`);
+//   console.log(`📊 Health check: http://localhost:${PORT}/health`);
+//   console.log(`🗄️  Database: ${process.env.DB_HOST}:${process.env.DB_PORT}`);
+//   console.log(`☁️  S3 Endpoint: ${process.env.AWS_ENDPOINT}`);
+// });
+
+
+app.use('/health', healthRouter);

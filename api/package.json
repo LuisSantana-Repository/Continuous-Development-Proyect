@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test:connections": "node scripts/health.test.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",
