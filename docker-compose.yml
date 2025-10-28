@@ -112,6 +112,33 @@ services:
     command: npm run dev
 
 
+
+  web-page:
+    build:
+      context: ./stamin-up
+      dockerfile: Dockerfile.dev
+    container_name: web-page
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      # For client-side API calls (browser)
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      # For server-side API calls (SSR/SSG)
+      - API_URL=http://api:3000
+      # Disable Next.js telemetry
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - ./stamin-up:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api
+    networks:
+      - app-network
+    restart: unless-stopped
+
+
   # Inicializador de LocalStack (crea bucket S3 y tabla DynamoDB)
   localstack-init:
     image: amazon/aws-cli
