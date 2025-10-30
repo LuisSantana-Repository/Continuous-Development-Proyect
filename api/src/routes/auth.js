@@ -1,10 +1,21 @@
 import express from "express";
+import rateLimit from 'express-rate-limit';
 import { registerUser, loginUser } from "../services/auth.js";
 import { validateRegister, validateLogin } from "../utils/validators.js";
 
 export const router = express.Router();
 
-router.post('/register', async (req, res) => {
+// Prevencion de ataques de fuerza bruta y/o diccionarios
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 10, // Limitar cada IP a 10 solicitudes por ventanaMs
+    skipSuccessfulRequests: true,   // solo cuenta errores
+    handler: (req, res) => {
+        res.status(429).json({ error: 'Too many attempts. Try again later.' });
+    }
+});
+
+router.post('/register', limiter, async (req, res) => {
     try {
         const validationError = validateRegister(req.body);
         if (validationError) {
@@ -24,7 +35,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', limiter, async (req, res) => {
     try {
         const validationError = validateLogin(req.body);
         if (validationError) {
