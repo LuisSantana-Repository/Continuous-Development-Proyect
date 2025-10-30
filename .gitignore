@@ -1,3 +1,83 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+.pnp.cjs
+.pnp.js
+
+# Next.js / front-end
+.next/
+out/
+build/
+.vercel/
+
+# TypeScript
+*.tsbuildinfo
+
+# Env files
+.env
+.env.*.local
+.env.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Coverage
+coverage/
+coverage/**/*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Docker
+# keep Dockerfile and main docker-compose in repo, but ignore generated or machine-local docker data
+localstack-data/
+volume/
+volume/*
+
+# Certificates, keys
+*.pem
+*.key
+*.crt
+
+# Temporary / caches
+tmp/
+temp/
+.cache/
+
+# Build artifacts
+dist/
+build/
+
+# Jest / test output
+jest-cache/
+*.snap
+
+# Misc
+*.log
+*.seed
+
+# Windows Office temporary files
+~$*
+
+# OneDrive temporary files
+*.lnk
 /.vscode
 # dependencies
 /node_modules
