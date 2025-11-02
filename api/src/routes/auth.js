@@ -1,9 +1,14 @@
 import express from "express";
 import rateLimit from 'express-rate-limit';
+
 import { registerUser, loginUser } from "../services/auth.js";
 import { validateRegister, validateLogin } from "../utils/validators.js";
 
 export const router = express.Router();
+
+
+
+
 
 // Prevencion de ataques de fuerza bruta y/o diccionarios
 const limiter = rateLimit({
@@ -43,7 +48,9 @@ router.post('/login', limiter, async (req, res) => {
         }
 
         const result = await loginUser(req.body.email, req.body.password);
-        res.status(200).json(result);
+        //send as cookie
+        res.cookie('token', result.token, { httpOnly: true, secure: true, sameSite: 'Strict', maxAge: 86400 * 1000 }); 
+        res.status(200).json("Login successful");
 
     } catch (error) {
         if (error.message === "INVALID_CREDENTIALS") {

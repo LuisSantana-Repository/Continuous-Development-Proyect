@@ -4,12 +4,19 @@ import { router as authRoutes } from "./src/routes/auth.js";
 import { router as userRoutes } from "./src/routes/users.js";
 import { router as healthRoutes } from "./src/routes/health.js";
 import { errorHandler } from "./src/middleware/errorHandler.js";
+import { listS3Objects } from "./src/services/s3.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Global Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
+
+app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -34,6 +41,7 @@ app.use('/users', userRoutes);
 app.use((req, res) => res.status(404).json({ error: "not found" }));
 app.use(errorHandler);
 
+const objects = await listS3Objects('profile/');
 
 // Start server
 app.listen(PORT, () => {
@@ -43,6 +51,7 @@ app.listen(PORT, () => {
   console.log(`☁️  S3 Endpoint: ${process.env.AWS_ENDPOINT}`);
   //connsole log root
   console.log(`🌐 API Root: http://localhost:${PORT}/`);
+  console.log(objects);
 });
 
 

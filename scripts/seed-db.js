@@ -20,6 +20,7 @@ async function seed() {
     ON DUPLICATE KEY UPDATE email=email
   `);
 
+
   console.log('✅ Base de datos poblada');
   await connection.end();
 }

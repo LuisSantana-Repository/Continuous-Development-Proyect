@@ -13,8 +13,11 @@ export async function registerUser(userData) {
     const user_id = uuid();
 
     console.log("Uploading INE and Foto to S3");
-    const ineKey = await uploadToS3(INE_PREFIX, INE, INE.contentType);
-    const fotoKey = await uploadToS3(PROFILE_PREFIX, Foto, Foto.contentType);
+
+
+
+    const ineKey = await uploadToS3(INE_PREFIX, INE);
+    const fotoKey = await uploadToS3(PROFILE_PREFIX, Foto);
 
     await db.execute(
         `INSERT INTO users (user_id, email, password_hash, username, INE, provider, Foto, Latitude, Longitude) 

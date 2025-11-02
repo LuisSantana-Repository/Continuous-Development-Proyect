@@ -2,9 +2,8 @@ import jwt from "jsonwebtoken";
 
 export const authenticate = (req, res, next) => {
     try {
-        const auth = req.headers.authorization || "";
-        const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
-
+        //get token from cookies
+        const token = req.cookies.token;
         if (!token) {
             return res.status(401).json({ error: "missing token" });
         }

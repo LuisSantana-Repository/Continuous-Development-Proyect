@@ -1,5 +1,7 @@
 import { getPrimaryPool } from "../config/database.js";
 import { getS3SignedUrl } from "./storage.js";
+import { getS3ImageAsBase64 } from "../utils/imageConverter.js";
+import e from "express";
 
 export async function getUserProfile(userId) {
   const db = await getPrimaryPool();
@@ -12,9 +14,18 @@ export async function getUserProfile(userId) {
   if (!rows.length) {
     throw new Error("USER_NOT_FOUND");
   }
-  
+
+
   const user = rows[0];
-  user.Foto = await getS3SignedUrl(user.Foto);
+  console.log("User photo key from DB:", user.Foto);
+  // user.Foto = await getS3SignedUrl(user.Foto);
+  
+  console.log("Signed URL for user photo:", user.Foto);
+  if (user.Foto) {
+    // let signedUrl = await getS3SignedUrl(user.Foto);
+    // Replace localstack with localhost for external access
+    user.Foto = await getS3ImageAsBase64(user.Foto);
+  }
   
   if (user.provider) {
     user.work = await getProviderWork(userId);
