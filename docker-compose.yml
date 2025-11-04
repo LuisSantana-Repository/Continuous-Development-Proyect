@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # LocalStack - Simula S3, DynamoDB (NO RDS, usamos MySQL real)
   localstack:
@@ -17,9 +15,8 @@ services:
       - AWS_SECRET_ACCESS_KEY=test
       - PERSISTENCE=1           # Persistir datos entre reinicios
     volumes:
-      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - ./volumes/localstack:/var/lib/localstack
       - "/var/run/docker.sock:/var/run/docker.sock"
-
     networks:
       - app-network
 
@@ -35,7 +32,7 @@ services:
       MYSQL_USER: admin
       MYSQL_PASSWORD: 3deAsada.
     volumes:
-      - mysql-primary-data:/var/lib/mysql
+      - ./volumes/mysql-primary:/var/lib/mysql
       - ./init-db-primary.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
@@ -56,7 +53,7 @@ services:
       MYSQL_USER: admin
       MYSQL_PASSWORD: 3deAsada.
     volumes:
-      - mysql-secondary-data:/var/lib/mysql
+      - ./volumes/mysql-secondary:/var/lib/mysql
       - ./init-db-secondary.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
@@ -111,8 +108,6 @@ services:
       - app-network
     command: npm run dev
 
-
-
   web-page:
     build:
       context: ./stamin-up
@@ -137,7 +132,6 @@ services:
     networks:
       - app-network
     restart: unless-stopped
-
 
   # Inicializador de LocalStack (crea bucket S3 y tabla DynamoDB)
   localstack-init:
@@ -172,11 +166,6 @@ services:
       "
     networks:
       - app-network
-
-volumes:
-  mysql-primary-data:
-  mysql-secondary-data:
-  localstack-data:
 
 networks:
   app-network:

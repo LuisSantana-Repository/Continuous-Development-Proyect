@@ -11,19 +11,18 @@ export async function registerUser(userData) {
     const hash = await bcrypt.hash(password, 12);
     const db = await getPrimaryPool();
     const user_id = uuid();
-
     console.log("Uploading INE and Foto to S3");
-
-
-
     const ineKey = await uploadToS3(INE_PREFIX, INE);
     const fotoKey = await uploadToS3(PROFILE_PREFIX, Foto);
+
 
     await db.execute(
         `INSERT INTO users (user_id, email, password_hash, username, INE, provider, Foto, Latitude, Longitude) 
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [user_id, email.toLowerCase(), hash, username, ineKey, provider, fotoKey, Latitude, Longitude]
     );
+
+    
 
     if (provider && work) {
         const jobPermitKey = await uploadToS3(WORK_PERMIT, work.Job_Permit.data, work.Job_Permit.contentType);

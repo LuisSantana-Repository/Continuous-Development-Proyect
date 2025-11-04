@@ -5,6 +5,7 @@ import { router as userRoutes } from "./src/routes/users.js";
 import { router as healthRoutes } from "./src/routes/health.js";
 import { errorHandler } from "./src/middleware/errorHandler.js";
 import { listS3Objects } from "./src/services/s3.js";
+import {router as serviceRoutes} from "./src/routes/service.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -36,6 +37,8 @@ app.get('/', (req, res) => {
 app.use('/health', healthRoutes);
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
+app.use('/services', serviceRoutes);
+
 
 // Error handling (must be last)
 app.use((req, res) => res.status(404).json({ error: "not found" }));

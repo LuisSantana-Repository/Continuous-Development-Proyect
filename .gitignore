@@ -51,6 +51,8 @@ localstack-data/
 volume/
 volume/*
 
+volumes/
+volumes/*
 # Certificates, keys
 *.pem
 *.key

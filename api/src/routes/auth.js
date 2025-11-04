@@ -22,7 +22,8 @@ const limiter = rateLimit({
 
 router.post('/register', limiter, async (req, res) => {
     try {
-        const validationError = validateRegister(req.body);
+        const validationError = await validateRegister(req.body);
+        console.log("Validation error:", validationError);
         if (validationError) {
             return res.status(400).json({ error: validationError });
         }
