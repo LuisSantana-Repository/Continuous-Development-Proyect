@@ -7,9 +7,6 @@ import { validateRegister, validateLogin } from "../utils/validators.js";
 export const router = express.Router();
 
 
-
-
-
 // Prevencion de ataques de fuerza bruta y/o diccionarios
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos

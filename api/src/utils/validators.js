@@ -61,7 +61,7 @@ export function validateLogin(data) {
         return "email and password are required";
     }
 
-    if (!isValidEmail(email)) {
+    if (!isValidEmailFormat(email)) {
         return "invalid email format";
     }
 
