@@ -232,12 +232,7 @@ export async function getProviderServiceRequests(
 export async function updateServiceRequestStatus(requestId, updates) {
   const db = await getPrimaryPool();
 
-  const allowedFields = [
-    "status",
-    "payment_status",
-    "completed_at",
-    "amount",
-  ];
+  const allowedFields = ["status", "payment_status", "completed_at", "amount"];
 
   const fields = [];
   const values = [];
