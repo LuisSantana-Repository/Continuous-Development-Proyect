@@ -47,6 +47,60 @@ CREATE TABLE IF NOT EXISTS `providers` (
   INDEX idx_service_type (Service_Type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Tabla de solicitudes de servicio
+CREATE TABLE IF NOT EXISTS `service_requests` (
+  `request_id` VARCHAR(36) PRIMARY KEY,
+  `provider_id` INT NOT NULL,
+  `user_id` VARCHAR(36) NOT NULL,
+  `status` ENUM(
+    'pending',
+    'accepted',
+    'rejected',
+    'in_progress',
+    'completed',
+    'cancelled'
+  ) NOT NULL DEFAULT 'pending',
+  `description` TEXT,
+  `preferred_date` DATETIME,
+  `address` TEXT,
+  `contact_phone` VARCHAR(20),
+  `amount` DECIMAL(10, 2),
+  `payment_status` ENUM(
+    'pending',
+    'paid',
+    'refunded',
+    'failed'
+  ) DEFAULT 'pending',
+  `completed_at` TIMESTAMP NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (provider_id) REFERENCES providers(provider_id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  INDEX idx_provider_id (provider_id),
+  INDEX idx_user_id (user_id),
+  INDEX idx_status (status),
+  INDEX idx_payment_status (payment_status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de reseñas de usuarios
+CREATE TABLE IF NOT EXISTS `user_reviews` (
+  `review_id` VARCHAR(36) PRIMARY KEY,
+  `user_id` VARCHAR(36) NOT NULL,
+  `provider_id` INT NOT NULL,
+  `service_request_id` VARCHAR(36),
+  `rating` INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  `comment` TEXT,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (provider_id) REFERENCES providers(provider_id) ON DELETE CASCADE,
+  FOREIGN KEY (service_request_id) REFERENCES service_requests(request_id) ON DELETE SET NULL,
+  UNIQUE KEY unique_review_per_request (user_id, service_request_id),
+  INDEX idx_provider_id (provider_id),
+  INDEX idx_user_id (user_id),
+  INDEX idx_rating (rating)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- Insertar usuario de prueba (password: "test123")
 INSERT INTO `users` (

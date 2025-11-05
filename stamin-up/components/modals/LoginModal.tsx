@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { apiClient } from "@/lib/apiClient";
 
 interface LoginModalProps {
   open: boolean;
@@ -34,14 +35,25 @@ export default function LoginModal({
     setLoading(true);
 
     try {
-      // await login(email, password);
+      await apiClient.login(email, password);
+
+      // Cerrar modal y limpiar formulario
       onOpenChange(false);
       setEmail("");
       setPassword("");
-      // Mostrar mensaje de éxito
+
+      // Mensaje de éxito
       alert("¡Inicio de sesión exitoso!");
+
+      // Opcional: Recargar la página o actualizar el estado global
+      window.location.reload();
     } catch (err) {
-      setError("Credenciales inválidas. Por favor, verifica tus datos.");
+      console.error("Login error:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Credenciales inválidas. Por favor, verifica tus datos."
+      );
     } finally {
       setLoading(false);
     }
@@ -123,7 +135,7 @@ export default function LoginModal({
             <button
               type="button"
               onClick={onSwitchToRegister}
-              className="font-medium text-primary hover:text-[var(--color-primary-dark)]"
+              className="font-medium text-primary hover:text-[var(--color-primary-dark)] cursor-pointer"
             >
               Regístrate aquí
             </button>

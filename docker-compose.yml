@@ -119,8 +119,8 @@ services:
       - NODE_ENV=development
       # For client-side API calls (browser)
       - NEXT_PUBLIC_API_URL=http://localhost:3000
-      # For server-side API calls (SSR/SSG)
-      - API_URL=http://api:3000
+      # For server-side API calls (SSR/SSG/Image Optimization)
+      - API_URL=http://api-gateway:3000
       # Disable Next.js telemetry
       - NEXT_TELEMETRY_DISABLED=1
     volumes:
@@ -156,6 +156,7 @@ services:
         aws --endpoint-url=http://localstack:4566 s3api put-object --bucket local-bucket --key profile/;
         aws --endpoint-url=http://localstack:4566 s3api put-object --bucket local-bucket --key INE/;
         aws --endpoint-url=http://localstack:4566 s3api put-object --bucket local-bucket --key Work_permit/;
+        aws --endpoint-url=http://localstack:4566 s3api put-object --bucket local-bucket --key service_images/;
         
         echo 'Listando buckets...';
         aws --endpoint-url=http://localstack:4566 s3 ls;

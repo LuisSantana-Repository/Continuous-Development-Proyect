@@ -4,15 +4,19 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut, Loader2 } from "lucide-react";
 import LoginModal from "@/components/modals/LoginModal";
 import RegisterModal from "@/components/modals/RegisterModal";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const pathname = usePathname();
+
+  // Hook de autenticación
+  const { user, isAuthenticated, logout, loading } = useAuth();
 
   const menuItems = [
     { label: "Inicio", href: "/" },
@@ -24,6 +28,14 @@ export default function Header() {
       return pathname === "/";
     }
     return pathname.startsWith(href);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   };
 
   return (
@@ -62,26 +74,60 @@ export default function Header() {
               </nav>
             </div>
 
-            {/* Right Side: Auth Buttons */}
+            {/* Right Side: Auth Buttons o User Menu */}
             <div className="hidden items-center space-x-4 md:flex">
-              <Button
-                variant="ghost"
-                onClick={() => setShowLoginModal(true)}
-                className="text-primary hover:bg-[var(--color-primary)]/5"
-              >
-                Iniciar sesión
-              </Button>
-              <Button
-                onClick={() => setShowRegisterModal(true)}
-                className="bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)]"
-              >
-                Regístrate
-              </Button>
+              {loading ? (
+                // Estado de carga
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                </div>
+              ) : isAuthenticated && user ? (
+                // Usuario autenticado - mostrar botón de perfil y logout
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    onClick={() =>
+                      (window.location.href = user.provider
+                        ? "/provider"
+                        : "/profile")
+                    }
+                    className="text-primary hover:bg-[var(--color-primary)]/5 cursor-pointer"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    {user.provider ? "Panel Proveedor" : "Mi Perfil"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    className="text-red-600 hover:bg-red-50 cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Salir
+                  </Button>
+                </div>
+              ) : (
+                // No autenticado - mostrar botones de login/registro
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowLoginModal(true)}
+                    className="text-primary hover:bg-[var(--color-primary)]/5 cursor-pointer"
+                  >
+                    Iniciar sesión
+                  </Button>
+                  <Button
+                    onClick={() => setShowRegisterModal(true)}
+                    className="bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] cursor-pointer"
+                  >
+                    Regístrate
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden"
+              className="md:hidden cursor-pointer"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? (
@@ -110,26 +156,78 @@ export default function Header() {
                     {item.label}
                   </Link>
                 ))}
-                <div className="flex flex-col space-y-2 pt-4">
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setShowLoginModal(true);
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full text-primary hover:bg-[var(--color-primary)]/5"
-                  >
-                    Iniciar sesión
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setShowRegisterModal(true);
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)]"
-                  >
-                    Regístrate
-                  </Button>
+
+                {/* Mobile Auth Section */}
+                <div className="flex flex-col space-y-2 pt-4 border-t">
+                  {loading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    </div>
+                  ) : isAuthenticated && user ? (
+                    // Usuario autenticado en móvil
+                    <>
+                      <div className="px-2 py-2 text-sm">
+                        <p className="font-medium text-primary">
+                          {user.username}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {user.email}
+                        </p>
+                        {user.provider && (
+                          <span className="text-xs text-[var(--color-primary)] font-medium">
+                            Proveedor
+                          </span>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          window.location.href = user.provider
+                            ? "/provider"
+                            : "/profile";
+                        }}
+                        className="w-full justify-start text-primary cursor-pointer"
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        {user.provider ? "Panel Proveedor" : "Mi Perfil"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          handleLogout();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full justify-start text-red-600 cursor-pointer"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Cerrar Sesión
+                      </Button>
+                    </>
+                  ) : (
+                    // No autenticado en móvil
+                    <>
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setShowLoginModal(true);
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full text-primary hover:bg-[var(--color-primary)]/5 cursor-pointer"
+                      >
+                        Iniciar sesión
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setShowRegisterModal(true);
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] cursor-pointer"
+                      >
+                        Regístrate
+                      </Button>
+                    </>
+                  )}
                 </div>
               </nav>
             </div>

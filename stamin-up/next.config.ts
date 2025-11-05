@@ -16,6 +16,11 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    // Permitir tamaños personalizados para optimización
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Desactivar optimización de imágenes externas, el proxy ya maneja esto
+    unoptimized: false,
   },
   // Add webpack configuration for Docker hot reload
   webpack: (config, { isServer }) => {
@@ -25,10 +30,6 @@ const nextConfig: NextConfig = {
       aggregateTimeout: 300, // Delay before rebuilding
     };
     return config;
-  },
-  // Optional: Disable telemetry in Docker
-  telemetry: {
-    enabled: false,
   },
 };
 
