@@ -9,6 +9,7 @@ interface ServiceDetailsProps {
 /**
  * Componente que muestra información detallada del servicio
  * Incluye descripción extendida, características y disponibilidad
+ * Solo usa datos reales del backend, sin contenido hardcodeado
  */
 export function ServiceDetails({ service }: ServiceDetailsProps) {
   const features = [
@@ -32,7 +33,7 @@ export function ServiceDetails({ service }: ServiceDetailsProps) {
       title: "Alta Calificación",
       description: `${service.rating.toFixed(1)}/5 basado en ${
         service.reviewCount
-      } reseñas`,
+      } ${service.reviewCount === 1 ? "reseña" : "reseñas"}`,
     },
   ];
 
@@ -46,6 +47,10 @@ export function ServiceDetails({ service }: ServiceDetailsProps) {
     "sábado",
   ];
 
+  // Verificar si hay disponibilidad definida
+  const hasAvailability =
+    service.availability && service.availability.length > 0;
+
   return (
     <div className="space-y-10">
       {/* Descripción extendida */}
@@ -56,13 +61,6 @@ export function ServiceDetails({ service }: ServiceDetailsProps) {
         <div className="space-y-4">
           <p className="body-lg text-secondary leading-relaxed">
             {service.description}
-          </p>
-          <p className="body-base text-muted leading-relaxed">
-            Este servicio incluye diagnóstico completo, materiales de calidad
-            certificada y garantía de satisfacción. Nuestros profesionales
-            cuentan con años de experiencia y están certificados para realizar
-            trabajos de la más alta calidad. Trabajamos con los mejores
-            estándares de la industria.
           </p>
         </div>
       </Card>
@@ -99,30 +97,32 @@ export function ServiceDetails({ service }: ServiceDetailsProps) {
         </div>
       </div>
 
-      {/* Disponibilidad */}
-      <Card className="p-8 rounded-2xl shadow-lg">
-        <h2 className="heading-md text-primary mb-4">Disponibilidad</h2>
-        <p className="body-base text-secondary mb-4">
-          Este servicio está disponible los siguientes días de la semana:
-        </p>
-        <div className="flex flex-wrap gap-3">
-          {daysOfWeek.map((day) => {
-            const isAvailable = service.availability.includes(day);
-            return (
-              <span
-                key={day}
-                className={`px-4 py-2 rounded-lg body-sm font-medium capitalize transition-all ${
-                  isAvailable
-                    ? "bg-green-100 text-green-700 border-2 border-green-200"
-                    : "bg-gray-100 text-gray-400 border-2 border-gray-200"
-                }`}
-              >
-                {day}
-              </span>
-            );
-          })}
-        </div>
-      </Card>
+      {/* Disponibilidad - Solo mostrar si hay datos */}
+      {hasAvailability && (
+        <Card className="p-8 rounded-2xl shadow-lg">
+          <h2 className="heading-md text-primary mb-4">Disponibilidad</h2>
+          <p className="body-base text-secondary mb-4">
+            Este servicio está disponible los siguientes días de la semana:
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {daysOfWeek.map((day) => {
+              const isAvailable = service.availability.includes(day);
+              return (
+                <span
+                  key={day}
+                  className={`px-4 py-2 rounded-lg body-sm font-medium capitalize transition-all ${
+                    isAvailable
+                      ? "bg-green-100 text-green-700 border-2 border-green-200"
+                      : "bg-gray-100 text-gray-400 border-2 border-gray-200"
+                  }`}
+                >
+                  {day}
+                </span>
+              );
+            })}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

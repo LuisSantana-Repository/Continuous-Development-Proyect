@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Service } from '@/types';
+import { apiClient } from '@/lib/apiClient';
 
 /**
- * Hook para obtener el detalle de un servicio por ID
- * Usa datos mock de /data/services.json
+ * Hook para obtener el detalle de un servicio por ID desde el backend
+ * Incluye rating y conteo de reviews del proveedor
  */
 export function useServiceDetail(serviceId: string | undefined) {
   const [service, setService] = useState<Service | null>(null);
@@ -21,17 +22,20 @@ export function useServiceDetail(serviceId: string | undefined) {
         setIsLoading(true);
         setError(null);
 
-        // Simular delay de red
-        await new Promise((resolve) => setTimeout(resolve, 600));
-
-        // Cargar datos mock
-        const response = await fetch('/data/services.json');
-        if (!response.ok) {
-          throw new Error('Error al cargar los servicios');
+        // Obtener el servicio desde el backend
+        const foundService = await apiClient.getServiceById(serviceId);
+        
+        if (foundService) {
+          // Obtener el rating y conteo de reviews del proveedor
+          try {
+            const ratingData = await apiClient.getProviderRating(serviceId);
+            foundService.rating = ratingData.averageRating;
+            foundService.reviewCount = ratingData.totalReviews;
+          } catch (ratingError) {
+            console.error('Error fetching rating:', ratingError);
+            // Mantener valores por defecto si falla
+          }
         }
-
-        const services: Service[] = await response.json();
-        const foundService = services.find((s) => s.id === serviceId);
         
         setService(foundService || null);
       } catch (err) {

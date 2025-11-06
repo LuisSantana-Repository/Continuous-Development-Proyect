@@ -13,6 +13,7 @@ interface ReviewsSectionProps {
 /**
  * Componente que muestra las reseñas y calificaciones del servicio
  * Incluye resumen estadístico y lista de reseñas
+ * Maneja correctamente el caso cuando no hay reviews (muestra 0 sin errores)
  */
 export function ReviewsSection({
   reviews,
@@ -31,6 +32,11 @@ export function ReviewsSection({
       </div>
     );
   }
+
+  // Asegurar valores por defecto si no hay datos
+  const safeAverageRating = averageRating || 0;
+  const safeTotalReviews = totalReviews || 0;
+  const safeReviews = reviews || [];
 
   return (
     <div className="space-y-8">
@@ -51,7 +57,7 @@ export function ReviewsSection({
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="text-6xl font-bold text-primary">
-              {averageRating.toFixed(1)}
+              {safeAverageRating.toFixed(1)}
             </span>
             <Star className="w-8 h-8 fill-yellow-400 text-yellow-400" />
           </div>
@@ -60,7 +66,7 @@ export function ReviewsSection({
               <Star
                 key={index}
                 className={`w-5 h-5 ${
-                  index < Math.round(averageRating)
+                  index < Math.round(safeAverageRating)
                     ? "fill-yellow-400 text-yellow-400"
                     : "fill-gray-300 text-gray-300"
                 }`}
@@ -68,26 +74,30 @@ export function ReviewsSection({
             ))}
           </div>
           <p className="body-base text-secondary">
-            Basado en {totalReviews} {totalReviews === 1 ? "reseña" : "reseñas"}
+            {safeTotalReviews === 0
+              ? "Sin reseñas aún"
+              : `Basado en ${safeTotalReviews} ${
+                  safeTotalReviews === 1 ? "reseña" : "reseñas"
+                }`}
           </p>
         </div>
       </div>
 
       {/* Lista de reseñas */}
       <div className="space-y-4">
-        {reviews.length > 0 ? (
+        {safeReviews.length > 0 ? (
           <>
-            {reviews.slice(0, 5).map((review) => (
+            {safeReviews.slice(0, 5).map((review) => (
               <ReviewCard key={review.id} review={review} />
             ))}
 
-            {reviews.length > 5 && (
+            {safeReviews.length > 5 && (
               <div className="text-center pt-4">
                 <Button
                   variant="outline"
                   className="rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white"
                 >
-                  Ver todas las reseñas ({reviews.length})
+                  Ver todas las reseñas ({safeReviews.length})
                 </Button>
               </div>
             )}
@@ -97,9 +107,6 @@ export function ReviewsSection({
             <MessageSquare className="w-12 h-12 text-muted mx-auto mb-3" />
             <p className="body-lg text-muted">
               Este servicio aún no tiene reseñas.
-            </p>
-            <p className="body-sm text-muted mt-2">
-              ¡Sé el primero en dejar tu opinión!
             </p>
           </div>
         )}

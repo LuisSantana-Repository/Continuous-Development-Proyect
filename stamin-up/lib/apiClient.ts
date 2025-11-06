@@ -51,8 +51,8 @@ export const apiClient = {
       await handleApiError(response);
       const result = await response.json();
       
-      // Mapear los datos del backend al formato esperado por el frontend
-      const services: Service[] = result.data.map((item: any) => {
+      // Obtener ratings de todos los proveedores en paralelo
+      const servicesWithRatings = await Promise.all(result.data.map(async (item: any) => {
         // Construir URL de imagen: si viene de S3, construir URL que use el proxy del API
         let imageUrl = '/images/placeholder-service.jpg';
         if (item.IMAGE) {
@@ -77,6 +77,20 @@ export const apiClient = {
           }
         }
         
+        // Obtener rating y reviewCount del proveedor
+        let rating = 0;
+        let reviewCount = 0;
+        try {
+          const ratingResponse = await fetch(`${API_BASE_URL}/reviews/provider/${item.provider_id}/rating`);
+          if (ratingResponse.ok) {
+            const ratingData = await ratingResponse.json();
+            rating = ratingData.data.averageRating || 0;
+            reviewCount = ratingData.data.totalReviews || 0;
+          }
+        } catch (error) {
+          console.error(`Error fetching rating for provider ${item.provider_id}:`, error);
+        }
+        
         return {
           id: item.provider_id.toString(),
           title: item.workname,
@@ -84,22 +98,21 @@ export const apiClient = {
           price: parseFloat(item.base_price),
           priceType: 'fixed' as const,
           imageUrl,
-          rating: 0, // TODO: Implementar sistema de calificaciones
-          reviewCount: 0, // TODO: Implementar conteo de reseñas
-          featured: false, // TODO: Implementar servicios destacados
-          tags: [item.service_type],
+          rating,
+          reviewCount,
+          featured: false, // TODO: Implementar servicios destacados en el backend
           availability: [], // TODO: Parsear Time_Available
           createdAt: item.created_at,
           provider: {
             id: item.provider_id.toString(),
             name: item.username,
             email: item.email,
-            phone: '', // TODO: Agregar teléfono
+            phone: '', // TODO: Agregar teléfono al backend
             avatarUrl,
             bio: item.description,
-            rating: 0,
-            completedJobs: 0,
-            verified: false,
+            rating,
+            completedJobs: 0, // TODO: Implementar en el backend
+            verified: false, // TODO: Implementar verificación en el backend
             joinedDate: item.created_at,
           },
           category: {
@@ -109,9 +122,9 @@ export const apiClient = {
             description: item.service_type,
           },
         };
-      });
+      }));
       
-      return services;
+      return servicesWithRatings;
     } catch (error) {
       console.error('Error fetching provider services:', error);
       throw error;
@@ -150,7 +163,7 @@ export const apiClient = {
         results = results.filter(s => 
           s.title.toLowerCase().includes(query) ||
           s.description.toLowerCase().includes(query) ||
-          s.tags.some(tag => tag.toLowerCase().includes(query))
+          s.category.name.toLowerCase().includes(query)
         );
       }
       
@@ -366,6 +379,105 @@ export const apiClient = {
 
     await handleApiError(response);
     return response.json();
+  },
+
+  /**
+   * REVIEWS
+   */
+
+  /**
+   * Obtiene las reviews de un proveedor
+   * @param providerId - ID del proveedor
+   * @param page - Número de página
+   * @param pageSize - Cantidad por página
+   * @returns Promise con las reviews
+   */
+  async getProviderReviews(
+    providerId: string,
+    page: number = 1,
+    pageSize: number = 50
+  ): Promise<{
+    reviews: any[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  }> {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/reviews/provider/${providerId}?page=${page}&pageSize=${pageSize}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      await handleApiError(response);
+      const result = await response.json();
+
+      return {
+        reviews: result.data || [],
+        pagination: result.pagination || {
+          page: 1,
+          pageSize: pageSize,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    } catch (error) {
+      console.error('Error fetching provider reviews:', error);
+      // Retornar estructura vacía en caso de error
+      return {
+        reviews: [],
+        pagination: {
+          page: 1,
+          pageSize: pageSize,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    }
+  },
+
+  /**
+   * Obtiene el rating promedio de un proveedor
+   * @param providerId - ID del proveedor
+   * @returns Promise con el rating promedio y total de reviews
+   */
+  async getProviderRating(providerId: string): Promise<{
+    providerId: number;
+    averageRating: number;
+    totalReviews: number;
+  }> {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/reviews/provider/${providerId}/rating`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      await handleApiError(response);
+      const result = await response.json();
+
+      return result.data || { providerId: parseInt(providerId), averageRating: 0, totalReviews: 0 };
+    } catch (error) {
+      console.error('Error fetching provider rating:', error);
+      return { providerId: parseInt(providerId), averageRating: 0, totalReviews: 0 };
+    }
   },
 };
 

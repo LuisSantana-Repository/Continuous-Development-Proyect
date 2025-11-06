@@ -5,7 +5,7 @@ import { router as healthRoutes } from "./health.js";
 import { router as serviceRoutes } from "./service.js";
 import { router as imageRoutes } from "./images.js";
 import { router as serviceRequestRoutes } from "./serviceRequests.js";
-// import { router as reviewRoutes } from "./reviews.js";
+import { router as reviewRoutes } from "./reviews.js";
 
 const router = express.Router();
 
@@ -27,7 +27,7 @@ router.use("/images", imageRoutes);
 // Service Requests
 router.use("/service-requests", serviceRequestRoutes);
 
-// Reviews (pendiente de implementar)
-// router.use("/reviews", reviewRoutes);
+// Reviews
+router.use("/reviews", reviewRoutes);
 
 export default router;

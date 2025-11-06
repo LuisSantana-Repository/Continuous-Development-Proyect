@@ -379,3 +379,98 @@ export function validateServiceRequestUpdate(data) {
 
   return null;
 }
+
+/**
+ * Valida los datos de una nueva reseña
+ */
+export function validateReview(data) {
+  const { userId, providerId, serviceRequestId, rating, comment } = data;
+
+  // Validar campos requeridos
+  if (!userId || !providerId || rating === undefined) {
+    return "user id, provider id, and rating are required";
+  }
+
+  // Validar userId (debe ser un string UUID)
+  if (typeof userId !== "string" || userId.trim().length === 0) {
+    return "user id must be a valid string";
+  }
+
+  // Validar providerId (debe ser un número)
+  if (isNaN(parseInt(providerId))) {
+    return "provider id must be a valid number";
+  }
+
+  // Validar serviceRequestId si está presente (debe ser un string UUID)
+  if (
+    serviceRequestId !== undefined &&
+    serviceRequestId !== null &&
+    (typeof serviceRequestId !== "string" ||
+      serviceRequestId.trim().length === 0)
+  ) {
+    return "service request id must be a valid string";
+  }
+
+  // Validar rating (debe ser un número entre 1 y 5)
+  const ratingNum = Number(rating);
+  if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+    return "rating must be a number between 1 and 5";
+  }
+  // Validar que sea entero
+  if (!Number.isInteger(ratingNum)) {
+    return "rating must be an integer";
+  }
+
+  // Validar comment si está presente
+  if (comment !== undefined && comment !== null) {
+    if (typeof comment !== "string") {
+      return "comment must be a string";
+    }
+    if (comment.trim().length > 0 && comment.trim().length < 10) {
+      return "comment must be at least 10 characters if provided";
+    }
+    if (comment.length > 1000) {
+      return "comment must be less than 1000 characters";
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Valida las actualizaciones de una reseña
+ */
+export function validateReviewUpdate(data) {
+  const { rating, comment } = data;
+
+  // Al menos un campo debe estar presente
+  if (rating === undefined && comment === undefined) {
+    return "at least one field must be provided";
+  }
+
+  // Validar rating si está presente
+  if (rating !== undefined) {
+    const ratingNum = Number(rating);
+    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+      return "rating must be a number between 1 and 5";
+    }
+    if (!Number.isInteger(ratingNum)) {
+      return "rating must be an integer";
+    }
+  }
+
+  // Validar comment si está presente
+  if (comment !== undefined) {
+    if (typeof comment !== "string") {
+      return "comment must be a string";
+    }
+    if (comment.trim().length > 0 && comment.trim().length < 10) {
+      return "comment must be at least 10 characters if provided";
+    }
+    if (comment.length > 1000) {
+      return "comment must be less than 1000 characters";
+    }
+  }
+
+  return null;
+}

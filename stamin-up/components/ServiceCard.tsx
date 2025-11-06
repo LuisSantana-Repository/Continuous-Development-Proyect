@@ -50,7 +50,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           </h3>
 
           {/* Provider */}
-          <div className="mb-3 flex items-center space-x-2">
+          <div className="mb-2 flex items-center space-x-2">
             <div className="relative h-6 w-6 overflow-hidden rounded-full bg-[var(--color-background-secondary)]">
               {service.provider.avatarUrl && (
                 <Image
@@ -73,26 +73,17 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           </div>
 
           {/* Rating and Reviews */}
-          <div className="mb-3 flex items-center space-x-3">
+          <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-1">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span className="body-sm font-semibold">{service.rating}</span>
+              <span className="body-sm font-semibold">
+                {service.rating > 0 ? service.rating.toFixed(1) : "N/A"}
+              </span>
             </div>
             <span className="body-sm text-[var(--color-text-muted)]">
-              ({service.reviewCount} reseñas)
+              ({service.reviewCount}{" "}
+              {service.reviewCount === 1 ? "reseña" : "reseñas"})
             </span>
-          </div>
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2">
-            {service.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full bg-[var(--color-background-secondary)] px-2 py-1 text-xs text-[var(--color-text-secondary)]"
-              >
-                {tag}
-              </span>
-            ))}
           </div>
         </CardContent>
 

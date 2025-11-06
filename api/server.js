@@ -32,6 +32,7 @@ app.get("/", (req, res) => {
       services: "/services/*",
       images: "/images/*",
       serviceRequests: "/service-requests/*",
+      reviews: "/reviews/*",
     },
   });
 });

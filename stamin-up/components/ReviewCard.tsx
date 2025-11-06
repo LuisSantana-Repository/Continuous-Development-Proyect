@@ -1,6 +1,7 @@
 import { Review } from "@/types";
 import { Star } from "lucide-react";
 import { Card } from "./ui/card";
+import { Avatar } from "./ui/Avatar";
 
 interface ReviewCardProps {
   review: Review;
@@ -25,10 +26,11 @@ export function ReviewCard({ review }: ReviewCardProps) {
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <div className="flex-shrink-0">
-          <img
-            src={review.userAvatar || "https://i.pravatar.cc/150?img=0"}
+          <Avatar
+            src={review.userAvatar}
             alt={review.userName}
-            className="w-12 h-12 rounded-full object-cover"
+            fallbackText={review.userName}
+            size="md"
           />
         </div>
 

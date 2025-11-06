@@ -20,7 +20,6 @@ export interface Service {
   rating: number;
   reviewCount: number;
   featured: boolean;
-  tags: string[];
   availability: string[];
   createdAt: string;
 }

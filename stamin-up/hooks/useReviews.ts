@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Review } from '@/types';
+import { apiClient } from '@/lib/apiClient';
 
 /**
- * Hook para obtener las reseñas de un servicio
- * Usa datos mock de /data/reviews.json
+ * Hook para obtener las reseñas de un proveedor desde el backend
+ * El serviceId en este contexto es el providerId
  */
-export function useReviews(serviceId: string | undefined) {
+export function useReviews(providerId: string | undefined) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     async function fetchReviews() {
-      if (!serviceId) {
+      if (!providerId) {
         setIsLoading(false);
         return;
       }
@@ -21,21 +22,26 @@ export function useReviews(serviceId: string | undefined) {
         setIsLoading(true);
         setError(null);
 
-        // Simular delay de red
-        await new Promise((resolve) => setTimeout(resolve, 400));
-
-        // Cargar datos mock
-        const response = await fetch('/data/reviews.json');
-        if (!response.ok) {
-          throw new Error('Error al cargar las reseñas');
-        }
-
-        const allReviews: Review[] = await response.json();
-        const serviceReviews = allReviews.filter((r) => r.serviceId === serviceId);
+        const result = await apiClient.getProviderReviews(providerId, 1, 50);
         
-        setReviews(serviceReviews);
+        // Mapear los datos del backend al formato del frontend
+        const mappedReviews: Review[] = (result.reviews || []).map((item: any) => ({
+          id: item.review_id,
+          serviceId: item.provider_id.toString(),
+          userId: item.user_id,
+          userName: item.username || 'Usuario', // Usar username del backend
+          userAvatar: item.user_photo || undefined, // Usar foto del backend o undefined
+          rating: item.rating,
+          comment: item.comment || '',
+          createdAt: item.created_at,
+          verified: false, // El backend no tiene este campo
+        }));
+        
+        setReviews(mappedReviews);
       } catch (err) {
+        console.error('Error fetching reviews:', err);
         setError(err instanceof Error ? err : new Error('Error desconocido'));
+        // En caso de error, dejar array vacío en lugar de fallar
         setReviews([]);
       } finally {
         setIsLoading(false);
@@ -43,7 +49,7 @@ export function useReviews(serviceId: string | undefined) {
     }
 
     fetchReviews();
-  }, [serviceId]);
+  }, [providerId]);
 
   return { reviews, isLoading, error };
 }

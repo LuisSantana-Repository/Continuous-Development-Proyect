@@ -62,19 +62,21 @@ export function ServiceHero({ service, onStartRequest }: ServiceHeroProps) {
               {service.description}
             </p>
 
-            {/* Rating y reseñas */}
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm">
-                <Star className="w-5 h-5 fill-yellow-300 text-yellow-300" />
-                <span className="body-lg font-semibold">
-                  {service.rating.toFixed(1)}
+            {/* Rating y reseñas - Mostrar solo si hay reviews */}
+            {service.reviewCount > 0 && (
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm">
+                  <Star className="w-5 h-5 fill-yellow-300 text-yellow-300" />
+                  <span className="body-lg font-semibold">
+                    {service.rating.toFixed(1)}
+                  </span>
+                </div>
+                <span className="body-base text-white/80">
+                  ({service.reviewCount}{" "}
+                  {service.reviewCount === 1 ? "reseña" : "reseñas"})
                 </span>
               </div>
-              <span className="body-base text-white/80">
-                ({service.reviewCount}{" "}
-                {service.reviewCount === 1 ? "reseña" : "reseñas"})
-              </span>
-            </div>
+            )}
 
             {/* Precio */}
             <div className="bg-white/10 backdrop-blur-sm p-5 rounded-xl border border-white/20">
@@ -83,21 +85,6 @@ export function ServiceHero({ service, onStartRequest }: ServiceHeroProps) {
                 {formatPrice(service.price, service.priceType)}
               </p>
             </div>
-
-            {/* Tags */}
-            {service.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {service.tags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant="secondary"
-                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 capitalize"
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
 
             {/* CTA Principal */}
             <div className="pt-2">
