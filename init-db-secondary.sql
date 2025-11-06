@@ -39,3 +39,16 @@ CREATE TABLE IF NOT EXISTS `search_logs` (
   INDEX idx_user_id (user_id),
   INDEX idx_timestamp (timestamp)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+-- Tabla de pagos
+CREATE TABLE IF NOT EXISTS `payment` (
+    `payment_id` VARCHAR(36) PRIMARY KEY,
+    `request_id` VARCHAR(36) NOT NULL,
+    `date` DATETIME NOT NULL,
+    `amount` DECIMAL(10,2) NOT NULL,
+    `cardDetails` JSON NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_request_id (request_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
