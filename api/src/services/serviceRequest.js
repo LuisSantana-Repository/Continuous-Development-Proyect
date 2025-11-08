@@ -316,3 +316,33 @@ export async function cancelServiceRequest(requestId) {
 
   return { success: true };
 }
+
+export async function updatePaymentStatus(data) {
+  const { requestId, paymentStatus } = data;
+  const db = await getPrimaryPool();
+
+  const [result] = await db.execute(
+    "UPDATE service_requests SET payment_status = ? WHERE request_id = ?",
+    [paymentStatus, requestId]
+  );
+
+  if (result.affectedRows === 0) {
+    throw new Error("REQUEST_NOT_FOUND");
+  }
+  updateStatus({ requestId, status: "in_progress" });
+  return { success: true };
+}
+
+export async function updateStatus(data) {
+  const { requestId, status } = data;
+  const db = await getPrimaryPool();
+  const [result] = await db.execute(
+    "UPDATE service_requests SET status = ? WHERE request_id = ?",
+    [status, requestId]
+  );
+
+  if (result.affectedRows === 0) {
+    throw new Error("REQUEST_NOT_FOUND");
+  }
+  return { success: true };
+}

@@ -18,7 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, MapPin, Upload, Image as ImageIcon, X, ArrowLeft } from "lucide-react";
+import {
+  Loader2,
+  MapPin,
+  Upload,
+  Image as ImageIcon,
+  X,
+  ArrowLeft,
+} from "lucide-react";
 import { apiClient } from "@/lib/apiClient";
 import { useCategories } from "@/hooks/useCategories";
 import { Checkbox } from "@/components/ui/checkbox";
