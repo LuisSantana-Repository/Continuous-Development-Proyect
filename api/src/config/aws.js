@@ -1,5 +1,8 @@
 import { S3Client } from "@aws-sdk/client-s3";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+
+
 
 const isLocal = process.env.NODE_ENV === 'development';
 
@@ -19,3 +22,10 @@ const awsConfig = isLocal
 
 export const s3Client = new S3Client(awsConfig);
 export const dynamoDBClient = new DynamoDBClient(awsConfig);
+
+export const docClient = DynamoDBDocumentClient.from(dynamoDBClient, {
+    marshallOptions: {
+        removeUndefinedValues: true, // Remove undefined values
+        convertEmptyValues: false,    // Don't convert empty strings/sets
+    },
+});

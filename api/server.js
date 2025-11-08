@@ -4,9 +4,15 @@ import cookieParser from "cookie-parser";
 import routes from "./src/routes/router.js";
 import { errorHandler } from "./src/middleware/errorHandler.js";
 import { listS3Objects } from "./src/services/s3.js";
+import { createServer } from "http";
+import { initializeWebSocket } from "./src/services/websocket.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+
+const httpServer = createServer(app);
+
 
 // Global Middleware
 app.use(
@@ -33,6 +39,8 @@ app.get("/", (req, res) => {
       images: "/images/*",
       serviceRequests: "/service-requests/*",
       reviews: "/reviews/*",
+      chats: "/chats/*",
+      websocket: "ws://localhost:" + PORT,
     },
   });
 });
@@ -45,6 +53,11 @@ app.use((req, res) => res.status(404).json({ error: "not found" }));
 app.use(errorHandler);
 
 const objects = await listS3Objects("profile/");
+
+const io = initializeWebSocket(httpServer);
+
+app.set("io", io);
+
 
 // Start server
 app.listen(PORT, () => {
