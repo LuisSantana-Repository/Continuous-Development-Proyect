@@ -10,6 +10,8 @@ import {
   Flag,
   Edit,
   Clock,
+  Play,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +31,8 @@ interface RequestCardProps {
   onOpenChat: (requestId: string) => void;
   onReport: (requestId: string) => void;
   onViewDetail: (requestId: string) => void;
+  onStartWork: (requestId: string) => void;
+  onCompleteWork: (requestId: string) => void;
 }
 
 const STATUS_CONFIG = {
@@ -48,6 +52,8 @@ export default function RequestCard({
   onOpenChat,
   onReport,
   onViewDetail,
+  onStartWork,
+  onCompleteWork,
 }: RequestCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -71,6 +77,8 @@ export default function RequestCard({
 
   const canAccept = request.status === "pending";
   const canReject = request.status === "pending";
+  const canStartWork = request.status === "accepted";
+  const canComplete = request.status === "in_progress";
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -140,31 +148,49 @@ export default function RequestCard({
       </CardContent>
 
       <CardFooter className="flex-col gap-2 pt-4 border-t">
-        {/* Primera fila: Aceptar/Rechazar */}
-        {(canAccept || canReject) && (
+        {/* Primera fila: Aceptar/Rechazar O Iniciar Trabajo O Completar */}
+        {canAccept && canReject && (
           <div className="flex gap-2 w-full">
-            {canAccept && (
-              <Button
-                size="sm"
-                onClick={() => onAccept(request.requestId)}
-                className="flex-1 gap-2"
-              >
-                <Check className="h-4 w-4" />
-                Aceptar
-              </Button>
-            )}
-            {canReject && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onReject(request.requestId)}
-                className="flex-1 gap-2 text-red-600 border-red-300 hover:bg-red-50"
-              >
-                <X className="h-4 w-4" />
-                Rechazar
-              </Button>
-            )}
+            <Button
+              size="sm"
+              onClick={() => onAccept(request.requestId)}
+              className="flex-1 gap-2"
+            >
+              <Check className="h-4 w-4" />
+              Aceptar
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onReject(request.requestId)}
+              className="flex-1 gap-2 text-red-600 border-red-300 hover:bg-red-50"
+            >
+              <X className="h-4 w-4" />
+              Rechazar
+            </Button>
           </div>
+        )}
+
+        {canStartWork && (
+          <Button
+            size="sm"
+            onClick={() => onStartWork(request.requestId)}
+            className="w-full gap-2 bg-blue-600 hover:bg-blue-700"
+          >
+            <Play className="h-4 w-4" />
+            Iniciar Trabajo
+          </Button>
+        )}
+
+        {canComplete && (
+          <Button
+            size="sm"
+            onClick={() => onCompleteWork(request.requestId)}
+            className="w-full gap-2 bg-green-600 hover:bg-green-700"
+          >
+            <CheckCircle className="h-4 w-4" />
+            Marcar como Completado
+          </Button>
         )}
 
         {/* Segunda fila: Ver detalles, Chat (solo pendiente), Editar (solo pendiente), Reportar (solo completado) */}

@@ -22,11 +22,11 @@ export default function PersonalInfoCard({ user }: PersonalInfoCardProps) {
       label: "Correo electrónico",
       value: user.email,
     },
-    {
-      icon: Phone,
-      label: "Teléfono",
-      value: user.phone,
-    },
+    // {
+    //   icon: Phone,
+    //   label: "Teléfono",
+    //   value: user.phone,
+    // },
     {
       icon: MapPin,
       label: "Dirección",

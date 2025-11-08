@@ -1,6 +1,15 @@
 "use client";
 
-import { X, User, Clock, MapPin, Phone, DollarSign } from "lucide-react";
+import {
+  X,
+  User,
+  Clock,
+  MapPin,
+  Phone,
+  DollarSign,
+  Play,
+  CheckCircle,
+} from "lucide-react";
 import Image from "next/image";
 import {
   Dialog,
@@ -16,6 +25,8 @@ interface RequestDetailDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   request: ProviderRequest | null;
+  onStartWork?: (requestId: string) => void;
+  onCompleteWork?: (requestId: string) => void;
 }
 
 const STATUS_CONFIG = {
@@ -41,10 +52,14 @@ export default function RequestDetailDrawer({
   open,
   onOpenChange,
   request,
+  onStartWork,
+  onCompleteWork,
 }: RequestDetailDrawerProps) {
   if (!request) return null;
 
   const statusConfig = STATUS_CONFIG[request.status];
+  const canStartWork = request.status === "accepted";
+  const canComplete = request.status === "in_progress";
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -60,14 +75,14 @@ export default function RequestDetailDrawer({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+      <DialogContent className="max-w-2xl max-h-[90vh] p-0 flex flex-col overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
           <DialogTitle className="heading-lg text-primary pr-8">
             Detalle de Solicitud
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 px-6 py-4 overflow-y-auto flex-1">
+        <div className="overflow-y-auto flex-1 px-6 py-4">
           {/* Header con Cliente */}
           <div className="flex items-start gap-4 pb-4 border-b">
             <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full bg-[var(--color-primary)]">
@@ -173,7 +188,35 @@ export default function RequestDetailDrawer({
         </div>
 
         {/* Acciones - Footer fijo */}
-        <div className="flex gap-3 px-6 py-4 border-t bg-white">
+        <div className="flex flex-col gap-2 px-6 py-4 border-t flex-shrink-0">
+          {/* Botón de acción principal según estado */}
+          {canStartWork && onStartWork && (
+            <Button
+              onClick={() => {
+                onStartWork(request.requestId);
+                onOpenChange(false);
+              }}
+              className="w-full gap-2 bg-blue-600 hover:bg-blue-700"
+            >
+              <Play className="h-4 w-4" />
+              Iniciar Trabajo
+            </Button>
+          )}
+
+          {canComplete && onCompleteWork && (
+            <Button
+              onClick={() => {
+                onCompleteWork(request.requestId);
+                onOpenChange(false);
+              }}
+              className="w-full gap-2 bg-green-600 hover:bg-green-700"
+            >
+              <CheckCircle className="h-4 w-4" />
+              Marcar como Completado
+            </Button>
+          )}
+
+          {/* Botón cerrar */}
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}

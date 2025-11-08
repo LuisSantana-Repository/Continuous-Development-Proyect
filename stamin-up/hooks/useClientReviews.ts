@@ -1,35 +1,66 @@
-import { useState, useEffect } from 'react';
-import type { ClientReview } from '@/types';
+import { useState, useEffect, useCallback } from 'react';
+import { ClientReview } from '@/types';
+import { apiClient } from '@/lib/apiClient';
 
 export function useClientReviews() {
   const [reviews, setReviews] = useState<ClientReview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchReviews() {
-      try {
-        setIsLoading(true);
-        // Simulamos un pequeño delay para mostrar el skeleton
-        await new Promise((resolve) => setTimeout(resolve, 350));
-        
-        const response = await fetch('/data/client-reviews.json');
-        if (!response.ok) {
-          throw new Error('Error al cargar las reseñas');
-        }
-        const data = await response.json();
-        setReviews(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error desconocido');
-        setReviews([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const loadReviews = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-    fetchReviews();
+      // Obtener el userId del perfil autenticado
+      const profile = await apiClient.getProfile();
+      if (!profile?.user?.user_id) {
+        throw new Error('No se pudo obtener el ID del usuario');
+      }
+
+      // Obtener las reviews del backend
+      const { reviews: backendReviews } = await apiClient.getUserReviews(
+        profile.user.user_id,
+        1,
+        50
+      );
+
+      // Transformar las reviews al formato del frontend
+      const transformedReviews: ClientReview[] = backendReviews.map((review: any) => {
+        // Obtener el nombre del servicio y proveedor desde el JOIN
+        const serviceName = review.service_type || 'Servicio';
+        const providerName = review.provider_workname || review.provider_username || 'Proveedor';
+
+        return {
+          id: review.review_id.toString(),
+          orderId: review.service_request_id?.toString() || '',
+          serviceName,
+          providerName,
+          rating: review.rating,
+          comment: review.comment || '',
+          date: review.created_at, // Pasar la fecha ISO directamente
+          tags: [], // Opcional, backend no devuelve tags actualmente
+        };
+      });
+
+      setReviews(transformedReviews);
+    } catch (err) {
+      console.error('Error loading user reviews:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+      setReviews([]);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  return { reviews, isLoading, error };
+  useEffect(() => {
+    loadReviews();
+  }, [loadReviews]);
+
+  return {
+    reviews,
+    isLoading,
+    error,
+    refetch: loadReviews,
+  };
 }

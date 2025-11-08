@@ -72,21 +72,6 @@ export default function ProfilePage() {
       {/* Main Content */}
       <Section size="md">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-3">
-          {/* Sidebar - Personal Info */}
-          <div className="space-y-6">
-            <PersonalInfoCard user={localUser} />
-
-            {/* Logout Button */}
-            <Button
-              variant="outline"
-              className="w-full gap-2 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4" />
-              Cerrar sesión
-            </Button>
-          </div>
-
           {/* Main Content - Orders & Reviews */}
           <div className="space-y-12 lg:col-span-2">
             {/* Service History Section */}
@@ -124,6 +109,21 @@ export default function ProfilePage() {
 
               <ClientReviewsList reviews={reviews} isLoading={reviewsLoading} />
             </div>
+          </div>
+
+          {/* Sidebar - Personal Info */}
+          <div className="space-y-6">
+            <PersonalInfoCard user={localUser} />
+
+            {/* Logout Button */}
+            <Button
+              variant="outline"
+              className="w-full gap-2 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4" />
+              Cerrar sesión
+            </Button>
           </div>
         </div>
       </Section>

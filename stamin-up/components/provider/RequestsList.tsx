@@ -14,6 +14,8 @@ interface RequestsListProps {
   onOpenChat: (requestId: string) => void;
   onReport: (requestId: string) => void;
   onViewDetail: (requestId: string) => void;
+  onStartWork: (requestId: string) => void;
+  onCompleteWork: (requestId: string) => void;
 }
 
 export default function RequestsList({
@@ -25,6 +27,8 @@ export default function RequestsList({
   onOpenChat,
   onReport,
   onViewDetail,
+  onStartWork,
+  onCompleteWork,
 }: RequestsListProps) {
   const [filter, setFilter] = useState<string>("all");
 
@@ -92,6 +96,17 @@ export default function RequestsList({
           En Proceso (
           {requests.filter((r) => r.status === "in_progress").length})
         </button>
+        <button
+          onClick={() => setFilter("completed")}
+          className={`px-4 py-2 rounded-lg body-sm font-medium transition-colors ${
+            filter === "completed"
+              ? "bg-[var(--color-primary)] text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          Completadas ({requests.filter((r) => r.status === "completed").length}
+          )
+        </button>
       </div>
 
       {/* Lista de Requests */}
@@ -113,6 +128,8 @@ export default function RequestsList({
               onOpenChat={onOpenChat}
               onReport={onReport}
               onViewDetail={onViewDetail}
+              onStartWork={onStartWork}
+              onCompleteWork={onCompleteWork}
             />
           ))}
         </div>

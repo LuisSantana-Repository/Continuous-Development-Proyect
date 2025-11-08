@@ -242,7 +242,24 @@ export function ServiceRequestModal({
         amount: service.price,
       });
 
-      setRequestResult(result);
+      // Construir el objeto completo con los datos del formulario
+      const completeResult: ServiceRequestResponse = {
+        ...result,
+        serviceRequest: {
+          requestId: result.requestId,
+          serviceId: service.id,
+          userId,
+          preferredDate: new Date(formData.preferredDate).toISOString(),
+          address: formData.address.trim(),
+          contactPhone: formData.contactPhone.trim(),
+          description: formData.description.trim(),
+          amount: service.price,
+          status: "pending",
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      setRequestResult(completeResult);
       setShowConfirmation(true);
       onOpenChange(false);
     } catch (err) {
@@ -565,7 +582,9 @@ export function ServiceRequestModal({
                     Fecha solicitada:
                   </span>
                   <span className="font-medium">
-                    {formatDate(requestResult.serviceRequest.preferredDate)}
+                    {requestResult.serviceRequest?.preferredDate
+                      ? formatDate(requestResult.serviceRequest.preferredDate)
+                      : "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">

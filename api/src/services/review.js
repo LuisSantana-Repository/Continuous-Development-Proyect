@@ -212,23 +212,28 @@ export async function getUserReviews(userId, page = 1, pageSize = 10) {
   );
   const total = countRows[0].total;
 
-  // Get paginated reviews
-  const [rows] = await db.execute(
-    `SELECT 
-      review_id,
-      user_id,
-      provider_id,
-      service_request_id,
-      rating,
-      comment,
-      created_at,
-      updated_at
-     FROM user_reviews 
-     WHERE user_id = ?
-     ORDER BY created_at DESC
-     LIMIT ? OFFSET ?`,
-    [userId, safePageSize, offset]
-  );
+  // Get paginated reviews - INCLUIR JOIN con providers, users y ServiceType
+  const selectQuery = `SELECT 
+      r.review_id,
+      r.user_id,
+      r.provider_id,
+      r.service_request_id,
+      r.rating,
+      r.comment,
+      r.created_at,
+      r.updated_at,
+      p.workname as provider_workname,
+      u.username as provider_username,
+      st.type_name as service_type
+     FROM user_reviews r
+     INNER JOIN providers p ON r.provider_id = p.provider_id
+     INNER JOIN users u ON p.user_id = u.user_id
+     LEFT JOIN ServiceType st ON p.Service_Type = st.id
+     WHERE r.user_id = ?
+     ORDER BY r.created_at DESC
+     LIMIT ${safePageSize} OFFSET ${offset}`;
+
+  const [rows] = await db.query(selectQuery, [userId]);
 
   const totalPages = Math.ceil(total / safePageSize);
 

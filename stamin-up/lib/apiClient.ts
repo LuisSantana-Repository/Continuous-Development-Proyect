@@ -132,15 +132,107 @@ export const apiClient = {
   },
 
   /**
-   * Obtiene un servicio por ID
+   * Obtiene un servicio por ID directamente desde el backend
    * @param id - ID del servicio
    * @returns Promise con el servicio encontrado
    */
   async getServiceById(id: string): Promise<Service | null> {
     try {
-      const services = await this.getServices(1, 100);
-      const service = services.find(s => s.id === id);
-      return service || null;
+      const response = await fetch(`${API_BASE_URL}/services/${id}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error(`Error fetching service: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success || !result.data) {
+        return null;
+      }
+
+      const item = result.data;
+
+      // Construir URLs de imágenes
+      const imageUrl = item.IMAGE 
+        ? `${API_BASE_URL}/images/${item.IMAGE}`
+        : '/images/placeholder-service.jpg';
+      
+      const avatarUrl = item.user_photo 
+        ? `${API_BASE_URL}/images/${item.user_photo}`
+        : '/images/placeholder-avatar.jpg';
+
+      // Obtener rating del proveedor
+      let rating = 0;
+      let reviewCount = 0;
+      try {
+        const ratingData = await this.getProviderRating(item.provider_id.toString());
+        rating = ratingData.averageRating;
+        reviewCount = ratingData.totalReviews;
+      } catch (error) {
+        console.error('Error fetching rating:', error);
+      }
+
+      // Parsear y formatear Time_Available
+      let providerAvailability: any = {
+        monday: null,
+        tuesday: null,
+        wednesday: null,
+        thursday: null,
+        friday: null,
+        saturday: null,
+        sunday: null,
+      };
+
+      if (item.Time_Available) {
+        try {
+          // Si es string, parsearlo
+          const parsed = typeof item.Time_Available === 'string' 
+            ? JSON.parse(item.Time_Available) 
+            : item.Time_Available;
+          
+          providerAvailability = parsed;
+        } catch (error) {
+          console.error('Error parsing Time_Available:', error);
+        }
+      }
+
+      const service: Service = {
+        id: item.provider_id.toString(),
+        title: item.workname,
+        description: item.description,
+        price: parseFloat(item.base_price),
+        priceType: 'fixed',
+        imageUrl,
+        rating,
+        reviewCount,
+        featured: false,
+        availability: [], // Deprecated, usar providerAvailability
+        providerAvailability, // ✅ Nuevo campo estructurado
+        createdAt: item.created_at,
+        provider: {
+          id: item.provider_id.toString(),
+          name: item.username,
+          email: item.email,
+          phone: '',
+          avatarUrl,
+          bio: item.description,
+          rating,
+          completedJobs: 0,
+          verified: false,
+          joinedDate: item.created_at,
+        },
+        category: {
+          id: item.service_type_id?.toString() || item.provider_id.toString(),
+          name: item.service_type,
+          slug: item.service_type.toLowerCase().replace(/\s+/g, '-'),
+          description: item.service_type,
+        },
+      };
+
+      return service;
     } catch (error) {
       console.error('Error fetching service by id:', error);
       return null;
@@ -259,13 +351,41 @@ export const apiClient = {
    * Crea una nueva solicitud de servicio (Service Request / Booking)
    * @param payload - Datos de la solicitud sin requestId, createdAt, status
    * @returns Promise con la respuesta del servidor
-   * @deprecated Por ahora lanza error hasta que se implemente el endpoint
    */
   async postServiceRequest(
     payload: Omit<ServiceRequest, 'requestId' | 'createdAt' | 'status'>
   ): Promise<ServiceRequestResponse> {
-    // TODO: Implementar cuando exista endpoint en el backend
-    throw new Error('Endpoint de solicitudes de servicio no implementado aún');
+    try {
+      const response = await fetch(`${API_BASE_URL}/service-requests`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Importante para enviar el token en cookies
+        body: JSON.stringify({
+          providerId: parseInt(payload.serviceId), // El backend espera providerId como número
+          description: payload.description,
+          preferredDate: payload.preferredDate, // Formato ISO string
+          address: payload.address,
+          contactPhone: payload.contactPhone,
+          amount: payload.amount, // Opcional
+        }),
+      });
+
+      await handleApiError(response);
+      const result = await response.json();
+
+      return {
+        requestId: result.requestId,
+        message: result.message || 'Solicitud creada exitosamente',
+      };
+    } catch (err) {
+      // Re-lanzar con mensaje más descriptivo
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        throw new Error('Error de conexión. Verifica que el servidor esté disponible.');
+      }
+      throw err;
+    }
   },
 
   /**
@@ -297,7 +417,15 @@ export const apiClient = {
       };
       Latitude: number;
       Longitude: number;
-      Time_Available: string;
+      Time_Available: {    // Objeto con disponibilidad por día
+        monday: { start: string; end: string } | null;
+        tuesday: { start: string; end: string } | null;
+        wednesday: { start: string; end: string } | null;
+        thursday: { start: string; end: string } | null;
+        friday: { start: string; end: string } | null;
+        saturday: { start: string; end: string } | null;
+        sunday: { start: string; end: string } | null;
+      };
       Images: string[];    // Array de imágenes en base64
     };
   }): Promise<{ message: string; userId?: string }> {
@@ -355,6 +483,7 @@ export const apiClient = {
       Foto?: string;
       Latitude?: number;
       Longitude?: number;
+      created_at?: string;
       work?: any;
     }
   }> {
@@ -450,6 +579,71 @@ export const apiClient = {
   },
 
   /**
+   * Obtiene las reviews escritas por un usuario
+   * @param userId - ID del usuario
+   * @param page - Número de página
+   * @param pageSize - Cantidad por página
+   * @returns Promise con las reviews del usuario
+   */
+  async getUserReviews(
+    userId: string,
+    page: number = 1,
+    pageSize: number = 50
+  ): Promise<{
+    reviews: any[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  }> {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/reviews/user/${userId}?page=${page}&pageSize=${pageSize}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Enviar token en cookies
+        }
+      );
+
+      await handleApiError(response);
+      const result = await response.json();
+
+      return {
+        reviews: result.data || [],
+        pagination: result.pagination || {
+          page: 1,
+          pageSize: pageSize,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    } catch (error) {
+      console.error('Error fetching user reviews:', error);
+      // Retornar estructura vacía en caso de error
+      return {
+        reviews: [],
+        pagination: {
+          page: 1,
+          pageSize: pageSize,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    }
+  },
+
+  /**
    * Obtiene el rating promedio de un proveedor
    * @param providerId - ID del proveedor
    * @returns Promise con el rating promedio y total de reviews
@@ -477,6 +671,232 @@ export const apiClient = {
     } catch (error) {
       console.error('Error fetching provider rating:', error);
       return { providerId: parseInt(providerId), averageRating: 0, totalReviews: 0 };
+    }
+  },
+
+  /**
+   * SERVICE REQUESTS (ORDERS)
+   */
+
+  /**
+   * Obtiene las solicitudes de servicio de un usuario (historial de órdenes)
+   * @param userId - ID del usuario
+   * @param page - Número de página
+   * @param pageSize - Cantidad por página
+   * @param status - Filtro opcional de estado
+   * @returns Promise con las solicitudes del usuario
+   */
+  async getUserServiceRequests(
+    userId: string,
+    page: number = 1,
+    pageSize: number = 50,
+    status?: string
+  ): Promise<{
+    data: any[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  }> {
+    try {
+      let url = `${API_BASE_URL}/service-requests/user/${userId}?page=${page}&pageSize=${pageSize}`;
+      if (status) {
+        url += `&status=${status}`;
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Enviar token en cookies
+      });
+
+      await handleApiError(response);
+      const result = await response.json();
+
+      return {
+        data: result.data || [],
+        pagination: result.pagination || {
+          page: 1,
+          pageSize: pageSize,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    } catch (error) {
+      console.error('Error fetching user service requests:', error);
+      // Retornar estructura vacía en caso de error
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          pageSize: pageSize,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    }
+  },
+
+  /**
+   * PROVIDER ENDPOINTS
+   */
+
+  /**
+   * Obtiene las solicitudes de servicio para un proveedor
+   */
+  async getProviderServiceRequests(
+    providerId: number,
+    page: number = 1,
+    pageSize: number = 50,
+    status?: string
+  ): Promise<{
+    data: any[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  }> {
+    try {
+      let url = `${API_BASE_URL}/service-requests/provider/${providerId}?page=${page}&pageSize=${pageSize}`;
+      if (status) {
+        url += `&status=${status}`;
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      await handleApiError(response);
+      const result = await response.json();
+
+      return {
+        data: result.data || [],
+        pagination: result.pagination || {
+          page: 1,
+          pageSize: pageSize,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    } catch (error) {
+      console.error('Error fetching provider service requests:', error);
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          pageSize: pageSize,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    }
+  },
+
+  /**
+   * Actualiza el estado de una solicitud de servicio (aceptar/rechazar/etc)
+   */
+  async updateServiceRequestStatus(
+    requestId: string,
+    updates: {
+      status?: 'pending' | 'accepted' | 'rejected' | 'in_progress' | 'completed' | 'cancelled';
+      payment_status?: 'pending' | 'paid';
+      amount?: number;
+      completed_at?: string;
+    }
+  ): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/service-requests/${requestId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(updates),
+      });
+
+      await handleApiError(response);
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error updating service request:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Obtiene una solicitud de servicio específica por ID
+   */
+  async getServiceRequestById(requestId: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/service-requests/${requestId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      await handleApiError(response);
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching service request:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Crea una nueva reseña para un servicio completado
+   */
+  async createReview(reviewData: {
+    providerId: number;
+    serviceRequestId: string;
+    rating: number;
+    comment?: string;
+  }): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          providerId: reviewData.providerId,
+          serviceRequestId: reviewData.serviceRequestId,
+          rating: reviewData.rating,
+          comment: reviewData.comment,
+        }),
+      });
+
+      await handleApiError(response);
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error creating review:', error);
+      throw error;
     }
   },
 };
