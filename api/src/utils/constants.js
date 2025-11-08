@@ -8,3 +8,6 @@ export const SERVICE_IMAGES_PREFIX = "service_images/";
 
 export const TOKEN_EXPIRY = 86400; // 24 hours in seconds
 export const SESSION_EXPIRY = 86400000; // 24 hours in milliseconds
+
+export const DYNAMODB_CHATS_TABLE = "chats";
+export const DYNAMODB_MESSAGES_TABLE = "messages";

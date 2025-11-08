@@ -1,5 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { getPrimaryPool } from "../config/database.js";
+import { getOrCreateChat } from "./chat.js";
 
 /**
  * Crear una nueva solicitud de servicio
@@ -46,7 +47,20 @@ export async function createServiceRequest(data) {
     ]
   );
 
-  return { requestId };
+  try {
+    const chat = await getOrCreateChat(userId, providerId);
+    console.log(`Chat created/retrieved for request ${requestId}: ${chat.chat_id}`);
+    
+    return { 
+      requestId,
+      chatId: chat.chat_id // Return chat ID as well
+    };
+  } catch (chatError) {
+    // Si falla la creación del chat, loguear pero no fallar la solicitud
+    console.error("Error creating chat for service request:", chatError);
+    return { requestId, chatId: null };
+  }
+
 }
 
 /**

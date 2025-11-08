@@ -85,7 +85,7 @@ export async function registerUser(userData) {
       ]
     );
   }
-
+  console.log(`User registered with ID: ${user_id}`);
   const token = generateToken(user_id, provider);
   return { token, token_type: "Bearer", expires_in: 86400 };
 }

@@ -7,6 +7,7 @@ import { router as imageRoutes } from "./images.js";
 import { router as serviceRequestRoutes } from "./serviceRequests.js";
 import { router as reviewRoutes } from "./reviews.js";
 import { router as paymentRoutes } from "./payment.js";
+import { router as chatRoutes } from "./chat.js";
 
 const router = express.Router();
 
@@ -33,5 +34,8 @@ router.use("/reviews", reviewRoutes);
 
 // Payments
 router.use("/payments", paymentRoutes);
+
+// Chats
+router.use("/chats", chatRoutes);
 
 export default router;

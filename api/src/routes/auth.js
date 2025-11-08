@@ -62,7 +62,7 @@ router.post("/login", limiter, async (req, res) => {
     //send as cookie
     res.cookie("token", result.token, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       sameSite: "Strict",
       maxAge: 86400 * 1000,
     });
