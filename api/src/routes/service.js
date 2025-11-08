@@ -1,5 +1,9 @@
 import express from "express";
-import { getServices, getProviderServices } from "../services/services.js";
+import {
+  getServices,
+  getProviderServices,
+  getServiceById,
+} from "../services/services.js";
 
 export const router = express.Router();
 
@@ -41,6 +45,40 @@ router.get("/providers", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to fetch provider services",
+    });
+  }
+});
+
+// Obtener un servicio específico por ID
+router.get("/:serviceId", async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+
+    if (!serviceId) {
+      return res.status(400).json({
+        success: false,
+        error: "Service ID is required",
+      });
+    }
+
+    const result = await getServiceById(serviceId);
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        error: "Service not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error("Get service by ID error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch service",
     });
   }
 });

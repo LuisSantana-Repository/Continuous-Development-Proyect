@@ -7,7 +7,7 @@ export async function getUserProfile(userId) {
   const db = await getPrimaryPool();
 
   const [rows] = await db.execute(
-    "SELECT user_id, email, username, provider, Foto, Latitude, Longitude FROM users WHERE user_id = ? LIMIT 1",
+    "SELECT user_id, email, username, provider, Foto, Latitude, Longitude, created_at FROM users WHERE user_id = ? LIMIT 1",
     [userId]
   );
 

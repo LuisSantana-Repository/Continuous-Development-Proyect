@@ -42,9 +42,6 @@ export default function LoginModal({
       setEmail("");
       setPassword("");
 
-      // Mensaje de éxito
-      alert("¡Inicio de sesión exitoso!");
-
       // Opcional: Recargar la página o actualizar el estado global
       window.location.reload();
     } catch (err) {

@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, DollarSign, Star, Flag } from "lucide-react";
+import { Calendar, DollarSign, Star, Flag, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RateServiceModal from "@/components/modals/RateServiceModal";
 import ReportServiceModal from "@/components/modals/ReportServiceModal";
+import OrderDetailsModal from "@/components/modals/OrderDetailsModal";
 import { canRate, canReport, hasActiveReports } from "@/lib/orderUtils";
 import type { Order, OrderRating, OrderReport } from "@/types";
 
@@ -17,6 +18,7 @@ interface OrderCardProps {
 export default function OrderCard({ order }: OrderCardProps) {
   const [isRateModalOpen, setIsRateModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [localOrder, setLocalOrder] = useState(order);
 
   const statusConfig = {
@@ -30,14 +32,22 @@ export default function OrderCard({ order }: OrderCardProps) {
       className:
         "bg-[var(--color-warning)] text-white hover:bg-[var(--color-warning)]/90",
     },
+    Aceptado: {
+      variant: "secondary" as const,
+      className: "bg-blue-500 text-white hover:bg-blue-600",
+    },
     Pendiente: {
       variant: "outline" as const,
       className: "border-[var(--color-warning)] text-[var(--color-warning)]",
     },
-    Cancelado: {
+    Rechazado: {
       variant: "destructive" as const,
       className:
         "bg-[var(--color-error)] text-white hover:bg-[var(--color-error)]/90",
+    },
+    Cancelado: {
+      variant: "destructive" as const,
+      className: "bg-gray-500 text-white hover:bg-gray-600",
     },
   };
 
@@ -82,7 +92,7 @@ export default function OrderCard({ order }: OrderCardProps) {
           <div className="flex-1 space-y-3">
             <div className="flex flex-wrap items-center gap-3">
               <h3 className="heading-sm text-primary">
-                {localOrder.serviceName}
+                {localOrder.providerName}
               </h3>
               <Badge variant={config.variant} className={config.className}>
                 {localOrder.status}
@@ -97,7 +107,7 @@ export default function OrderCard({ order }: OrderCardProps) {
 
               <div className="flex items-center gap-2 text-secondary">
                 <span className="body-sm font-medium">
-                  Proveedor: {localOrder.providerName}
+                  Categoría: {localOrder.serviceName}
                 </span>
               </div>
 
@@ -132,6 +142,17 @@ export default function OrderCard({ order }: OrderCardProps) {
 
           {/* Right Section - Actions */}
           <div className="flex flex-col gap-2 md:items-end">
+            {/* Botón Ver Detalles - Siempre visible */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10"
+              onClick={() => setIsDetailsModalOpen(true)}
+            >
+              <Eye className="h-4 w-4" />
+              Ver Detalles
+            </Button>
+
             {/* Botón de Calificar (solo para completados sin rating) */}
             {showRateButton && (
               <Button
@@ -171,6 +192,12 @@ export default function OrderCard({ order }: OrderCardProps) {
       </CardContent>
 
       {/* Modales */}
+      <OrderDetailsModal
+        open={isDetailsModalOpen}
+        onOpenChange={setIsDetailsModalOpen}
+        order={localOrder}
+      />
+
       <RateServiceModal
         open={isRateModalOpen}
         onOpenChange={setIsRateModalOpen}

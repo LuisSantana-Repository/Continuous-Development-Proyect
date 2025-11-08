@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Service } from "@/types";
-import { Star } from "lucide-react";
+import { Star, User } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 interface ServiceCardProps {
@@ -36,28 +36,39 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           )}
         </div>
 
-        <CardContent className="p-4">
+        <CardContent className="px-4 py-3">
           {/* Category */}
-          <div className="mb-2">
+          <div className="mb-1.5">
             <span className="body-sm font-medium text-[var(--color-text-muted)]">
               {service.category.name}
             </span>
           </div>
 
           {/* Title */}
-          <h3 className="heading-sm mb-2 text-[var(--color-primary)] line-clamp-2 group-hover:text-[var(--color-primary-dark)]">
+          <h3 className="heading-sm mb-1.5 text-[var(--color-primary)] line-clamp-2 group-hover:text-[var(--color-primary-dark)]">
             {service.title}
           </h3>
 
           {/* Provider */}
-          <div className="mb-2 flex items-center space-x-2">
-            <div className="relative h-6 w-6 overflow-hidden rounded-full bg-[var(--color-background-secondary)]">
-              {service.provider.avatarUrl && (
+          <div className="mb-1.5 flex items-center space-x-2">
+            <div className="relative h-6 w-6 overflow-hidden rounded-full bg-[var(--color-background-secondary)] flex items-center justify-center">
+              {service.provider.avatarUrl ? (
                 <Image
                   src={service.provider.avatarUrl}
                   alt={service.provider.name}
                   fill
                   className="object-cover"
+                />
+              ) : (
+                <User
+                  className="h-4 w-4 text-white"
+                  style={{
+                    backgroundColor: "var(--color-primary)",
+                    borderRadius: "50%",
+                    padding: "4px",
+                    width: "100%",
+                    height: "100%",
+                  }}
                 />
               )}
             </div>
@@ -87,7 +98,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           </div>
         </CardContent>
 
-        <CardFooter className="border-t border-[var(--color-border-light)] bg-[var(--color-background-secondary)] p-4">
+        <CardFooter className="border-t border-[var(--color-border-light)] bg-[var(--color-background-secondary)] px-4 py-3">
           <div className="flex w-full items-center justify-between">
             <div>
               <p className="body-sm text-[var(--color-text-muted)]">Precio</p>

@@ -27,6 +27,8 @@ export default function ProviderPage() {
     acceptRequest,
     rejectRequest,
     updateRequest,
+    startWork,
+    completeWork,
   } = useProviderRequests();
   const { calendar, loading: calendarLoading } = useCalendar();
 
@@ -118,6 +120,20 @@ export default function ProviderPage() {
     }
   };
 
+  const handleStartWork = async (requestId: string) => {
+    await startWork(requestId);
+    setTimeout(() => {
+      alert("Trabajo iniciado exitosamente");
+    }, 250);
+  };
+
+  const handleCompleteWork = async (requestId: string) => {
+    await completeWork(requestId);
+    setTimeout(() => {
+      alert("Trabajo marcado como completado");
+    }, 250);
+  };
+
   const handleUpdateUser = (updates: Partial<ClientUser>) => {
     // Convertir ClientUser a ProviderUser para compatibilidad
     updateProvider(updates as Partial<ProviderUser>);
@@ -187,6 +203,8 @@ export default function ProviderPage() {
               onOpenChat={handleOpenChat}
               onReport={handleReport}
               onViewDetail={handleViewDetail}
+              onStartWork={handleStartWork}
+              onCompleteWork={handleCompleteWork}
             />
           </div>
 
@@ -223,6 +241,8 @@ export default function ProviderPage() {
         open={detailDrawer.open}
         onOpenChange={(open) => setDetailDrawer({ ...detailDrawer, open })}
         request={detailDrawer.request}
+        onStartWork={handleStartWork}
+        onCompleteWork={handleCompleteWork}
       />
 
       {reportModal.request && (

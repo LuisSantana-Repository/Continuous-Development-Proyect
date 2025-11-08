@@ -131,7 +131,7 @@ export default function EditProfileModal({
           </div>
 
           {/* Campo Teléfono */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label
               htmlFor="phone"
               className="body-sm font-medium text-secondary flex items-center gap-2"
@@ -148,7 +148,7 @@ export default function EditProfileModal({
               required
               className="w-full"
             />
-          </div>
+          </div> */}
 
           {/* Campo Dirección */}
           <div className="space-y-2">

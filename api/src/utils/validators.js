@@ -209,12 +209,74 @@ export async function validateProviderWork(work) {
     return "invalid work location coordinates";
   }
 
-  // Validar Time_Available
-  if (typeof Time_Available !== "string" || Time_Available.trim().length < 5) {
-    return "time available must be specified";
+  // Validar Time_Available (debe ser un objeto con los 7 días de la semana)
+  if (typeof Time_Available !== "object" || Time_Available === null) {
+    return "time available must be an object";
   }
-  if (Time_Available.length > 200) {
-    return "time available must be less than 200 characters";
+
+  const daysOfWeek = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ];
+
+  // Verificar que tenga las 7 propiedades
+  for (const day of daysOfWeek) {
+    if (!(day in Time_Available)) {
+      return `time available must include ${day}`;
+    }
+  }
+
+  // Validar formato de cada día
+  let hasAtLeastOneDay = false;
+  const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/; // Formato HH:MM (24 horas)
+
+  for (const day of daysOfWeek) {
+    const daySlot = Time_Available[day];
+
+    // El día puede ser null (no disponible)
+    if (daySlot === null) {
+      continue;
+    }
+
+    // Si no es null, debe ser un objeto con start y end
+    if (typeof daySlot !== "object") {
+      return `${day} must be null or an object with start and end times`;
+    }
+
+    if (!daySlot.start || !daySlot.end) {
+      return `${day} must have both start and end times`;
+    }
+
+    // Validar formato de las horas
+    if (!timeRegex.test(daySlot.start)) {
+      return `${day} start time must be in HH:MM format (24 hours)`;
+    }
+
+    if (!timeRegex.test(daySlot.end)) {
+      return `${day} end time must be in HH:MM format (24 hours)`;
+    }
+
+    // Validar que end sea mayor que start
+    const [startHour, startMin] = daySlot.start.split(":").map(Number);
+    const [endHour, endMin] = daySlot.end.split(":").map(Number);
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+
+    if (endMinutes <= startMinutes) {
+      return `${day} end time must be after start time`;
+    }
+
+    hasAtLeastOneDay = true;
+  }
+
+  // Al menos un día debe estar disponible
+  if (!hasAtLeastOneDay) {
+    return "at least one day must be available";
   }
 
   // Validar Images (array de al menos 1 imagen, máximo 10)
@@ -343,7 +405,6 @@ export function validateServiceRequestUpdate(data) {
       "rejected",
       "in_progress",
       "completed",
-      "cancelled",
     ];
     if (!validStatuses.includes(status)) {
       return "invalid status value";
@@ -352,7 +413,7 @@ export function validateServiceRequestUpdate(data) {
 
   // Validar payment_status si está presente
   if (payment_status) {
-    const validPaymentStatuses = ["pending", "paid", "refunded", "failed"];
+    const validPaymentStatuses = ["pending", "paid"];
     if (!validPaymentStatuses.includes(payment_status)) {
       return "invalid payment status value";
     }

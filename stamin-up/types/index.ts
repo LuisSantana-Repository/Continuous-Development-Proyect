@@ -8,6 +8,21 @@ export interface User {
   avatarUrl?: string;
 }
 
+export interface TimeSlot {
+  start: string; // Formato "HH:MM" (24 horas)
+  end: string;   // Formato "HH:MM" (24 horas)
+}
+
+export interface TimeAvailability {
+  monday: TimeSlot | null;
+  tuesday: TimeSlot | null;
+  wednesday: TimeSlot | null;
+  thursday: TimeSlot | null;
+  friday: TimeSlot | null;
+  saturday: TimeSlot | null;
+  sunday: TimeSlot | null;
+}
+
 export interface Service {
   id: string;
   title: string;
@@ -20,7 +35,8 @@ export interface Service {
   rating: number;
   reviewCount: number;
   featured: boolean;
-  availability: string[];
+  availability: string[]; // @deprecated - Usar providerAvailability en su lugar
+  providerAvailability?: TimeAvailability; // ✅ Horarios disponibles del proveedor
   createdAt: string;
 }
 
@@ -80,7 +96,7 @@ export interface ClientUser {
   phone: string;
   address: string;
   memberSince: string;
-  profileImage: string;
+  profileImage?: string;
 }
 
 // Order Rating - Calificación embebida en la orden
@@ -102,10 +118,19 @@ export interface Order {
   serviceName: string;
   providerName: string;
   date: string;
-  status: 'Completado' | 'En curso' | 'Pendiente' | 'Cancelado';
+  status: 'Completado' | 'En curso' | 'Pendiente' | 'Aceptado' | 'Rechazado' | 'Cancelado';
   price: number;
   rating?: OrderRating;
   reports?: OrderReport[];
+  // Información detallada del service request
+  description?: string;
+  preferredDate?: string;
+  address?: string;
+  contactPhone?: string;
+  providerId?: number;
+  userId?: string;
+  paymentStatus?: 'pending' | 'paid';
+  completedAt?: string;
 }
 
 // Client Review - Reseña completa del cliente (para la sección "Mis Reseñas")
@@ -144,9 +169,10 @@ export interface ServiceRequest {
 
 export interface ServiceRequestResponse {
   requestId: string;
-  status: BookingStatus;
-  createdAt: string;
-  serviceRequest: ServiceRequest;
+  message?: string; // Mensaje del servidor
+  status?: BookingStatus; // Opcional al crear
+  createdAt?: string; // Opcional al crear
+  serviceRequest?: ServiceRequest; // Opcional al crear
 }
 
 // Provider Types
@@ -156,7 +182,7 @@ export interface ProviderUser {
   email: string;
   phone: string;
   address: string;
-  profileImage: string;
+  profileImage?: string;
   bio: string;
   rating: number;
   completedJobs: number;
@@ -189,11 +215,6 @@ export interface RequestHistoryEntry {
   note?: string;
   reason?: string;
   proposedDate?: string;
-}
-
-export interface TimeSlot {
-  start: string;
-  end: string;
 }
 
 export interface DayAvailability {

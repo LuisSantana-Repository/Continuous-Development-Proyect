@@ -18,9 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, MapPin, Upload, Image as ImageIcon, X } from "lucide-react";
+import { Loader2, MapPin, Upload, Image as ImageIcon, X, ArrowLeft } from "lucide-react";
 import { apiClient } from "@/lib/apiClient";
 import { useCategories } from "@/hooks/useCategories";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   fileToBase64,
   filesToBase64Array,
@@ -29,6 +30,7 @@ import {
   validateMultipleImages,
   extractContentType,
 } from "@/lib/fileUtils";
+import type { TimeAvailability } from "@/types";
 
 interface CompleteProfileModalProps {
   open: boolean;
@@ -40,6 +42,7 @@ interface CompleteProfileModalProps {
     username: string;
   };
   onSuccess: () => void;
+  onBack: () => void; // Nuevo prop para volver atrás
 }
 
 export default function CompleteProfileModal({
@@ -48,6 +51,7 @@ export default function CompleteProfileModal({
   userType,
   basicData,
   onSuccess,
+  onBack,
 }: CompleteProfileModalProps) {
   // Datos comunes (Cliente y Proveedor)
   const [ineFile, setIneFile] = useState<File | null>(null);
@@ -68,7 +72,12 @@ export default function CompleteProfileModal({
     lng: number;
   } | null>(null);
   const [loadingWorkLocation, setLoadingWorkLocation] = useState(false);
-  const [timeAvailable, setTimeAvailable] = useState("");
+
+  // Estado para disponibilidad horaria
+  const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set());
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("18:00");
+
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   // Obtener categorías de servicios
@@ -284,8 +293,25 @@ export default function CompleteProfileModal({
         if (!serviceType || serviceType.trim() === "") {
           throw new Error("Debes seleccionar un tipo de servicio");
         }
-        if (!timeAvailable?.trim()) {
-          throw new Error("El horario disponible es obligatorio");
+
+        // Validar disponibilidad horaria
+        if (selectedDays.size === 0) {
+          throw new Error("Debes seleccionar al menos un día disponible");
+        }
+        if (!startTime || !endTime) {
+          throw new Error("Debes especificar horario de inicio y fin");
+        }
+
+        // Validar que la hora de fin sea mayor que la de inicio
+        const [startHour, startMin] = startTime.split(":").map(Number);
+        const [endHour, endMin] = endTime.split(":").map(Number);
+        const startMinutes = startHour * 60 + startMin;
+        const endMinutes = endHour * 60 + endMin;
+
+        if (endMinutes <= startMinutes) {
+          throw new Error(
+            "La hora de fin debe ser posterior a la hora de inicio"
+          );
         }
 
         // Validar archivos
@@ -330,6 +356,30 @@ export default function CompleteProfileModal({
         const jobPermitContentType = extractContentType(jobPermitBase64);
         const imagesBase64 = await filesToBase64Array(imageFiles);
 
+        // Construir objeto Time_Available
+        const daysOfWeek = [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday",
+        ] as const;
+
+        const timeAvailableObj: TimeAvailability = {} as TimeAvailability;
+
+        for (const day of daysOfWeek) {
+          if (selectedDays.has(day)) {
+            timeAvailableObj[day] = {
+              start: startTime,
+              end: endTime,
+            };
+          } else {
+            timeAvailableObj[day] = null;
+          }
+        }
+
         registerData.work = {
           workname: workname.trim(),
           description: description.trim(),
@@ -341,7 +391,7 @@ export default function CompleteProfileModal({
           },
           Latitude: workLocation!.lat,
           Longitude: workLocation!.lng,
-          Time_Available: timeAvailable.trim(),
+          Time_Available: timeAvailableObj,
           Images: imagesBase64,
         };
       }
@@ -445,7 +495,9 @@ export default function CompleteProfileModal({
     setServiceType("");
     setJobPermitFile(null);
     setWorkLocation(null);
-    setTimeAvailable("");
+    setSelectedDays(new Set());
+    setStartTime("09:00");
+    setEndTime("18:00");
     setImageFiles([]);
     setError("");
     setSuccess(false);
@@ -773,17 +825,118 @@ export default function CompleteProfileModal({
                 )}
               </div>
 
-              <div className="space-y-2">
-                <label className="body-sm font-medium text-secondary">
-                  Horario disponible *
-                </label>
-                <Input
-                  type="text"
-                  placeholder="Ej: Lun-Vie 9:00-18:00"
-                  value={timeAvailable}
-                  onChange={(e) => setTimeAvailable(e.target.value)}
-                  required
-                />
+              {/* Disponibilidad Horaria */}
+              <div className="space-y-4 border rounded-lg p-4 bg-slate-50">
+                <div>
+                  <label className="body-sm font-medium text-secondary">
+                    Disponibilidad Horaria *
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Selecciona los días y el horario en que estarás disponible
+                  </p>
+                </div>
+
+                {/* Selección de días */}
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-secondary">
+                    Días disponibles
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { key: "monday", label: "Lunes" },
+                      { key: "tuesday", label: "Martes" },
+                      { key: "wednesday", label: "Miércoles" },
+                      { key: "thursday", label: "Jueves" },
+                      { key: "friday", label: "Viernes" },
+                      { key: "saturday", label: "Sábado" },
+                      { key: "sunday", label: "Domingo" },
+                    ].map(({ key, label }) => (
+                      <div key={key} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`day-${key}`}
+                          checked={selectedDays.has(key)}
+                          onCheckedChange={(checked) => {
+                            const newDays = new Set(selectedDays);
+                            if (checked) {
+                              newDays.add(key);
+                            } else {
+                              newDays.delete(key);
+                            }
+                            setSelectedDays(newDays);
+                          }}
+                        />
+                        <label
+                          htmlFor={`day-${key}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          {label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Horario (igual para todos los días seleccionados) */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="start-time"
+                      className="text-sm font-medium text-secondary"
+                    >
+                      Hora de inicio
+                    </label>
+                    <Input
+                      id="start-time"
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      required
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="end-time"
+                      className="text-sm font-medium text-secondary"
+                    >
+                      Hora de fin
+                    </label>
+                    <Input
+                      id="end-time"
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      required
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+
+                {/* Vista previa de disponibilidad */}
+                {selectedDays.size > 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-md border border-blue-200">
+                    <p className="text-xs font-medium text-blue-900 mb-1">
+                      Resumen de disponibilidad:
+                    </p>
+                    <p className="text-xs text-blue-700">
+                      {Array.from(selectedDays)
+                        .map((day) => {
+                          const dayLabels: Record<string, string> = {
+                            monday: "Lun",
+                            tuesday: "Mar",
+                            wednesday: "Mié",
+                            thursday: "Jue",
+                            friday: "Vie",
+                            saturday: "Sáb",
+                            sunday: "Dom",
+                          };
+                          return dayLabels[day];
+                        })
+                        .join(", ")}{" "}
+                      de {startTime} a {endTime}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -836,37 +989,49 @@ export default function CompleteProfileModal({
             </div>
           )}
 
-          <Button
-            type="submit"
-            disabled={loading || success}
-            className="w-full bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {success ? (
-              <>
-                <svg
-                  className="mr-2 h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Registro exitoso
-              </>
-            ) : loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Completando registro...
-              </>
-            ) : (
-              "Completar registro"
-            )}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              onClick={onBack}
+              disabled={loading || success}
+              variant="outline"
+              className="flex-1"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Atrás
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading || success}
+              className="flex-1 bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {success ? (
+                <>
+                  <svg
+                    className="mr-2 h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Registro exitoso
+                </>
+              ) : loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Completando registro...
+                </>
+              ) : (
+                "Completar registro"
+              )}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

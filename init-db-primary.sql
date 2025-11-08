@@ -57,8 +57,7 @@ CREATE TABLE IF NOT EXISTS `service_requests` (
     'accepted',
     'rejected',
     'in_progress',
-    'completed',
-    'cancelled'
+    'completed'
   ) NOT NULL DEFAULT 'pending',
   `description` TEXT,
   `preferred_date` DATETIME,
@@ -67,9 +66,7 @@ CREATE TABLE IF NOT EXISTS `service_requests` (
   `amount` DECIMAL(10, 2),
   `payment_status` ENUM(
     'pending',
-    'paid',
-    'refunded',
-    'failed'
+    'paid'
   ) DEFAULT 'pending',
   `completed_at` TIMESTAMP NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

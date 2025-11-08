@@ -8,11 +8,22 @@ interface ReviewListItemProps {
 }
 
 export default function ReviewListItem({ review }: ReviewListItemProps) {
-  const reviewDate = new Date(review.date).toLocaleDateString("es-MX", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  // Formatear la fecha con validación
+  let reviewDate = "Fecha no disponible";
+  if (review.date) {
+    try {
+      const date = new Date(review.date);
+      if (!isNaN(date.getTime())) {
+        reviewDate = date.toLocaleDateString("es-MX", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+    } catch (err) {
+      console.error("Error formatting review date:", err);
+    }
+  }
 
   return (
     <Card className="shadow-md transition-all hover:shadow-lg">
@@ -21,9 +32,9 @@ export default function ReviewListItem({ review }: ReviewListItemProps) {
           {/* Header */}
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex-1 space-y-2">
-              <h3 className="heading-sm text-primary">{review.serviceName}</h3>
+              <h3 className="heading-sm text-primary">{review.providerName}</h3>
               <p className="body-sm text-secondary">
-                Proveedor: {review.providerName}
+                Categoría: {review.serviceName}
               </p>
             </div>
 

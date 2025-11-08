@@ -104,6 +104,12 @@ export default function RegisterModal({
     }
   };
 
+  const handleBack = () => {
+    // Cerrar el segundo modal y abrir el primero
+    setShowCompleteProfile(false);
+    onOpenChange(true);
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -250,6 +256,7 @@ export default function RegisterModal({
           userType={userType}
           basicData={basicData}
           onSuccess={handleCompleteProfileSuccess}
+          onBack={handleBack}
         />
       )}
     </>
