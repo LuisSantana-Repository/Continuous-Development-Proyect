@@ -53,10 +53,6 @@ export default function OrderDetailsModal({
       className:
         "bg-[var(--color-error)] text-white hover:bg-[var(--color-error)]/90",
     },
-    Cancelado: {
-      variant: "destructive" as const,
-      className: "bg-gray-500 text-white hover:bg-gray-600",
-    },
   };
 
   const config = statusConfig[order.status];

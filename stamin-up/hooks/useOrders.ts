@@ -50,9 +50,6 @@ export function useOrders(autoRefresh?: number) {
           case 'rejected':
             status = 'Rechazado';
             break;
-          case 'cancelled':
-            status = 'Cancelado';
-            break;
         }
 
         // Usar los datos del JOIN con providers y users
