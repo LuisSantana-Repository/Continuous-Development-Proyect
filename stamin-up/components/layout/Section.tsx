@@ -84,12 +84,7 @@ export default function Section({
         className
       )}
     >
-      <div
-        className={cn(
-          "container mx-auto px-6 md:px-12 lg:px-20",
-          containerSizeStyles[containerSize]
-        )}
-      >
+      <div className={cn("app-container", containerSizeStyles[containerSize])}>
         {children}
       </div>
     </section>

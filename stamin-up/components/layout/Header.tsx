@@ -41,7 +41,7 @@ export default function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full bg-white shadow-md">
-        <div className="container mx-auto px-6 md:px-12 lg:px-20">
+        <div className="app-container">
           <div className="flex h-20 items-center justify-between">
             {/* Left Side: Logo + Navigation */}
             <div className="flex items-center space-x-8">

@@ -9,7 +9,7 @@ export function ServiceDetailSkeleton() {
       <div className="bg-gradient-to-br from-gray-300 to-gray-400 h-[400px] md:h-[500px]" />
 
       {/* Content Skeleton */}
-      <div className="container mx-auto px-4 py-12 space-y-12">
+      <div className="app-container py-12 space-y-12">
         {/* Details */}
         <div className="space-y-6">
           <div className="h-8 bg-gray-300 rounded w-1/3" />

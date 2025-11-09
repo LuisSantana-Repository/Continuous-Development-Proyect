@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { getPrimaryPool } from "../config/database.js";
-import { getOrCreateChat,sendMessage } from "./chat.js";
+import { getOrCreateChat } from "./chat.js";
 
 /**
  * Convierte una fecha ISO 8601 a formato MySQL DATETIME (YYYY-MM-DD HH:MM:SS)
@@ -62,7 +62,7 @@ export async function createServiceRequest(data) {
       providerId,
       userId,
       description,
-      mysqlDate,
+      mysqlDate, // ✅ Usar fecha convertida
       address,
       contactPhone,
       amount,
@@ -71,30 +71,12 @@ export async function createServiceRequest(data) {
 
   try {
     const chat = await getOrCreateChat(userId, providerId);
-    console.log(`Chat created/retrieved for request ${requestId}: ${chat.chat_id}`);    
-sendMessage(
-  chat.chat_id,
-  userId,
-  `¡Hola! Estoy solicitando un servicio para: "${description}\\n".
-  Necesitaría este servicio en: ${address}.
-  Fecha y hora preferida: ${formattedDate}.
-  Teléfono de contacto: ${contactPhone}.
-  ¿Sería posible? Por favor, déjame saber si estás disponible. ¡Gracias!`
-);
-
-
-
-
-
-
-
-
+    console.log(`Chat created/retrieved for request ${requestId}: ${chat.chat_id}`);
+    
     return { 
       requestId,
-      chatId: chat.chat_id
+      chatId: chat.chat_id // Return chat ID as well
     };
-    //send message with all the information
-
   } catch (chatError) {
     // Si falla la creación del chat, loguear pero no fallar la solicitud
     console.error("Error creating chat for service request:", chatError);

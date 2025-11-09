@@ -60,9 +60,11 @@ httpServer.listen(PORT, async () => {
   console.log(`🚀 API Server running on http://localhost:${PORT}`);
   console.log(`🔌 WebSocket Server running on ws://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🗄️  Database: ${process.env.DB_PRIMARY_HOST}:${process.env.DB_PRIMARY_PORT}`);
+  console.log(
+    `🗄️  Database: ${process.env.DB_PRIMARY_HOST}:${process.env.DB_PRIMARY_PORT}`
+  );
   console.log(`☁️  S3 Endpoint: ${process.env.AWS_ENDPOINT}`);
-  
+
   try {
     const objects = await listS3Objects("profile/");
     console.log(`📁 S3 Objects found: ${objects.length}`);

@@ -40,7 +40,7 @@ function ServicesContent() {
 
   return (
     <main className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-6 md:px-12 lg:px-20">
+      <div className="app-container">
         {/* Search Header */}
         <div className="mb-8">
           <h1 className="mb-4 text-3xl font-bold text-[#012c5b] md:text-4xl">
@@ -103,7 +103,7 @@ export default function ServicesPage() {
     <Suspense
       fallback={
         <main className="min-h-screen bg-gray-50 py-12">
-          <div className="container mx-auto px-6 md:px-12 lg:px-20">
+          <div className="app-container">
             <div className="mb-8">
               <div className="mb-4 h-10 w-64 animate-pulse rounded bg-gray-200" />
               <div className="h-12 w-full animate-pulse rounded bg-gray-200" />

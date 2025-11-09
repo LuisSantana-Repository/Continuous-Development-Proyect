@@ -899,6 +899,33 @@ export const apiClient = {
       throw error;
     }
   },
+
+  /**
+   * Obtiene el calendario de un proveedor con sus service requests
+   * @param providerId - ID del proveedor
+   * @param month - Mes en formato YYYY-MM
+   */
+  async getProviderCalendar(providerId: number, month: string): Promise<any> {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/providers/${providerId}/calendar?month=${month}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        }
+      );
+
+      await handleApiError(response);
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error fetching provider calendar:', error);
+      throw error;
+    }
+  },
 };
 
 export default apiClient;

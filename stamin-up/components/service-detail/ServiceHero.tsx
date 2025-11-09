@@ -33,7 +33,7 @@ export function ServiceHero({ service, onStartRequest }: ServiceHeroProps) {
 
   return (
     <div className="bg-gradient-to-br from-[var(--color-primary-light)] to-[var(--color-primary-dark)] text-white">
-      <div className="container mx-auto px-4 py-12 md:py-16 lg:py-20">
+      <div className="app-container py-12 md:py-16 lg:py-20">
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Imagen del servicio */}
           <div className="order-2 md:order-1">

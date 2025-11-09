@@ -30,11 +30,26 @@ interface RequestDetailDrawerProps {
 }
 
 const STATUS_CONFIG = {
-  pending: { label: "Pendiente", color: "bg-yellow-100 text-yellow-800" },
-  accepted: { label: "Aceptada", color: "bg-green-100 text-green-800" },
-  rejected: { label: "Rechazada", color: "bg-red-100 text-red-800" },
-  in_progress: { label: "En Proceso", color: "bg-blue-100 text-blue-800" },
-  completed: { label: "Completada", color: "bg-gray-100 text-gray-800" },
+  pending: {
+    label: "Pendiente",
+    color: "status-pending-bg status-pending-text",
+  },
+  accepted: {
+    label: "Aceptada",
+    color: "status-accepted-bg status-accepted-text",
+  },
+  rejected: {
+    label: "Rechazada",
+    color: "status-rejected-bg status-rejected-text",
+  },
+  in_progress: {
+    label: "En Proceso",
+    color: "status-in-progress-bg status-in-progress-text",
+  },
+  completed: {
+    label: "Completada",
+    color: "status-completed-bg status-completed-text",
+  },
   cancelled: { label: "Cancelada", color: "bg-gray-100 text-gray-800" },
 };
 

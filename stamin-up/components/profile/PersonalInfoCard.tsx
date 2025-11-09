@@ -42,7 +42,7 @@ export default function PersonalInfoCard({ user }: PersonalInfoCardProps) {
   return (
     <Card className="shadow-md transition-shadow hover:shadow-lg">
       <CardHeader>
-        <CardTitle className="heading-sm text-primary">
+        <CardTitle className="heading-md text-primary">
           Información Personal
         </CardTitle>
       </CardHeader>

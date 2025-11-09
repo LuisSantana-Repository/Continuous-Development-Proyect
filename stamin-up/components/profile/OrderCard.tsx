@@ -24,26 +24,24 @@ export default function OrderCard({ order }: OrderCardProps) {
   const statusConfig = {
     Completado: {
       variant: "default" as const,
-      className:
-        "bg-[var(--color-success)] text-white hover:bg-[var(--color-success)]/90",
+      className: "status-completed-bg status-completed-text hover:opacity-90",
     },
     "En curso": {
       variant: "secondary" as const,
       className:
-        "bg-[var(--color-warning)] text-white hover:bg-[var(--color-warning)]/90",
+        "status-in-progress-bg status-in-progress-text hover:opacity-90",
     },
     Aceptado: {
       variant: "secondary" as const,
-      className: "bg-blue-500 text-white hover:bg-blue-600",
+      className: "status-accepted-bg status-accepted-text hover:opacity-90",
     },
     Pendiente: {
-      variant: "outline" as const,
-      className: "border-[var(--color-warning)] text-[var(--color-warning)]",
+      variant: "secondary" as const,
+      className: "status-pending-bg status-pending-text hover:opacity-90",
     },
     Rechazado: {
       variant: "destructive" as const,
-      className:
-        "bg-[var(--color-error)] text-white hover:bg-[var(--color-error)]/90",
+      className: "status-rejected-bg status-rejected-text hover:opacity-90",
     },
   };
 
