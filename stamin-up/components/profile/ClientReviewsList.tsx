@@ -92,27 +92,29 @@ export default function ClientReviewsList({
             </Button>
 
             <div className="flex gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                // Mostrar solo 3 páginas: anterior, actual, y siguiente
-                if (page >= currentPage - 1 && page <= currentPage + 1) {
-                  return (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => goToPage(page)}
-                      className={
-                        currentPage === page
-                          ? "bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] min-w-[2.5rem]"
-                          : "min-w-[2.5rem]"
-                      }
-                    >
-                      {page}
-                    </Button>
-                  );
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => {
+                  // Mostrar solo 3 páginas: anterior, actual, y siguiente
+                  if (page >= currentPage - 1 && page <= currentPage + 1) {
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => goToPage(page)}
+                        className={
+                          currentPage === page
+                            ? "bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] min-w-[2.5rem]"
+                            : "min-w-[2.5rem]"
+                        }
+                      >
+                        {page}
+                      </Button>
+                    );
+                  }
+                  return null;
                 }
-                return null;
-              })}
+              )}
             </div>
 
             <Button
