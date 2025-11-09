@@ -196,10 +196,7 @@ export default function RequestsList({
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                     (page) => {
                       // Mostrar solo 3 páginas: anterior, actual, y siguiente
-                      if (
-                        page >= currentPage - 1 &&
-                        page <= currentPage + 1
-                      ) {
+                      if (page >= currentPage - 1 && page <= currentPage + 1) {
                         return (
                           <Button
                             key={page}
