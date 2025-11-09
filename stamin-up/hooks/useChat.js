@@ -1,4 +1,3 @@
-// hooks/useChat.js
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { io } from "socket.io-client";
@@ -13,16 +12,16 @@ export function useChat() {
 
   const typingTimeoutRef = useRef(null);
 
-  // 🧠 1. Initialize socket ONCE (with cookies)
+  // Initialize socket ONCE
   useEffect(() => {
     const newSocket = io("http://localhost:3000", {
-      withCredentials: true, // 🔥 send cookies for JWT
+      withCredentials: true,
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 5,
     });
 
-    // ✅ Connection events
+    // Connection events
     newSocket.on("connect", () => {
       console.log("✅ Connected to WebSocket");
       setIsConnected(true);
@@ -33,28 +32,59 @@ export function useChat() {
       setIsConnected(false);
     });
 
-    newSocket.on("connection:success", (data) => {
-      console.log("Connection success:", data);
+    newSocket.on("connect_error", (error) => {
+      console.error("❌ Connection error:", error.message);
+      setIsConnected(false);
     });
 
-    // 💬 Message events
+    newSocket.on("connection:success", (data) => {
+      console.log("✅ Connection success:", data);
+    });
+
+    // Chat events
+    newSocket.on("chat:joined", (data) => {
+      console.log("✅ Successfully joined chat:", data.chatId);
+    });
+
+    // Message events
     newSocket.on("message:received", (message) => {
       console.log("📨 Message received:", message);
-      setMessages((prev) => [...prev, message]);
+      setMessages((prev) => {
+        // Check if message already exists
+        const exists = prev.some(m => m.message_id === message.message_id);
+        if (exists) return prev;
+        return [...prev, message];
+      });
     });
 
-    newSocket.on("message:sent", (message) => {
-      console.log("✅ Message sent:", message);
+    newSocket.on("message:sent", (data) => {
+      console.log("✅ Message sent confirmation:", data);
       setMessages((prev) =>
-        prev.map((m) => (m.tempId === message.tempId ? message : m))
+        prev.map((m) => {
+          // Replace the temp message with the confirmed one
+          if (m.tempId === data.tempId) {
+            return {
+              ...data,
+              sending: false,
+            };
+          }
+          return m;
+        })
       );
     });
 
-    // ✍️ Typing indicators
-    newSocket.on("typing:started", () => setIsTyping(true));
-    newSocket.on("typing:stopped", () => setIsTyping(false));
+    // Typing indicators
+    newSocket.on("typing:started", (data) => {
+      console.log("✍️ User started typing:", data);
+      setIsTyping(true);
+    });
+    
+    newSocket.on("typing:stopped", (data) => {
+      console.log("✍️ User stopped typing:", data);
+      setIsTyping(false);
+    });
 
-    // 👁️ Read receipts
+    // Read receipts
     newSocket.on("messages:read", (data) => {
       console.log("👁️ Messages read:", data);
       setMessages((prev) =>
@@ -63,21 +93,21 @@ export function useChat() {
             ? {
                 ...msg,
                 read_by_user: data.isProvider ? msg.read_by_user : true,
-                read_by_provider: data.isProvider
-                  ? true
-                  : msg.read_by_provider,
+                read_by_provider: data.isProvider ? true : msg.read_by_provider,
               }
             : msg
         )
       );
     });
 
-    // 🟢 / 🔴 Online status
+    // Online status
     newSocket.on("user:online", (data) => {
+      console.log("🟢 User online:", data.userId);
       setOnlineUsers((prev) => new Set([...prev, data.userId]));
     });
 
     newSocket.on("user:offline", (data) => {
+      console.log("🔴 User offline:", data.userId);
       setOnlineUsers((prev) => {
         const updated = new Set(prev);
         updated.delete(data.userId);
@@ -85,67 +115,125 @@ export function useChat() {
       });
     });
 
-    // ❌ Error handling
+    // Error handling
     newSocket.on("error", (error) => {
-      console.error("Socket error:", error);
+      console.error("❌ Socket error:", error);
+      // Remove failed message
+      if (error.tempId) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.tempId === error.tempId
+              ? { ...m, sending: false, error: true }
+              : m
+          )
+        );
+      }
     });
 
     setSocket(newSocket);
 
-    // 🧹 Cleanup on unmount
     return () => {
+      console.log("🧹 Cleaning up socket connection");
       newSocket.disconnect();
     };
-  }, []); // run once
+  }, []);
 
-  // 📥 2. Join a chat
+  // Join a chat
   const openChat = useCallback(
-    (chatId) => {
-      if (!socket || !chatId) return;
+    async (chatId) => {
+      if (!socket || !chatId) {
+        console.warn("Cannot open chat: socket or chatId missing");
+        return;
+      }
+      
       console.log("📥 Joining chat:", chatId);
       setMessages([]);
       setCurrentChatId(chatId);
+      
+      // Emit join event
       socket.emit("chat:join", { chatId });
+
+      // Fetch existing messages from API
+      try {
+        const response = await fetch(
+          `http://localhost:3000/chats/${chatId}/messages?limit=50`,
+          {
+            credentials: "include",
+          }
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log("📜 Loaded messages:", data.data.length);
+          setMessages(data.data.reverse() || []); // Reverse to show oldest first
+        }
+      } catch (error) {
+        console.error("Failed to load messages:", error);
+      }
     },
     [socket]
   );
 
-  // 📤 3. Leave chat
+  // Leave chat
   const closeChat = useCallback(() => {
     if (!socket || !currentChatId) return;
+    console.log("📤 Leaving chat:", currentChatId);
     socket.emit("chat:leave", { chatId: currentChatId });
     setCurrentChatId(null);
     setMessages([]);
   }, [socket, currentChatId]);
 
-  // 💬 4. Send message
+  // Send message
   const sendMessage = useCallback(
     (content) => {
-      if (!socket || !currentChatId || !content.trim()) return;
-      const tempId = `temp-${Date.now()}`;
-      const optimistic = {
+      if (!socket || !currentChatId || !content.trim()) {
+        console.warn("Cannot send message: missing socket, chatId, or content");
+        return;
+      }
+
+      const tempId = `temp-${Date.now()}-${Math.random()}`;
+      
+      // Create optimistic message
+      const optimisticMessage = {
         tempId,
+        message_id: tempId,
         chat_id: currentChatId,
         content: content.trim(),
         timestamp: Date.now(),
         sending: true,
+        is_provider: false, // Adjust based on your user type
       };
-      setMessages((prev) => [...prev, optimistic]);
+
+      console.log("📤 Sending message:", optimisticMessage);
+
+      // Add optimistic message immediately
+      setMessages((prev) => [...prev, optimisticMessage]);
+
+      // Emit to server
       socket.emit("message:send", {
         chatId: currentChatId,
         content: content.trim(),
         tempId,
       });
+
+      // Stop typing indicator
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
       socket.emit("typing:stop", { chatId: currentChatId });
     },
     [socket, currentChatId]
   );
 
-  // ✍️ 5. Typing start/stop
+  // Typing start/stop
   const startTyping = useCallback(() => {
     if (!socket || !currentChatId) return;
     socket.emit("typing:start", { chatId: currentChatId });
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
     typingTimeoutRef.current = setTimeout(() => {
       socket.emit("typing:stop", { chatId: currentChatId });
     }, 3000);
@@ -153,11 +241,16 @@ export function useChat() {
 
   const stopTyping = useCallback(() => {
     if (!socket || !currentChatId) return;
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+    
     socket.emit("typing:stop", { chatId: currentChatId });
   }, [socket, currentChatId]);
 
-  // 👁️ 6. Mark as read
+  // Mark as read
   const markAsRead = useCallback(() => {
     if (!socket || !currentChatId) return;
     socket.emit("messages:read", { chatId: currentChatId });

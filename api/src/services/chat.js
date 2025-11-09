@@ -1,7 +1,7 @@
 import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuid } from "uuid";
 import { dynamoDBClient } from "../config/aws.js";
-import {getPrimaryPool} from "../config/database.js";
+import { getPrimaryPool } from "../config/database.js";
 import { DYNAMODB_CHATS_TABLE, DYNAMODB_MESSAGES_TABLE } from "../utils/constants.js";
 
 const docClient = DynamoDBDocumentClient.from(dynamoDBClient);
@@ -115,7 +115,7 @@ export async function getProviderChat(provider_id) {
         const result = await docClient.send(
             new QueryCommand({
                 TableName: DYNAMODB_CHATS_TABLE,
-                IndexName: "UserProviderIndex",
+                IndexName: "ProviderIndex",
                 KeyConditionExpression: "provider_id = :provider_id",
                 ExpressionAttributeValues: {
                     ":provider_id": provider_id,
@@ -134,6 +134,15 @@ export async function getProviderChat(provider_id) {
  * Send a message
  */
 export async function sendMessage(chatId, senderId, content, isProvider = false) {
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log("💾 sendMessage() CALLED");
+    console.log("Parameters:", {
+        chatId,
+        senderId,
+        content: content.substring(0, 50) + (content.length > 50 ? "..." : ""),
+        isProvider,
+    });
+
     try {
         const messageId = uuid();
         const timestamp = Date.now();
@@ -149,15 +158,20 @@ export async function sendMessage(chatId, senderId, content, isProvider = false)
             read_by_provider: isProvider ? true : false,
         };
 
+        console.log("📝 Message object created:", JSON.stringify(message, null, 2));
+
         // Save message
+        console.log("💾 Saving to DynamoDB table:", DYNAMODB_MESSAGES_TABLE);
         await docClient.send(
             new PutCommand({
                 TableName: DYNAMODB_MESSAGES_TABLE,
                 Item: message,
             })
         );
+        console.log("✅ Message saved to DynamoDB");
 
         // Update chat's last message
+        console.log("🔄 Updating chat's last message...");
         await docClient.send(
             new UpdateCommand({
                 TableName: DYNAMODB_CHATS_TABLE,
@@ -174,10 +188,19 @@ export async function sendMessage(chatId, senderId, content, isProvider = false)
                 },
             })
         );
+        console.log("✅ Chat updated");
+
+        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        console.log("✅ sendMessage() COMPLETED");
+        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
         return message;
     } catch (error) {
-        console.error("Error sending message:", error);
+        console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        console.error("❌ ERROR in sendMessage()");
+        console.error("Error:", error);
+        console.error("Stack:", error.stack);
+        console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
         throw error;
     }
 }
@@ -221,27 +244,39 @@ export async function getChatMessages(chatId, limit = 50, lastTimestamp = null) 
  * Mark messages as read
  */
 export async function markMessagesAsRead(chatId, isProvider = false) {
-  try {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: DYNAMODB_CHATS_TABLE,
-        Key: { chat_id: chatId },
-        UpdateExpression: isProvider
-          ? "SET unread_count_provider = :zero"
-          : "SET unread_count_user = :zero",
-        ExpressionAttributeValues: {
-          ":zero": 0,
-        },
-      })
-    );
+    try {
+        await docClient.send(
+            new UpdateCommand({
+                TableName: DYNAMODB_CHATS_TABLE,
+                Key: { chat_id: chatId },
+                UpdateExpression: isProvider
+                    ? "SET unread_count_provider = :zero"
+                    : "SET unread_count_user = :zero",
+                ExpressionAttributeValues: {
+                    ":zero": 0,
+                },
+            })
+        );
 
-    return { success: true };
-  } catch (error) {
-    console.error("Error marking messages as read:", error);
-    throw error;
-  }
+        return { success: true };
+    } catch (error) {
+        console.error("Error marking messages as read:", error);
+        throw error;
+    }
 }
 
+
+export async function getProviderIdUsingUserId(user_id) {
+    const pool = await getPrimaryPool();
+    const [rows] = await pool.execute(
+        `SELECT provider_id FROM providers WHERE user_id = ?`,
+        [user_id]
+    );
+    if (rows.length === 0) {
+        return null;
+    }
+    return rows[0].provider_id;
+}
 
 export async function getProviderName(providerId) {
     const pool = await getPrimaryPool();
@@ -267,3 +302,4 @@ export async function getUserName(user_id) {
     }
     return rows[0].username;
 }
+

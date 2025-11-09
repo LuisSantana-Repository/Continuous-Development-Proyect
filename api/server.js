@@ -10,14 +10,13 @@ import { initializeWebSocket } from "./src/services/websocket.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
+// Create HTTP server
 const httpServer = createServer(app);
-
 
 // Global Middleware
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"], // Permite ambos puertos
+    origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
   })
 );
@@ -40,32 +39,34 @@ app.get("/", (req, res) => {
       serviceRequests: "/service-requests/*",
       reviews: "/reviews/*",
       chats: "/chats/*",
-      websocket: "ws://localhost:" + PORT,
+      websocket: `ws://localhost:${PORT}`,
     },
   });
 });
 
-// API Routes (centralized router)
+// API Routes
 app.use(routes);
 
-// Error handling (must be last)
+// Error handling
 app.use((req, res) => res.status(404).json({ error: "not found" }));
 app.use(errorHandler);
 
-const objects = await listS3Objects("profile/");
-
+// Initialize WebSocket
 const io = initializeWebSocket(httpServer);
-
 app.set("io", io);
 
-
-// Start server
-app.listen(PORT, () => {
+// Start server (use httpServer, not app)
+httpServer.listen(PORT, async () => {
   console.log(`🚀 API Server running on http://localhost:${PORT}`);
+  console.log(`🔌 WebSocket Server running on ws://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🗄️  Database: ${process.env.DB_HOST}:${process.env.DB_PORT}`);
+  console.log(`🗄️  Database: ${process.env.DB_PRIMARY_HOST}:${process.env.DB_PRIMARY_PORT}`);
   console.log(`☁️  S3 Endpoint: ${process.env.AWS_ENDPOINT}`);
-  //connsole log root
-  console.log(`🌐 API Root: http://localhost:${PORT}/`);
-  console.log(objects);
+  
+  try {
+    const objects = await listS3Objects("profile/");
+    console.log(`📁 S3 Objects found: ${objects.length}`);
+  } catch (error) {
+    console.error("❌ Error listing S3 objects:", error.message);
+  }
 });

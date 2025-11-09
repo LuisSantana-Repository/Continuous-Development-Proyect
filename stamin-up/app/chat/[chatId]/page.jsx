@@ -14,6 +14,7 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
 
   const {
+    socket, // ✅ Add this
     messages,
     sendMessage,
     openChat,
@@ -22,11 +23,11 @@ export default function ChatPage() {
     startTyping,
     stopTyping,
     currentChatId,
-  } = useChat(); 
+  } = useChat();
 
   const [inputMessage, setInputMessage] = useState('');
 
-  // Check auth on mount using /auth/me
+  // Check auth on mount
   useEffect(() => {
     let cancelled = false;
 
@@ -34,14 +35,14 @@ export default function ChatPage() {
       try {
         const res = await fetch('http://localhost:3000/users/me', {
           method: 'GET',
-          credentials: 'include', // important if you're using httpOnly cookies
+          credentials: 'include',
         });
 
         if (!res.ok) {
           throw new Error('Not authenticated');
         }
 
-          setAuthChecked(true);
+        setAuthChecked(true);
       } catch (err) {
         console.error('Auth check failed, redirecting to /', err);
         if (!cancelled) {
@@ -73,6 +74,7 @@ export default function ChatPage() {
   const handleSend = (e) => {
     e.preventDefault();
     if (!inputMessage.trim()) return;
+    console.log('📤 Sending message from UI:', inputMessage);
     sendMessage(inputMessage);
     setInputMessage('');
   };
@@ -196,7 +198,9 @@ export default function ChatPage() {
                   <div
                     className={`px-4 py-2 rounded-2xl ${
                       isOwnMessage
-                        ? 'bg-blue-500 text-white rounded-tr-sm'
+                        ? message.error
+                          ? 'bg-red-500 text-white'
+                          : 'bg-blue-500 text-white rounded-tr-sm'
                         : 'bg-white border border-gray-200 text-gray-900 rounded-tl-sm'
                     } ${message.sending ? 'opacity-60' : ''}`}
                   >
@@ -205,9 +209,9 @@ export default function ChatPage() {
                     </p>
                   </div>
                   <p
-                    className={`text-xs text-gray-500 mt-1 px-1 ${
+                    className={`text-xs mt-1 px-1 ${
                       isOwnMessage ? 'text-right' : 'text-left'
-                    }`}
+                    } ${message.error ? 'text-red-500' : 'text-gray-500'}`}
                   >
                     {message.timestamp &&
                       new Date(message.timestamp).toLocaleTimeString([], {
@@ -215,6 +219,7 @@ export default function ChatPage() {
                         minute: '2-digit',
                       })}
                     {message.sending && ' • Sending...'}
+                    {message.error && ' • Failed to send'}
                   </p>
                 </div>
               </div>
@@ -281,6 +286,19 @@ export default function ChatPage() {
             </svg>
           </button>
         </form>
+        
+        {/* Debug Button */}
+        <button
+          onClick={() => {
+            console.log("🧪 Test - Socket:", socket);
+            console.log("🧪 Test - Connected:", isConnected);
+            console.log("🧪 Test - Current Chat:", currentChatId);
+            console.log("🧪 Test - Messages:", messages);
+          }}
+          className="mt-2 px-4 py-2 bg-gray-200 rounded text-sm"
+        >
+          Debug Info
+        </button>
       </footer>
     </div>
   );

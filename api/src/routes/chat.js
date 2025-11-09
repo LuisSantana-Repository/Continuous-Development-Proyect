@@ -9,6 +9,8 @@ import {
   markMessagesAsRead,
     getProviderChat,
     getProviderName,
+    getUserName,
+    getProviderIdUsingUserId
 } from "../services/chat.js";
 
 export const router = express.Router();
@@ -57,7 +59,10 @@ router.get("/", authenticate, async (req, res) => {
 
     const isProvider = req.user.provider || false;
     if (isProvider) {
-        const providerChats = await getProviderChat(userId);
+        console.log("User is a provider, fetching provider chats");
+        const provider_id = await getProviderIdUsingUserId(userId);
+        console.log("Provider ID:", provider_id);
+        const providerChats = await getProviderChat(provider_id);
         
         for (const chat of providerChats) {
             console.log("Fetching user name for chat:", chat.chat_id);
