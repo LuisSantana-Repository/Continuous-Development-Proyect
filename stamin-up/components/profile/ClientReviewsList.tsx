@@ -1,4 +1,8 @@
-import { MessageSquare } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import ReviewListItem from "./ReviewListItem";
 import type { ClientReview } from "@/types";
 
@@ -7,10 +11,30 @@ interface ClientReviewsListProps {
   isLoading: boolean;
 }
 
+const ITEMS_PER_PAGE = 5;
+
 export default function ClientReviewsList({
   reviews,
   isLoading,
 }: ClientReviewsListProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Calcular paginación
+  const totalPages = Math.ceil(reviews.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedReviews = reviews.slice(startIndex, endIndex);
+
+  // Navegación de páginas
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    // Scroll suave al inicio de la lista
+    const reviewsSection = document.getElementById("reviews-section");
+    if (reviewsSection) {
+      reviewsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -39,10 +63,73 @@ export default function ClientReviewsList({
   }
 
   return (
-    <div className="space-y-4">
-      {reviews.map((review) => (
-        <ReviewListItem key={review.id} review={review} />
-      ))}
+    <div id="reviews-section" className="space-y-6">
+      {/* Lista de reseñas */}
+      <div className="space-y-4">
+        {paginatedReviews.map((review) => (
+          <ReviewListItem key={review.id} review={review} />
+        ))}
+      </div>
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-[var(--color-border-light)] pt-4">
+          <p className="body-sm text-secondary">
+            Mostrando {startIndex + 1} - {Math.min(endIndex, reviews.length)} de{" "}
+            {reviews.length} reseñas
+          </p>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Anterior
+            </Button>
+
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => {
+                  // Mostrar solo 3 páginas: anterior, actual, y siguiente
+                  if (page >= currentPage - 1 && page <= currentPage + 1) {
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => goToPage(page)}
+                        className={
+                          currentPage === page
+                            ? "bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] min-w-[2.5rem]"
+                            : "min-w-[2.5rem]"
+                        }
+                      >
+                        {page}
+                      </Button>
+                    );
+                  }
+                  return null;
+                }
+              )}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="gap-1"
+            >
+              Siguiente
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

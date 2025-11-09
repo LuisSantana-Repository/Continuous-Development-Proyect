@@ -118,7 +118,7 @@ export interface Order {
   serviceName: string;
   providerName: string;
   date: string;
-  status: 'Completado' | 'En curso' | 'Pendiente' | 'Aceptado' | 'Rechazado' | 'Cancelado';
+  status: 'Completado' | 'En curso' | 'Pendiente' | 'Aceptado' | 'Rechazado';
   price: number;
   rating?: OrderRating;
   reports?: OrderReport[];
