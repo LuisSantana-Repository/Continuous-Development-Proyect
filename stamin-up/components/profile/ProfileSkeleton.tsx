@@ -3,7 +3,7 @@ export default function ProfileSkeleton() {
     <div className="min-h-screen bg-white">
       {/* Hero Skeleton */}
       <section className="bg-[var(--color-background-secondary)] py-12 md:py-16">
-        <div className="container mx-auto px-6 md:px-12 lg:px-20">
+        <div className="app-container">
           <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-lg md:p-12">
             <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
               {/* Avatar Skeleton */}
@@ -25,7 +25,7 @@ export default function ProfileSkeleton() {
 
       {/* Content Skeleton */}
       <section className="py-12 md:py-16">
-        <div className="container mx-auto px-6 md:px-12 lg:px-20">
+        <div className="app-container">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-3">
             {/* Sidebar Skeleton */}
             <div className="space-y-6">

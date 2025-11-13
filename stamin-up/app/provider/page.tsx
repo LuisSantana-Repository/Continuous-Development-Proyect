@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import ProfileHero from "@/components/profile/ProfileHero";
 import RequestsList from "@/components/provider/RequestsList";
-import CalendarPlaceholder from "@/components/provider/CalendarPlaceholder";
+import ProviderCalendar from "@/components/provider/ProviderCalendar";
 import RejectRequestModal from "@/components/provider/RejectRequestModal";
 import EditRequestModal from "@/components/provider/EditRequestModal";
 import RequestDetailDrawer from "@/components/provider/RequestDetailDrawer";
@@ -12,7 +12,6 @@ import ReportRequestModal from "@/components/provider/ReportRequestModal";
 import ChatPlaceholderDialog from "@/components/provider/ChatPlaceholderDialog";
 import { useProviderUser } from "@/hooks/useProviderUser";
 import { useProviderRequests } from "@/hooks/useProviderRequests";
-import { useCalendar } from "@/hooks/useCalendar";
 import type { ProviderRequest, ProviderUser, ClientUser } from "@/types";
 
 export default function ProviderPage() {
@@ -30,7 +29,6 @@ export default function ProviderPage() {
     startWork,
     completeWork,
   } = useProviderRequests();
-  const { calendar, loading: calendarLoading } = useCalendar();
 
   // Modals state
   const [rejectModal, setRejectModal] = useState<{
@@ -181,7 +179,7 @@ export default function ProviderPage() {
       <ProfileHero user={localUser} onUpdateUser={handleUpdateUser} />
 
       {/* Contenido Principal */}
-      <section className="container mx-auto px-6 md:px-12 lg:px-20 py-12">
+      <section className="app-container py-12">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Columna Izquierda: Solicitudes (2/3) */}
           <div className="lg:col-span-2 space-y-6">
@@ -211,10 +209,7 @@ export default function ProviderPage() {
           {/* Columna Derecha: Calendario (1/3) */}
           <div className="space-y-6">
             <h2 className="heading-lg text-primary">Calendario</h2>
-            <CalendarPlaceholder
-              calendar={calendar}
-              loading={calendarLoading}
-            />
+            <ProviderCalendar providerId={Number(provider.id)} />
           </div>
         </div>
       </section>

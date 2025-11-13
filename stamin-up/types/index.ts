@@ -244,3 +244,42 @@ export interface CalendarData {
   availability: WeekAvailability;
   blockedSlots: BlockedSlot[];
 }
+
+// ==================== PROVIDER CALENDAR ====================
+
+export interface CalendarEvent {
+  id: string;
+  type: 'service_request';
+  date: string; // "YYYY-MM-DD"
+  startTime: string; // "HH:MM"
+  endTime: string; // "HH:MM"
+  clientName: string;
+  serviceName: string;
+  status: 'pending' | 'accepted' | 'in_progress';
+  address?: string;
+  phone?: string;
+  description?: string;
+}
+
+export interface ProviderCalendarData {
+  providerId: number;
+  month: string; // "YYYY-MM"
+  timeAvailable: TimeAvailability;
+  events: CalendarEvent[];
+  summary: {
+    totalRequests: number;
+    pendingRequests: number;
+    acceptedRequests: number;
+    inProgressRequests: number;
+  };
+}
+
+export interface CalendarDay {
+  date: Date;
+  dayNumber: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isWeekend: boolean;
+  isAvailable: boolean;
+  events: CalendarEvent[];
+}

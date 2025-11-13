@@ -61,6 +61,32 @@
   --color-border: #e5e7eb;
   --color-border-light: #f3f4f6;
 
+  /* Status Colors - Consistent across the app */
+  --color-status-pending: #eab308; /* yellow-500 */
+  --color-status-pending-bg: #fef9c3; /* yellow-100 */
+  --color-status-pending-light: #fef08a; /* yellow-200 */
+  --color-status-pending-dark: #ca8a04; /* yellow-600 */
+
+  --color-status-accepted: #22c55e; /* green-500 */
+  --color-status-accepted-bg: #dcfce7; /* green-100 */
+  --color-status-accepted-light: #bbf7d0; /* green-200 */
+  --color-status-accepted-dark: #16a34a; /* green-600 */
+
+  --color-status-in-progress: #3b82f6; /* blue-500 */
+  --color-status-in-progress-bg: #dbeafe; /* blue-100 */
+  --color-status-in-progress-light: #bfdbfe; /* blue-200 */
+  --color-status-in-progress-dark: #2563eb; /* blue-600 */
+
+  --color-status-completed: #10b981; /* emerald-500 */
+  --color-status-completed-bg: #d1fae5; /* emerald-100 */
+  --color-status-completed-light: #a7f3d0; /* emerald-200 */
+  --color-status-completed-dark: #059669; /* emerald-600 */
+
+  --color-status-rejected: #ef4444; /* red-500 */
+  --color-status-rejected-bg: #fee2e2; /* red-100 */
+  --color-status-rejected-light: #fecaca; /* red-200 */
+  --color-status-rejected-dark: #dc2626; /* red-600 */
+
   /* Typography Tokens */
   --font-size-xs: 0.75rem; /* 12px */
   --font-size-sm: 0.875rem; /* 14px */
@@ -96,6 +122,12 @@
   --section-padding-sm: 3rem; /* 48px */
   --section-padding-md: 4rem; /* 64px */
   --section-padding-lg: 5rem; /* 80px */
+
+  /* Container Horizontal Padding - Consistent across all browsers */
+  --container-padding-mobile: 1rem; /* 16px */
+  --container-padding-tablet: 2rem; /* 32px */
+  --container-padding-desktop: 3rem; /* 48px */
+  --container-padding-wide: 4rem; /* 64px */
 
   /* Shadow Tokens */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -191,6 +223,37 @@
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom container that works consistently across all browsers */
+  .app-container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--container-padding-mobile);
+    padding-right: var(--container-padding-mobile);
+    max-width: 1536px; /* 96rem - xl breakpoint */
+  }
+
+  @media (min-width: 768px) {
+    .app-container {
+      padding-left: var(--container-padding-tablet);
+      padding-right: var(--container-padding-tablet);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .app-container {
+      padding-left: var(--container-padding-desktop);
+      padding-right: var(--container-padding-desktop);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .app-container {
+      padding-left: var(--container-padding-wide);
+      padding-right: var(--container-padding-wide);
+    }
   }
 }
 
@@ -335,4 +398,60 @@
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
+}
+
+/* Status Utilities */
+/* Pending */
+.status-pending {
+  background-color: var(--color-status-pending);
+}
+.status-pending-bg {
+  background-color: var(--color-status-pending-bg);
+}
+.status-pending-text {
+  color: var(--color-status-pending-dark);
+}
+
+/* Accepted */
+.status-accepted {
+  background-color: var(--color-status-accepted);
+}
+.status-accepted-bg {
+  background-color: var(--color-status-accepted-bg);
+}
+.status-accepted-text {
+  color: var(--color-status-accepted-dark);
+}
+
+/* In Progress */
+.status-in-progress {
+  background-color: var(--color-status-in-progress);
+}
+.status-in-progress-bg {
+  background-color: var(--color-status-in-progress-bg);
+}
+.status-in-progress-text {
+  color: var(--color-status-in-progress-dark);
+}
+
+/* Completed */
+.status-completed {
+  background-color: var(--color-status-completed);
+}
+.status-completed-bg {
+  background-color: var(--color-status-completed-bg);
+}
+.status-completed-text {
+  color: var(--color-status-completed-dark);
+}
+
+/* Rejected */
+.status-rejected {
+  background-color: var(--color-status-rejected);
+}
+.status-rejected-bg {
+  background-color: var(--color-status-rejected-bg);
+}
+.status-rejected-text {
+  color: var(--color-status-rejected-dark);
 }
