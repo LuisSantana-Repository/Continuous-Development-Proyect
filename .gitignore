@@ -144,3 +144,7 @@ localstack-data/
 .DS_Store
 Thumbs.db
 EOF
+
+terraform
+.terraform/
+.terraform/*

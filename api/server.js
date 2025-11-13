@@ -14,12 +14,17 @@ const PORT = process.env.PORT || 3000;
 const httpServer = createServer(app);
 
 // Global Middleware
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? [process.env.CORS_ORIGIN || 'https://yourdomain.com']
+  : ["http://localhost:3000", "http://localhost:3001"];
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
+
 
 app.use(cookieParser());
 app.use(express.json({ limit: "50mb" }));

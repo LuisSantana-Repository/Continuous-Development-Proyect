@@ -1,0 +1,12 @@
+aws configure
+
+aws ec2 create-key-pair \
+  --key-name stamin-up-key \
+  --query 'KeyMaterial' \
+  --output text > ~/.ssh/stamin-up-key.pem
+
+
+aws ec2 describe-images --owners amazon  --filters "Name=name,Values=al2023-ami-2023*-x86_64"  --query 'Images | sort_by(@, &CreationDate) | [-1].ImageId' --output text
+
+terraform init
+terraform plan
