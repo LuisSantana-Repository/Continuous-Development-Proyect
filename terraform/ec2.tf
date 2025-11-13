@@ -33,7 +33,7 @@ data "template_file" "web_user_data" {
 # Launch Template - API
 resource "aws_launch_template" "api" {
   name_prefix   = "${var.project_name}-api-"
-  image_id      = var.ami_id
+  image_id      = var.ami_id != "" ? var.ami_id : data.aws_ami.amazon_linux_2023.id
   instance_type = var.instance_type_api
   
   iam_instance_profile {
@@ -108,7 +108,7 @@ resource "aws_launch_template" "api" {
 # Launch Template - Web
 resource "aws_launch_template" "web" {
   name_prefix   = "${var.project_name}-web-"
-  image_id      = var.ami_id
+  image_id      = var.ami_id != "" ? var.ami_id : data.aws_ami.amazon_linux_2023.id
   instance_type = var.instance_type_web
   
   iam_instance_profile {
