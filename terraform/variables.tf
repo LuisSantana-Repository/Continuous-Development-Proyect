@@ -8,7 +8,7 @@
 variable "aws_region" {
   description = "AWS Region"
   type        = string
-  default     = "us-east-1"  # Cambiado de mx-central-1 (no existe) a us-east-1
+  default     = "us-east-1"  # Note: mx-central-1 doesn't exist as an AWS region
 }
 
 variable "project_name" {
@@ -39,21 +39,21 @@ variable "vpc_cidr" {
 }
 
 variable "availability_zones" {
-  description = "List of availability zones (1 para dev, 2+ para prod)"
+  description = "List of availability zones (2+ required for RDS)"
   type        = list(string)
-  default     = ["us-east-1a"]  # Solo 1 AZ en desarrollo para ahorrar costos
+  default     = ["us-east-1a", "us-east-1b"]  # 2 AZs required for RDS
 }
 
 variable "public_subnet_cidrs" {
   description = "CIDR blocks for public subnets"
   type        = list(string)
-  default     = ["10.0.1.0/24"]  # Solo 1 para desarrollo
+  default     = ["10.0.1.0/24", "10.0.2.0/24"]  # 2 subnets for multi-AZ
 }
 
 variable "private_app_subnet_cidrs" {
   description = "CIDR blocks for private application subnets"
   type        = list(string)
-  default     = ["10.0.11.0/24"]  # Solo 1 para desarrollo
+  default     = ["10.0.11.0/24", "10.0.12.0/24"]  # 2 subnets for multi-AZ
 }
 
 variable "private_db_subnet_cidrs" {
@@ -101,7 +101,7 @@ variable "db_password" {
 variable "db_instance_class_primary" {
   description = "RDS instance class for primary database"
   type        = string
-  default     = "db.t3.micro"  # Más barato disponible
+  default     = "db.t3.micro"  # Cheapest available
 }
 
 variable "db_instance_class_secondary" {
@@ -110,11 +110,11 @@ variable "db_instance_class_secondary" {
   default     = "db.t3.micro"
 }
 
-# OPTIMIZACIÓN: Control de segunda base de datos
+# Enable secondary database (2 databases as requested)
 variable "enable_secondary_db" {
-  description = "Enable secondary database (false ahorra ~$33-65/mes)"
+  description = "Enable secondary database"
   type        = bool
-  default     = false  # Deshabilitado por defecto
+  default     = true  # Enabled to have 2 databases
 }
 
 # ========================================
@@ -122,22 +122,22 @@ variable "enable_secondary_db" {
 # ========================================
 
 variable "ami_id" {
-  description = "AMI ID for EC2 instances (Amazon Linux 2023)"
+  description = "AMI ID for EC2 instances (Amazon Linux 2023) - leave empty to auto-detect latest"
   type        = string
-  # Dejar vacío y especificar en terraform.tfvars
-  # O usar data source para obtener la última AMI automáticamente
+  default     = ""
+  # Leave empty to auto-detect the latest Amazon Linux 2023 AMI
 }
 
 variable "instance_type_api" {
   description = "EC2 instance type for API servers"
   type        = string
-  default     = "t3.micro"  # Free tier eligible
+  default     = "t3.small"  # Better performance than t3.micro
 }
 
 variable "instance_type_web" {
   description = "EC2 instance type for Web servers"
   type        = string
-  default     = "t3.micro"  # Free tier eligible
+  default     = "t3.small"  # Better performance than t3.micro
 }
 
 variable "ssh_key_name" {
@@ -164,37 +164,37 @@ variable "your_ip" {
 variable "api_min_size" {
   description = "Minimum number of API instances"
   type        = number
-  default     = 1  # Reducido de 2 para ahorrar costos
+  default     = 1  # Keep costs low
 }
 
 variable "api_max_size" {
   description = "Maximum number of API instances"
   type        = number
-  default     = 4
+  default     = 3  # Max 3 as requested
 }
 
 variable "api_desired_capacity" {
   description = "Desired number of API instances"
   type        = number
-  default     = 1  # Reducido de 2 para ahorrar costos
+  default     = 1  # Start with 1, scale up based on CPU
 }
 
 variable "web_min_size" {
   description = "Minimum number of Web instances"
   type        = number
-  default     = 1  # Reducido de 2 para ahorrar costos
+  default     = 1  # Keep costs low
 }
 
 variable "web_max_size" {
   description = "Maximum number of Web instances"
   type        = number
-  default     = 4
+  default     = 3  # Max 3 as requested
 }
 
 variable "web_desired_capacity" {
   description = "Desired number of Web instances"
   type        = number
-  default     = 1  # Reducido de 2 para ahorrar costos
+  default     = 1  # Start with 1, scale up based on CPU
 }
 
 # ========================================
