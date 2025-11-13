@@ -65,13 +65,13 @@ resource "aws_launch_template" "api" {
   # Block device mapping
   block_device_mappings {
     device_name = "/dev/xvda"
-    
+
     ebs {
-      volume_size           = 20  # GB
+      volume_size           = 30  # GB (increased from 20 to match snapshot requirement)
       volume_type           = "gp3"
       delete_on_termination = true
       encrypted             = true
-      
+
       # OPTIMIZACIÓN: Sin IOPS/throughput adicional en desarrollo
       # iops       = var.environment == "production" ? 3000 : null
       # throughput = var.environment == "production" ? 125 : null
@@ -136,9 +136,9 @@ resource "aws_launch_template" "web" {
   
   block_device_mappings {
     device_name = "/dev/xvda"
-    
+
     ebs {
-      volume_size           = 20
+      volume_size           = 30  # GB (increased from 20 to match snapshot requirement)
       volume_type           = "gp3"
       delete_on_termination = true
       encrypted             = true

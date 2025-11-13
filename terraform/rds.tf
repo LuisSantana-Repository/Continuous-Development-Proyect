@@ -21,7 +21,7 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_db_instance" "primary" {
   identifier        = "${var.project_name}-primary-db"
   engine            = "mysql"
-  engine_version    = "8.0.35"
+  engine_version    = "8.0.39"  # Changed from 8.0.35 (not available) to 8.0.39
   instance_class    = var.db_instance_class_primary
   allocated_storage = 20  # Aumentado de 10 a 20 (mínimo para gp3)
   storage_type      = "gp3"
@@ -67,10 +67,10 @@ resource "aws_db_instance" "primary" {
 # Para habilitar, cambia count = 1
 resource "aws_db_instance" "secondary" {
   count = var.enable_secondary_db ? 1 : 0  # Condicional
-  
+
   identifier        = "${var.project_name}-secondary-db"
   engine            = "mysql"
-  engine_version    = "8.0.35"
+  engine_version    = "8.0.39"  # Changed from 8.0.35 (not available) to 8.0.39
   instance_class    = var.db_instance_class_secondary
   allocated_storage = 20
   storage_type      = "gp3"
