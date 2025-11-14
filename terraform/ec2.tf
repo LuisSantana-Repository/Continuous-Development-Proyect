@@ -1,3 +1,24 @@
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+
+resource "aws_key_pair" "main" {
+  key_name   = "aws-ec2"
+  public_key = file("${path.module}/aws-ec2.pub")
+}
+
 # Security Group para permitir HTTP y SSH
 resource "aws_security_group" "app_sg" {
   name        = "${var.project_name}-sg"
@@ -52,7 +73,7 @@ resource "aws_security_group" "app_sg" {
 resource "aws_instance" "api" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
-  key_name      = var.key_name
+  key_name      = aws_key_pair.main.key_name
 
   vpc_security_group_ids = [aws_security_group.app_sg.id]
 
@@ -72,42 +93,27 @@ resource "aws_instance" "api" {
   }
 }
 
-# EC2 para Stamin-Up Frontend
-resource "aws_instance" "stamin_up" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = var.instance_type
-  key_name      = var.key_name
+# # EC2 para Stamin-Up Frontend
+# resource "aws_instance" "stamin_up" {
+#   ami           =  data.aws_ami.ubuntu.id
+#   instance_type = var.instance_type
+#   key_name      = aws_key_pair.main.key_name
 
-  vpc_security_group_ids = [aws_security_group.app_sg.id]
+#   vpc_security_group_ids = [aws_security_group.app_sg.id]
 
-  user_data = templatefile("${path.module}/user_data_stamin.sh", {
-    env_vars = var.stamin_env_vars
-  })
+#   user_data = templatefile("${path.module}/user_data_stamin.sh", {
+#     env_vars = var.stamin_env_vars
+#   })
 
-  tags = {
-    Name    = "${var.project_name}-stamin-up"
-    Project = var.project_name
-    Service = "stamin-up"
-  }
+#   tags = {
+#     Name    = "${var.project_name}-stamin-up"
+#     Project = var.project_name
+#     Service = "stamin-up"
+#   }
 
-  root_block_device {
-    volume_size = 8
-    volume_type = "gp3"
-  }
-}
+#   root_block_device {
+#     volume_size = 8
+#     volume_type = "gp3"
+#   }
+# }
 
-# Data source para obtener la última AMI de Ubuntu
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hls-ssd/ubuntu-jammy-22.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}

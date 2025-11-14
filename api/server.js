@@ -14,9 +14,13 @@ const PORT = process.env.PORT || 3000;
 const httpServer = createServer(app);
 
 // Global Middleware
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [process.env.CORS_ORIGIN || 'https://yourdomain.com']
-  : ["http://localhost:3000", "http://localhost:3001"];
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  `http://${process.env.PUBLIC_IP}:3000`,
+  `http://${process.env.DOMAIN}`,
+  "*"
+];
 
 app.use(
   cors({
@@ -61,7 +65,7 @@ const io = initializeWebSocket(httpServer);
 app.set("io", io);
 
 // Start server (use httpServer, not app)
-httpServer.listen(PORT, async () => {
+httpServer.listen(PORT, "0.0.0.0", async () => {
   console.log(`🚀 API Server running on http://localhost:${PORT}`);
   console.log(`🔌 WebSocket Server running on ws://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);

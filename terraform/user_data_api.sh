@@ -1,52 +1,42 @@
 #!/bin/bash
 set -e
 
-# Actualizar el sistema
+# Actualizar sistema
 apt-get update
 apt-get upgrade -y
 
-# Instalar Docker
+# Instalar dependencias
+apt-get install -y git curl ca-certificates gnupg lsb-release
+
+# Instalar Docker (método oficial)
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 
-# Instalar Docker Compose
+# Instalar Docker Compose plugin
 apt-get install -y docker-compose-plugin
 
 # Habilitar Docker
 systemctl enable docker
 systemctl start docker
 
-# Crear directorio para la aplicación
+# Crear carpeta de la app
 mkdir -p /app
 cd /app
 
-# Crear archivo .env con las variables
+# Clonar tu repo
+git clone https://github.com/LuisSantana-Repository/Continuous-Development-Proyect.git .
+
+cd ./api/
+
+# Crear archivo .env desde Terraform variables
 cat > .env << EOF
-%{for key, value in env_vars}
+%{ for key, value in env_vars ~}
 ${key}=${value}
-%{endfor}
+%{ endfor ~}
 EOF
 
-# Crear docker-compose.yml para la API
-cat > docker-compose.yml << 'COMPOSE_EOF'
-version: '3.8'
+#run the application using DOCKERFILE
+sudo docker build -t api-server .
+sudo docker run -d -p 3000:3000 api-server:latest
 
-services:
-  api:
-    image: node:18-alpine
-    working_dir: /app
-    volumes:
-      - ./api:/app
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    command: sh -c "npm install && npm start"
-    restart: unless-stopped
-
-COMPOSE_EOF
-
-# Nota: Aquí deberías clonar tu repositorio o copiar el código
-# Por ahora dejamos preparado el entorno
-
-echo "API server setup complete!"
+echo "Ubuntu API server setup complete!"
