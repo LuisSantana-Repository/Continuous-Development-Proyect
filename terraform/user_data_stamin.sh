@@ -27,18 +27,18 @@ ${key}=${value}
 %{endfor}
 EOF
 
-# Crear docker-compose.yml para la API
+# Crear docker-compose.yml para Stamin-Up
 cat > docker-compose.yml << 'COMPOSE_EOF'
 version: '3.8'
 
 services:
-  api:
+  stamin-up:
     image: node:18-alpine
     working_dir: /app
     volumes:
-      - ./api:/app
+      - ./stamin-up:/app
     ports:
-      - "3000:3000"
+      - "80:3000"
     env_file:
       - .env
     command: sh -c "npm install && npm start"
@@ -49,4 +49,4 @@ COMPOSE_EOF
 # Nota: Aquí deberías clonar tu repositorio o copiar el código
 # Por ahora dejamos preparado el entorno
 
-echo "API server setup complete!"
+echo "Stamin-Up server setup complete!"
