@@ -1,6 +1,3 @@
-# terraform/main.tf
-# Main Terraform configuration
-
 terraform {
   required_version = ">= 1.0"
 
@@ -10,65 +7,8 @@ terraform {
       version = "~> 5.0"
     }
   }
-
-  # Optional: Configure backend for remote state
-  # backend "s3" {
-  #   bucket         = "your-terraform-state-bucket"
-  #   key            = "stamin-up/terraform.tfstate"
-  #   region         = "us-east-1"
-  #   encrypt        = true
-  #   dynamodb_table = "terraform-state-lock"
-  # }
 }
 
 provider "aws" {
   region = var.aws_region
-
-  default_tags {
-    tags = merge(
-      var.common_tags,
-      {
-        Environment = var.environment
-        ManagedBy   = "Terraform"
-      }
-    )
-  }
-}
-
-# Data source for latest Amazon Linux 2023 AMI
-data "aws_ami" "amazon_linux_2023" {
-  most_recent = true
-  owners      = ["amazon"]
-
-  filter {
-    name   = "name"
-    values = ["al2023-ami-*-x86_64"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}
-
-# Data source for current AWS account
-data "aws_caller_identity" "current" {}
-
-# Data source for current AWS region
-data "aws_region" "current" {}
-
-# Outputs
-output "account_id" {
-  description = "AWS Account ID"
-  value       = data.aws_caller_identity.current.account_id
-}
-
-output "region" {
-  description = "AWS Region"
-  value       = data.aws_region.current.name
-}
-
-output "ami_id" {
-  description = "Latest Amazon Linux 2023 AMI ID"
-  value       = data.aws_ami.amazon_linux_2023.id
 }
