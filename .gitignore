@@ -155,3 +155,6 @@ terraform/terraform.tfstate.backup
 terraform/*.tfstate
 terraform/*.tfstate.backup
 terraform/.terraform.lock.hcl
+
+./terraform/aws-ec2
+./terraform/aws-ec2.pub
