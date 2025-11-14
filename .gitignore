@@ -144,3 +144,17 @@ localstack-data/
 .DS_Store
 Thumbs.db
 EOF
+
+# Terraform - Only ignore state and generated files, keep configs
+.terraform/
+.terraform/*
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+
+./terraform/aws-ec2
+./terraform/aws-ec2.pub

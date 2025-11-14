@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 3000
 
 # Comando por defecto (se puede sobreescribir en docker-compose)
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
