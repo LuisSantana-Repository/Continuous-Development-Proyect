@@ -83,7 +83,7 @@ export default function OrderDetailsModal({
       })
     : null;
 
-  const paymentStatusLabel = {
+  const paymentStatusLabel: Record<string, string> = {
     pending: "Pendiente",
     paid: "Pagado",
   };

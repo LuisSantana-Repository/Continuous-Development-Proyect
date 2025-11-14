@@ -2,15 +2,40 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { io } from "socket.io-client";
 
-export function useChat() {
+/**
+ * Hook personalizado para manejo de chat en tiempo real
+ * @param {string} userId - ID del usuario actual (opcional, se obtendrá si no se proporciona)
+ */
+export function useChat(userId = null) {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const [currentChatId, setCurrentChatId] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const [currentUserId, setCurrentUserId] = useState(userId);
 
   const typingTimeoutRef = useRef(null);
+
+  // Obtener el ID del usuario actual si no se proporciona
+  useEffect(() => {
+    if (!currentUserId) {
+      const fetchUserId = async () => {
+        try {
+          const response = await fetch("http://localhost:3000/users/me", {
+            credentials: "include",
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setCurrentUserId(data.user.user_id);
+          }
+        } catch (error) {
+          console.error("Error fetching user ID:", error);
+        }
+      };
+      fetchUserId();
+    }
+  }, [currentUserId]);
 
   // Initialize socket ONCE
   useEffect(() => {
@@ -51,7 +76,7 @@ export function useChat() {
       console.log("📨 Message received:", message);
       setMessages((prev) => {
         // Check if message already exists
-        const exists = prev.some(m => m.message_id === message.message_id);
+        const exists = prev.some((m) => m.message_id === message.message_id);
         if (exists) return prev;
         return [...prev, message];
       });
@@ -78,7 +103,7 @@ export function useChat() {
       console.log("✍️ User started typing:", data);
       setIsTyping(true);
     });
-    
+
     newSocket.on("typing:stopped", (data) => {
       console.log("✍️ User stopped typing:", data);
       setIsTyping(false);
@@ -145,11 +170,11 @@ export function useChat() {
         console.warn("Cannot open chat: socket or chatId missing");
         return;
       }
-      
+
       console.log("📥 Joining chat:", chatId);
       setMessages([]);
       setCurrentChatId(chatId);
-      
+
       // Emit join event
       socket.emit("chat:join", { chatId });
 
@@ -161,7 +186,7 @@ export function useChat() {
             credentials: "include",
           }
         );
-        
+
         if (response.ok) {
           const data = await response.json();
           console.log("📜 Loaded messages:", data.data.length);
@@ -192,16 +217,16 @@ export function useChat() {
       }
 
       const tempId = `temp-${Date.now()}-${Math.random()}`;
-      
+
       // Create optimistic message
       const optimisticMessage = {
         tempId,
         message_id: tempId,
         chat_id: currentChatId,
+        sender_id: currentUserId, // ✅ Agregar sender_id del usuario actual
         content: content.trim(),
         timestamp: Date.now(),
         sending: true,
-        is_provider: false, // Adjust based on your user type
       };
 
       console.log("📤 Sending message:", optimisticMessage);
@@ -222,18 +247,18 @@ export function useChat() {
       }
       socket.emit("typing:stop", { chatId: currentChatId });
     },
-    [socket, currentChatId]
+    [socket, currentChatId, currentUserId]
   );
 
   // Typing start/stop
   const startTyping = useCallback(() => {
     if (!socket || !currentChatId) return;
     socket.emit("typing:start", { chatId: currentChatId });
-    
+
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    
+
     typingTimeoutRef.current = setTimeout(() => {
       socket.emit("typing:stop", { chatId: currentChatId });
     }, 3000);
@@ -241,12 +266,12 @@ export function useChat() {
 
   const stopTyping = useCallback(() => {
     if (!socket || !currentChatId) return;
-    
+
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = null;
     }
-    
+
     socket.emit("typing:stop", { chatId: currentChatId });
   }, [socket, currentChatId]);
 
@@ -261,6 +286,7 @@ export function useChat() {
     isConnected,
     messages,
     currentChatId,
+    currentUserId, // ✅ Exportar el ID del usuario actual
     isTyping,
     onlineUsers,
     openChat,

@@ -77,6 +77,7 @@ export function useOrders(autoRefresh?: number) {
           status,
           price: parseFloat(request.amount || '0'),
           rating, // ✅ Agregar rating del backend
+          chatId: request.chat_id, // ✅ Agregar chatId del backend
           // Información adicional del service request
           description: request.description,
           preferredDate: request.preferred_date,

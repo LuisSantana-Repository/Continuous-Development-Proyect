@@ -40,6 +40,7 @@ router.post("/", authenticate, async (req, res) => {
     res.status(201).json({
       success: true,
       requestId: result.requestId,
+      chatId: result.chatId, // Incluir chatId en la respuesta
       message: "Service request created successfully",
     });
   } catch (error) {

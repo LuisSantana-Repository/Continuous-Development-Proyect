@@ -163,7 +163,7 @@ export default function RequestCard({
       </CardContent>
 
       <CardFooter className="flex-col gap-2 pt-4 border-t">
-        {/* Primera fila: Aceptar/Rechazar O Iniciar Trabajo O Completar */}
+        {/* Primera fila: Aceptar/Rechazar O Completar */}
         {canAccept && canReject && (
           <div className="flex gap-2 w-full">
             <Button
@@ -184,17 +184,6 @@ export default function RequestCard({
               Rechazar
             </Button>
           </div>
-        )}
-
-        {canStartWork && (
-          <Button
-            size="sm"
-            onClick={() => onStartWork(request.requestId)}
-            className="w-full gap-2 bg-blue-600 hover:bg-blue-700"
-          >
-            <Play className="h-4 w-4" />
-            Iniciar Trabajo
-          </Button>
         )}
 
         {canComplete && (

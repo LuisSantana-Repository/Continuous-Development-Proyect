@@ -209,8 +209,7 @@ export const apiClient = {
         rating,
         reviewCount,
         featured: false,
-        availability: [], // Deprecated, usar providerAvailability
-        providerAvailability, // ✅ Nuevo campo estructurado
+        providerAvailability,
         createdAt: item.created_at,
         provider: {
           id: item.provider_id.toString(),
@@ -292,7 +291,7 @@ export const apiClient = {
     try {
       // Por ahora retorna los primeros 6 servicios
       // En el futuro, esto debería basarse en un campo 'featured' en la BD
-      const services = await this.getServices(1, 6);
+      const services = await this.getServices(1, 4);
       return services;
     } catch (error) {
       console.error('Error fetching featured services:', error);
@@ -377,6 +376,7 @@ export const apiClient = {
 
       return {
         requestId: result.requestId,
+        chatId: result.chatId, // ✅ Incluir chatId de la respuesta del backend
         message: result.message || 'Solicitud creada exitosamente',
       };
     } catch (err) {
@@ -923,6 +923,37 @@ export const apiClient = {
       return result;
     } catch (error) {
       console.error('Error fetching provider calendar:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * PAYMENT
+   */
+
+  /**
+   * Procesa el pago de una orden (simulado)
+   * Actualiza payment_status a 'paid' y status a 'in_progress'
+   * @param orderId - ID de la orden/service request
+   */
+  async processOrderPayment(orderId: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/service-requests/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          payment_status: 'paid',
+        }),
+      });
+
+      await handleApiError(response);
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error processing payment:', error);
       throw error;
     }
   },

@@ -35,8 +35,7 @@ export interface Service {
   rating: number;
   reviewCount: number;
   featured: boolean;
-  availability: string[]; // @deprecated - Usar providerAvailability en su lugar
-  providerAvailability?: TimeAvailability; // ✅ Horarios disponibles del proveedor
+  providerAvailability?: TimeAvailability; // Horarios disponibles del proveedor
   createdAt: string;
 }
 
@@ -131,6 +130,7 @@ export interface Order {
   userId?: string;
   paymentStatus?: 'pending' | 'paid';
   completedAt?: string;
+  chatId?: string; // ✅ ID del chat asociado a esta solicitud
 }
 
 // Client Review - Reseña completa del cliente (para la sección "Mis Reseñas")
@@ -149,7 +149,6 @@ export interface ClientReview {
 export type BookingStatus = 
   | 'pending' 
   | 'accepted' 
-  | 'rejected' 
   | 'in_progress' 
   | 'completed' 
   | 'cancelled';
@@ -169,6 +168,7 @@ export interface ServiceRequest {
 
 export interface ServiceRequestResponse {
   requestId: string;
+  chatId?: string; // ID del chat creado automáticamente
   message?: string; // Mensaje del servidor
   status?: BookingStatus; // Opcional al crear
   createdAt?: string; // Opcional al crear
@@ -206,6 +206,7 @@ export interface ProviderRequest {
   status: 'pending' | 'accepted' | 'rejected' | 'in_progress' | 'completed' | 'cancelled';
   createdAt: string;
   rejectionReason?: string;
+  chatId?: string; // ID del chat asociado con el cliente
   history: RequestHistoryEntry[];
 }
 
