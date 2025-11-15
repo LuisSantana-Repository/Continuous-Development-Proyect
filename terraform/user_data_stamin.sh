@@ -37,5 +37,7 @@ EOF
 
 #start the application using DOCKERFILE
 sudo docker build -t stamin-up .
+sudo docker run -d -p 3001:3001 stamin-up:latest
+
 
 echo "Ubuntu API server setup complete!"

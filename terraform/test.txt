@@ -1,0 +1,2 @@
+ssh -i ./aws-ec2 ubuntu@
+sudo tail -n 50 /var/log/cloud-init-output.log

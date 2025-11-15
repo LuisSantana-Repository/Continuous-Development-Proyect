@@ -52,3 +52,38 @@ variable "key_name" {
   type        = string
   default     = "lorem_ipsum"
 }
+
+
+variable "api_min_size" {
+  description = "Minimum number of API instances"
+  type        = number
+  default     = 1
+}
+
+variable "api_max_size" {
+  description = "Maximum number of API instances"
+  type        = number
+  default     = 3
+}
+
+variable "api_desired_capacity" {
+  description = "Desired number of API instances"
+  type        = number
+  default     = 1
+}
+
+variable "web_min_size" {
+  description = "Minimum number of Web instances"
+  type        = number
+  default     = 1
+}
+variable "web_max_size" {
+  description = "Maximum number of Web instances"
+  type        = number
+  default     = 3
+}
+variable "web_desired_capacity" {
+  description = "Desired number of Web instances"
+  type        = number
+  default     = 1
+}
