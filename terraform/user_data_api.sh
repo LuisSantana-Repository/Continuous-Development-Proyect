@@ -29,7 +29,8 @@ git clone https://github.com/LuisSantana-Repository/Continuous-Development-Proye
 cd ./api/
 
 # Crear archivo .env desde Terraform variables
-cat > .env << EOF
+echo "Creating .env file..."
+cat > .env << 'EOF'
 %{ for key, value in env_vars ~}
 ${key}=${value}
 %{ endfor ~}
@@ -37,6 +38,6 @@ EOF
 
 #run the application using DOCKERFILE
 sudo docker build -t api-server .
-sudo docker run -d -p 3000:3000 api-server:latest
+sudo docker run  --env-file .env -d -p 3000:3000 api-server:latest
 
 echo "Ubuntu API server setup complete!"

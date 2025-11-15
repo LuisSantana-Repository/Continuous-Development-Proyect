@@ -1,2 +1,7 @@
-ssh -i ./aws-ec2 ubuntu@
+ssh -i ./aws-ec2 ubuntu@ec2-54-235-12-181.compute-1.amazonaws.com
+
 sudo tail -n 50 /var/log/cloud-init-output.log
+docker ps
+docker exec -it my-node-container sh
+docker logs my-node-container
+

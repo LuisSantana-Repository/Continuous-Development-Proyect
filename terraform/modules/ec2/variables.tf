@@ -47,3 +47,49 @@ variable "api_target_group_arn" {
   description = "ARN of the API target group"
   type        = string
 }
+
+variable "subnet_ids" {
+  description = "List of subnet IDs for Auto Scaling Groups"
+  type        = list(string)
+}
+
+variable "api_min_size" {
+  description = "Minimum number of API instances"
+  type        = number
+  default     = 1
+}
+
+variable "api_max_size" {
+  description = "Maximum number of API instances"
+  type        = number
+  default     = 3
+}
+
+variable "api_desired_capacity" {
+  description = "Desired number of API instances"
+  type        = number
+  default     = 1
+}
+
+variable "web_min_size" {
+  description = "Minimum number of Web instances"
+  type        = number
+  default     = 1
+}
+
+variable "web_max_size" {
+  description = "Maximum number of Web instances"
+  type        = number
+  default     = 3
+}
+
+variable "web_desired_capacity" {
+  description = "Desired number of Web instances"
+  type        = number
+  default     = 1
+}
+
+variable "iam_instance_profile_name" {
+  description = "Name of the IAM instance profile for EC2"
+  type        = string
+}
