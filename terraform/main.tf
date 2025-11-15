@@ -41,25 +41,14 @@ module "rds" {
   enable_deletion_protection = var.enable_deletion_protection
 }
 
-# S3 Module - File Storage (creates bucket first, needed for IAM)
-resource "aws_s3_bucket" "temp_for_iam" {
-  bucket = "${var.project_name}-bucket-${var.s3_environment}"
-
-  tags = {
-    Name        = "${var.project_name}-bucket"
-    Project     = var.project_name
-    Environment = var.s3_environment
-  }
-}
-
-# # IAM Module - EC2 Roles for S3 Access
+# IAM Module - EC2 Roles (create FIRST, before S3 and DynamoDB)
 module "iam" {
   source         = "./modules/iam"
   project_name   = var.project_name
-  s3_bucket_arn  = aws_s3_bucket.temp_for_iam.arn
+  s3_bucket_name = "${var.project_name}-bucket-${var.s3_environment}"
 }
 
-# # S3 Module - Complete S3 Configuration
+# S3 Module - Complete S3 Configuration
 module "s3" {
   source                    = "./modules/s3"
   project_name              = var.project_name
@@ -74,7 +63,7 @@ module "s3" {
   cors_allowed_origins      = var.s3_cors_allowed_origins
   ec2_role_arn              = module.iam.ec2_role_arn
 
-  depends_on = [aws_s3_bucket.temp_for_iam, module.iam]
+  depends_on = [module.iam]
 }
 
 # DynamoDB Module - NoSQL Tables
@@ -151,6 +140,6 @@ module "ec2" {
   web_target_group_arn  = module.lb.web_target_group_arn
   api_target_group_arn  = module.lb.api_target_group_arn
 
-  depends_on = [module.rds,module.s3, module.iam]
+  depends_on = [module.rds, module.s3, module.iam, module.dynamodb]
 
 }

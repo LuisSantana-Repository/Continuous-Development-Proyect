@@ -3,7 +3,7 @@ variable "project_name" {
   type        = string
 }
 
-variable "s3_bucket_arn" {
-  description = "ARN of the S3 bucket to grant access to"
+variable "s3_bucket_name" {
+  description = "Name of the S3 bucket to be used"
   type        = string
 }

@@ -21,7 +21,7 @@ resource "aws_iam_role" "ec2_s3_access" {
   }
 }
 
-# IAM Policy for S3 access
+# IAM Policy for S3 access - using wildcard for bucket ARN
 resource "aws_iam_role_policy" "s3_access" {
   name = "${var.project_name}-s3-access-policy"
   role = aws_iam_role.ec2_s3_access.id
@@ -39,8 +39,8 @@ resource "aws_iam_role_policy" "s3_access" {
           "s3:GetBucketLocation"
         ]
         Resource = [
-          var.s3_bucket_arn,
-          "${var.s3_bucket_arn}/*"
+          "arn:aws:s3:::${var.s3_bucket_name}",
+          "arn:aws:s3:::${var.s3_bucket_name}/*"
         ]
       }
     ]
