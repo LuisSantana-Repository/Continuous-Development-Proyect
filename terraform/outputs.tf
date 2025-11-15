@@ -36,22 +36,22 @@
 
 output "alb_dns_name" {
   description = "DNS name of the load balancer"
-  value       = aws_lb.main.dns_name
+  value       = module.lb.alb_dns_name
 }
 
 output "alb_zone_id" {
   description = "Zone ID of the load balancer"
-  value       = aws_lb.main.zone_id
+  value       = module.lb.alb_zone_id
 }
 
 output "alb_url" {
   description = "URL of the Application Load Balancer"
-  value       = "http://${aws_lb.main.dns_name}"
+  value       = "http://${module.lb.alb_dns_name}"
 }
 
 output "web_instance_public_ip" {
   description = "Public IP of the web instance"
-  value       = aws_instance.web.public_ip
+  value       = module.ec2.web_instance_public_ip
 }
 
 # output "api_asg_name" {
