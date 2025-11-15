@@ -3,6 +3,18 @@ FROM node:18-bookworm-slim AS builder
 WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Build arguments for Next.js environment variables
+ARG REACT_APP_API_URL
+ARG REACT_APP_ENV
+ARG REACT_APP_NAME
+ARG REACT_APP_VERSION
+
+# Set environment variables for build time
+ENV REACT_APP_API_URL=${REACT_APP_API_URL}
+ENV REACT_APP_ENV=${REACT_APP_ENV}
+ENV REACT_APP_NAME=${REACT_APP_NAME}
+ENV REACT_APP_VERSION=${REACT_APP_VERSION}
+
 # (opcional) instalar herramientas del sistema necesarias para build
 RUN apt-get update && apt-get upgrade -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
