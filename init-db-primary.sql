@@ -98,6 +98,59 @@ CREATE TABLE IF NOT EXISTS `user_reviews` (
   INDEX idx_rating (rating)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Tabla de reseñas de proveedores hacia clientes
+CREATE TABLE IF NOT EXISTS `provider_reviews` (
+  `review_id` VARCHAR(36) PRIMARY KEY,
+  `provider_id` INT NOT NULL,
+  `user_id` VARCHAR(36) NOT NULL,
+  `service_request_id` VARCHAR(36),
+  `rating` INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  `comment` TEXT,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (provider_id) REFERENCES providers(provider_id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (service_request_id) REFERENCES service_requests(request_id) ON DELETE SET NULL,
+  UNIQUE KEY unique_provider_review_per_request (provider_id, service_request_id),
+  INDEX idx_provider_id (provider_id),
+  INDEX idx_user_id (user_id),
+  INDEX idx_rating (rating)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de reportes de clientes hacia proveedores
+CREATE TABLE IF NOT EXISTS `user_reports` (
+  `report_id` VARCHAR(36) PRIMARY KEY,
+  `user_id` VARCHAR(36) NOT NULL,
+  `service_request_id` VARCHAR(36) NOT NULL,
+  `report_message` TEXT NOT NULL,
+  `status` ENUM('pending', 'resolved', 'rejected') DEFAULT 'pending',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (service_request_id) REFERENCES service_requests(request_id) ON DELETE CASCADE,
+  UNIQUE KEY unique_user_report_per_request (user_id, service_request_id),
+  INDEX idx_user_id (user_id),
+  INDEX idx_service_request_id (service_request_id),
+  INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de reportes de proveedores hacia clientes
+CREATE TABLE IF NOT EXISTS `provider_reports` (
+  `report_id` VARCHAR(36) PRIMARY KEY,
+  `provider_id` INT NOT NULL,
+  `service_request_id` VARCHAR(36) NOT NULL,
+  `report_message` TEXT NOT NULL,
+  `status` ENUM('pending', 'resolved', 'rejected') DEFAULT 'pending',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (provider_id) REFERENCES providers(provider_id) ON DELETE CASCADE,
+  FOREIGN KEY (service_request_id) REFERENCES service_requests(request_id) ON DELETE CASCADE,
+  UNIQUE KEY unique_provider_report_per_request (provider_id, service_request_id),
+  INDEX idx_provider_id (provider_id),
+  INDEX idx_service_request_id (service_request_id),
+  INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- Insertar usuario de prueba (password: "test123")
 INSERT INTO `users` (

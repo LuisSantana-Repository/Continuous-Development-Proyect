@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import ProfileHero from "@/components/profile/ProfileHero";
 import RequestsList from "@/components/provider/RequestsList";
@@ -15,6 +16,7 @@ import { useProviderRequests } from "@/hooks/useProviderRequests";
 import type { ProviderRequest, ProviderUser, ClientUser } from "@/types";
 
 export default function ProviderPage() {
+  const router = useRouter();
   const {
     provider,
     loading: providerLoading,
@@ -100,8 +102,15 @@ export default function ProviderPage() {
     }, 250);
   };
 
-  const handleOpenChat = () => {
-    setChatDialog(true);
+  const handleOpenChat = (requestId: string) => {
+    const request = requests.find((r) => r.requestId === requestId);
+    if (request?.chatId) {
+      // Redirigir al chat
+      router.push(`/chat/${request.chatId}`);
+    } else {
+      // Si no hay chatId, mostrar el diálogo de placeholder
+      setChatDialog(true);
+    }
   };
 
   const handleReport = (requestId: string) => {

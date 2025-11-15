@@ -82,6 +82,7 @@ export function useProviderRequests() {
           amount: parseFloat(req.amount || '0'),
           status,
           createdAt: req.created_at,
+          chatId: req.chat_id || undefined, // ✅ Incluir chatId de la respuesta del backend
           rejectionReason: undefined, // TODO: Agregar campo en backend
           history: [
             {

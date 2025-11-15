@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { getPrimaryPool } from "../config/database.js";
-import { getOrCreateChat } from "./chat.js";
+import { getOrCreateChat, getUserChats } from "./chat.js";
 
 /**
  * Convierte una fecha ISO 8601 a formato MySQL DATETIME (YYYY-MM-DD HH:MM:SS)
@@ -62,7 +62,7 @@ export async function createServiceRequest(data) {
       providerId,
       userId,
       description,
-      mysqlDate, // ✅ Usar fecha convertida
+      mysqlDate,
       address,
       contactPhone,
       amount,
@@ -71,18 +71,19 @@ export async function createServiceRequest(data) {
 
   try {
     const chat = await getOrCreateChat(userId, providerId);
-    console.log(`Chat created/retrieved for request ${requestId}: ${chat.chat_id}`);
-    
-    return { 
+    console.log(
+      `Chat created/retrieved for request ${requestId}: ${chat.chat_id}`
+    );
+
+    return {
       requestId,
-      chatId: chat.chat_id // Return chat ID as well
+      chatId: chat.chat_id, // Return chat ID as well
     };
   } catch (chatError) {
     // Si falla la creación del chat, loguear pero no fallar la solicitud
     console.error("Error creating chat for service request:", chatError);
     return { requestId, chatId: null };
   }
-
 }
 
 /**
@@ -184,12 +185,34 @@ export async function getUserServiceRequests(
 
   // Obtener datos paginados
   // SOLUCIÓN: Usar query() en lugar de execute() para LIMIT/OFFSET
-  // o concatenar los valores ya validados directamente
   dataQuery += ` ORDER BY sr.created_at DESC LIMIT ${safePageSize} OFFSET ${offset}`;
   const [rows] = await db.query(dataQuery, params);
 
+  // Obtener chatId para cada solicitud (igual que en getProviderServiceRequests)
+  const requestsWithChat = await Promise.all(
+    rows.map(async (row) => {
+      try {
+        // Obtener o crear el chat entre el usuario y el proveedor
+        const chat = await getOrCreateChat(userId, row.provider_id);
+        return {
+          ...row,
+          chat_id: chat.chat_id, // Agregar chatId a la respuesta
+        };
+      } catch (error) {
+        console.error(
+          `Error getting chat for request ${row.request_id}:`,
+          error
+        );
+        return {
+          ...row,
+          chat_id: null,
+        };
+      }
+    })
+  );
+
   return {
-    data: rows,
+    data: requestsWithChat,
     pagination: {
       page: safePage,
       pageSize: safePageSize,
@@ -264,8 +287,32 @@ export async function getProviderServiceRequests(
   dataQuery += ` ORDER BY sr.created_at DESC LIMIT ${safePageSize} OFFSET ${offset}`;
   const [rows] = await db.query(dataQuery, params);
 
+  // Obtener chatId para cada solicitud
+  // Intentar obtener el chat existente entre el proveedor y el usuario
+  const requestsWithChat = await Promise.all(
+    rows.map(async (row) => {
+      try {
+        // Obtener o crear el chat entre el usuario y el proveedor
+        const chat = await getOrCreateChat(row.user_id, providerId);
+        return {
+          ...row,
+          chat_id: chat.chat_id, // Agregar chatId a la respuesta
+        };
+      } catch (error) {
+        console.error(
+          `Error getting chat for request ${row.request_id}:`,
+          error
+        );
+        return {
+          ...row,
+          chat_id: null,
+        };
+      }
+    })
+  );
+
   return {
-    data: rows,
+    data: requestsWithChat,
     pagination: {
       page: safePage,
       pageSize: safePageSize,
@@ -297,6 +344,12 @@ export async function updateServiceRequestStatus(requestId, updates) {
 
   if (fields.length === 0) {
     throw new Error("NO_VALID_FIELDS");
+  }
+
+  // ✅ Si se está marcando como pagado, automáticamente cambiar status a in_progress
+  if (updates.payment_status === "paid" && !updates.status) {
+    fields.push(`status = ?`);
+    values.push("in_progress");
   }
 
   values.push(requestId);

@@ -535,3 +535,156 @@ export function validateReviewUpdate(data) {
 
   return null;
 }
+
+/**
+ * Valida los datos de una nueva reseña de proveedor
+ */
+export function validateProviderReview(data) {
+  const { providerId, userId, serviceRequestId, rating, comment } = data;
+
+  // Validar campos requeridos
+  if (!providerId || !userId || rating === undefined) {
+    return "provider id, user id, and rating are required";
+  }
+
+  // Validar providerId (debe ser un número)
+  if (isNaN(parseInt(providerId))) {
+    return "provider id must be a valid number";
+  }
+
+  // Validar userId (debe ser un string UUID)
+  if (typeof userId !== "string" || userId.trim().length === 0) {
+    return "user id must be a valid string";
+  }
+
+  // Validar serviceRequestId si está presente (debe ser un string UUID)
+  if (
+    serviceRequestId !== undefined &&
+    serviceRequestId !== null &&
+    (typeof serviceRequestId !== "string" ||
+      serviceRequestId.trim().length === 0)
+  ) {
+    return "service request id must be a valid string";
+  }
+
+  // Validar rating (debe ser un número entre 1 y 5)
+  const ratingNum = Number(rating);
+  if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+    return "rating must be a number between 1 and 5";
+  }
+  // Validar que sea entero
+  if (!Number.isInteger(ratingNum)) {
+    return "rating must be an integer";
+  }
+
+  // Validar comment si está presente
+  if (comment !== undefined && comment !== null) {
+    if (typeof comment !== "string") {
+      return "comment must be a string";
+    }
+    if (comment.trim().length > 0 && comment.trim().length < 10) {
+      return "comment must be at least 10 characters if provided";
+    }
+    if (comment.length > 1000) {
+      return "comment must be less than 1000 characters";
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Valida los datos de un nuevo reporte de usuario
+ */
+export function validateUserReport(data) {
+  const { userId, serviceRequestId, reportMessage } = data;
+
+  // Validar campos requeridos
+  if (!userId || !serviceRequestId || !reportMessage) {
+    return "user id, service request id, and report message are required";
+  }
+
+  // Validar userId (debe ser un string UUID)
+  if (typeof userId !== "string" || userId.trim().length === 0) {
+    return "user id must be a valid string";
+  }
+
+  // Validar serviceRequestId (debe ser un string UUID)
+  if (
+    typeof serviceRequestId !== "string" ||
+    serviceRequestId.trim().length === 0
+  ) {
+    return "service request id must be a valid string";
+  }
+
+  // Validar reportMessage
+  if (typeof reportMessage !== "string") {
+    return "report message must be a string";
+  }
+  if (reportMessage.trim().length < 20) {
+    return "report message must be at least 20 characters";
+  }
+  if (reportMessage.length > 2000) {
+    return "report message must be less than 2000 characters";
+  }
+
+  return null;
+}
+
+/**
+ * Valida los datos de un nuevo reporte de proveedor
+ */
+export function validateProviderReport(data) {
+  const { providerId, serviceRequestId, reportMessage } = data;
+
+  // Validar campos requeridos
+  if (!providerId || !serviceRequestId || !reportMessage) {
+    return "provider id, service request id, and report message are required";
+  }
+
+  // Validar providerId (debe ser un número)
+  if (isNaN(parseInt(providerId))) {
+    return "provider id must be a valid number";
+  }
+
+  // Validar serviceRequestId (debe ser un string UUID)
+  if (
+    typeof serviceRequestId !== "string" ||
+    serviceRequestId.trim().length === 0
+  ) {
+    return "service request id must be a valid string";
+  }
+
+  // Validar reportMessage
+  if (typeof reportMessage !== "string") {
+    return "report message must be a string";
+  }
+  if (reportMessage.trim().length < 20) {
+    return "report message must be at least 20 characters";
+  }
+  if (reportMessage.length > 2000) {
+    return "report message must be less than 2000 characters";
+  }
+
+  return null;
+}
+
+/**
+ * Valida las actualizaciones de un reporte
+ */
+export function validateReportUpdate(data) {
+  const { status } = data;
+
+  // Al menos un campo debe estar presente
+  if (!status) {
+    return "status is required";
+  }
+
+  // Validar status
+  const validStatuses = ["pending", "reviewing", "resolved", "rejected"];
+  if (!validStatuses.includes(status)) {
+    return "status must be one of: pending, reviewing, resolved, rejected";
+  }
+
+  return null;
+}

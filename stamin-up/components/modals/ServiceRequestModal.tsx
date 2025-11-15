@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useCreateServiceRequest } from "@/hooks/useCreateServiceRequest";
 import type { Service, ServiceRequestResponse } from "@/types";
 import {
@@ -67,6 +68,7 @@ export function ServiceRequestModal({
   service,
   userId,
 }: ServiceRequestModalProps) {
+  const router = useRouter();
   const { createRequest, isSubmitting, error, clearError } =
     useCreateServiceRequest();
 
@@ -294,9 +296,20 @@ export function ServiceRequestModal({
     setRequestResult(null);
   };
 
-  // Mostrar alerta de chat (feature no implementado)
+  // Redirigir al chat creado
   const handleInitiateChat = () => {
-    setShowChatAlert(true);
+    if (requestResult?.chatId) {
+      // Cerrar todos los modales
+      setShowConfirmation(false);
+      setRequestResult(null);
+      onOpenChange(false);
+
+      // Redirigir al chat
+      router.push(`/chat/${requestResult.chatId}`);
+    } else {
+      // Si no hay chatId, mostrar alerta
+      setShowChatAlert(true);
+    }
   };
 
   return (

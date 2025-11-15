@@ -1,5 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import { Review } from "@/types";
-import { Star, MessageSquare } from "lucide-react";
+import { Star, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import { ReviewCard } from "@/components/ReviewCard";
 import { Button } from "@/components/ui/button";
 
@@ -10,9 +13,11 @@ interface ReviewsSectionProps {
   isLoading: boolean;
 }
 
+const ITEMS_PER_PAGE = 5;
+
 /**
  * Componente que muestra las reseñas y calificaciones del servicio
- * Incluye resumen estadístico y lista de reseñas
+ * Incluye resumen estadístico y lista de reseñas con paginación
  * Maneja correctamente el caso cuando no hay reviews (muestra 0 sin errores)
  */
 export function ReviewsSection({
@@ -21,6 +26,24 @@ export function ReviewsSection({
   totalReviews,
   isLoading,
 }: ReviewsSectionProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Calcular paginación
+  const safeReviews = reviews || [];
+  const totalPages = Math.ceil(safeReviews.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedReviews = safeReviews.slice(startIndex, endIndex);
+
+  // Navegación de páginas
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    // Scroll suave al inicio de la sección de reviews
+    const reviewsSection = document.getElementById("reviews-section");
+    if (reviewsSection) {
+      reviewsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -36,10 +59,9 @@ export function ReviewsSection({
   // Asegurar valores por defecto si no hay datos
   const safeAverageRating = averageRating || 0;
   const safeTotalReviews = totalReviews || 0;
-  const safeReviews = reviews || [];
 
   return (
-    <div className="space-y-8">
+    <div id="reviews-section" className="space-y-8">
       {/* Header */}
       <div className="flex items-center gap-3">
         <MessageSquare className="w-8 h-8 text-primary" />
@@ -84,21 +106,78 @@ export function ReviewsSection({
       </div>
 
       {/* Lista de reseñas */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         {safeReviews.length > 0 ? (
           <>
-            {safeReviews.slice(0, 5).map((review) => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
+            <div className="space-y-4">
+              {paginatedReviews.map((review) => (
+                <ReviewCard key={review.id} review={review} />
+              ))}
+            </div>
 
-            {safeReviews.length > 5 && (
-              <div className="text-center pt-4">
-                <Button
-                  variant="outline"
-                  className="rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white"
-                >
-                  Ver todas las reseñas ({safeReviews.length})
-                </Button>
+            {/* Paginación */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between border-t border-[var(--color-border-light)] pt-4">
+                <p className="body-sm text-secondary">
+                  Mostrando {startIndex + 1} -{" "}
+                  {Math.min(endIndex, safeReviews.length)} de{" "}
+                  {safeReviews.length} reseñas
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="gap-1"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Anterior
+                  </Button>
+
+                  <div className="flex gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => {
+                        // Mostrar solo 3 páginas: anterior, actual, y siguiente
+                        if (
+                          page >= currentPage - 1 &&
+                          page <= currentPage + 1
+                        ) {
+                          return (
+                            <Button
+                              key={page}
+                              variant={
+                                currentPage === page ? "default" : "outline"
+                              }
+                              size="sm"
+                              onClick={() => goToPage(page)}
+                              className={
+                                currentPage === page
+                                  ? "bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] min-w-[2.5rem]"
+                                  : "min-w-[2.5rem]"
+                              }
+                            >
+                              {page}
+                            </Button>
+                          );
+                        }
+                        return null;
+                      }
+                    )}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="gap-1"
+                  >
+                    Siguiente
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
           </>

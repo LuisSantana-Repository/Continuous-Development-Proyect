@@ -13,6 +13,7 @@ import ProfileSkeleton from "@/components/profile/ProfileSkeleton";
 import { useClientUser } from "@/hooks/useClientUser";
 import { useOrders } from "@/hooks/useOrders";
 import { useClientReviews } from "@/hooks/useClientReviews";
+import { useAuth } from "@/hooks/useAuth";
 import type { ClientUser } from "@/types";
 
 export default function ProfilePage() {
@@ -20,6 +21,7 @@ export default function ProfilePage() {
   const { user, isLoading: userLoading, error: userError } = useClientUser();
   const { orders, isLoading: ordersLoading } = useOrders();
   const { reviews, isLoading: reviewsLoading } = useClientReviews();
+  const { logout } = useAuth();
 
   // Estado local para el usuario (permite actualizaciones optimistas)
   const [localUser, setLocalUser] = useState<ClientUser | null>(user);
@@ -35,10 +37,9 @@ export default function ProfilePage() {
     }
   };
 
-  const handleLogout = () => {
-    // Por ahora solo redirige, sin autenticación real
+  const handleLogout = async () => {
     if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
-      router.push("/");
+      await logout();
     }
   };
 

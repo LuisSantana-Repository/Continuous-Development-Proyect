@@ -4,17 +4,21 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useChat } from '@/hooks/useChat';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ChatPage() {
   const params = useParams();
   const router = useRouter();
   const chatId = params.chatId;
 
+  const { user } = useAuth();
   const [authChecked, setAuthChecked] = useState(false);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const previousMessagesLengthRef = useRef(0);
 
   const {
-    socket, // ✅ Add this
+    socket,
     messages,
     sendMessage,
     openChat,
@@ -66,9 +70,23 @@ export default function ChatPage() {
     }
   }, [authChecked, chatId, isConnected, openChat]);
 
-  // Auto-scroll on new messages
+  // Auto-scroll inteligente: solo cuando el usuario está cerca del final
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!messagesContainerRef.current || !messagesEndRef.current) return;
+    
+    const container = messagesContainerRef.current;
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
+    const isFirstLoad = previousMessagesLengthRef.current === 0 && messages.length > 0;
+    
+    // Solo hacer scroll si:
+    // 1. Es la primera carga de mensajes
+    // 2. El usuario está cerca del final (viendo los últimos mensajes)
+    if (isFirstLoad || isNearBottom) {
+      // Usar scrollTop en lugar de scrollIntoView para evitar scroll de página
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    previousMessagesLengthRef.current = messages.length;
   }, [messages]);
 
   const handleSend = (e) => {
@@ -144,7 +162,10 @@ export default function ChatPage() {
       </header>
 
       {/* Messages */}
-      <main className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+      <main 
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto px-4 py-6 space-y-4"
+      >
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-gray-500">
             <svg
@@ -166,9 +187,10 @@ export default function ChatPage() {
         )}
 
         {messages.map((message, index) => {
-          const isOwnMessage = !message.is_provider;
+          // Determinar si el mensaje es del usuario actual
+          const isOwnMessage = user && message.sender_id === user.user_id;
           const showAvatar =
-            index === 0 || messages[index - 1]?.is_provider !== message.is_provider;
+            index === 0 || messages[index - 1]?.sender_id !== message.sender_id;
 
           return (
             <div
@@ -187,7 +209,7 @@ export default function ChatPage() {
                       isOwnMessage ? 'bg-blue-500' : 'bg-gray-400'
                     }`}
                   >
-                    {isOwnMessage ? 'Y' : 'P'}
+                    {isOwnMessage ? 'Y' : 'O'}
                   </div>
                 ) : (
                   <div className="w-8" />

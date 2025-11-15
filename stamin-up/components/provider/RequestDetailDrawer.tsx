@@ -205,19 +205,6 @@ export default function RequestDetailDrawer({
         {/* Acciones - Footer fijo */}
         <div className="flex flex-col gap-2 px-6 py-4 border-t flex-shrink-0">
           {/* Botón de acción principal según estado */}
-          {canStartWork && onStartWork && (
-            <Button
-              onClick={() => {
-                onStartWork(request.requestId);
-                onOpenChange(false);
-              }}
-              className="w-full gap-2 bg-blue-600 hover:bg-blue-700"
-            >
-              <Play className="h-4 w-4" />
-              Iniciar Trabajo
-            </Button>
-          )}
-
           {canComplete && onCompleteWork && (
             <Button
               onClick={() => {

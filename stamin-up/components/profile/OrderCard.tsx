@@ -1,13 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, DollarSign, Star, Flag, Eye } from "lucide-react";
+import {
+  Calendar,
+  DollarSign,
+  Star,
+  Flag,
+  Eye,
+  MessageCircle,
+  CreditCard,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RateServiceModal from "@/components/modals/RateServiceModal";
 import ReportServiceModal from "@/components/modals/ReportServiceModal";
 import OrderDetailsModal from "@/components/modals/OrderDetailsModal";
+import PaymentModal from "@/components/modals/PaymentModal";
 import { canRate, canReport, hasActiveReports } from "@/lib/orderUtils";
 import type { Order, OrderRating, OrderReport } from "@/types";
 
@@ -16,9 +26,11 @@ interface OrderCardProps {
 }
 
 export default function OrderCard({ order }: OrderCardProps) {
+  const router = useRouter();
   const [isRateModalOpen, setIsRateModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [localOrder, setLocalOrder] = useState(order);
 
   const statusConfig = {
@@ -77,6 +89,31 @@ export default function OrderCard({ order }: OrderCardProps) {
   // Determinar qué botones mostrar usando las funciones helper
   const showRateButton = canRate(localOrder);
   const showReportButton = canReport(localOrder);
+
+  // Botón de chat solo para estado "Pendiente"
+  const showChatButton = localOrder.status === "Pendiente";
+
+  // Botón de pago solo para estado "Aceptado" y pago pendiente
+  const showPayButton =
+    localOrder.status === "Aceptado" && localOrder.paymentStatus === "pending";
+
+  const handleOpenChat = () => {
+    if (localOrder.chatId) {
+      router.push(`/chat/${localOrder.chatId}`);
+    } else {
+      // Si no hay chatId, mostrar mensaje (esto no debería pasar normalmente)
+      alert("Chat no disponible para esta solicitud");
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    // Actualizar el estado local de la orden después del pago exitoso
+    setLocalOrder({
+      ...localOrder,
+      status: "En curso",
+      paymentStatus: "paid",
+    });
+  };
 
   return (
     <Card className="overflow-hidden shadow-md transition-all hover:shadow-lg">
@@ -147,6 +184,31 @@ export default function OrderCard({ order }: OrderCardProps) {
               Ver Detalles
             </Button>
 
+            {/* Botón de Chat (solo para Pendiente) */}
+            {showChatButton && localOrder.chatId && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10"
+                onClick={handleOpenChat}
+              >
+                <MessageCircle className="h-4 w-4" />
+                Chat
+              </Button>
+            )}
+
+            {/* Botón de Pagar (solo para Aceptado con pago pendiente) */}
+            {showPayButton && (
+              <Button
+                size="sm"
+                className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => setIsPaymentModalOpen(true)}
+              >
+                <CreditCard className="h-4 w-4" />
+                Pagar Servicio
+              </Button>
+            )}
+
             {/* Botón de Calificar (solo para completados sin rating) */}
             {showRateButton && (
               <Button
@@ -190,6 +252,13 @@ export default function OrderCard({ order }: OrderCardProps) {
         open={isDetailsModalOpen}
         onOpenChange={setIsDetailsModalOpen}
         order={localOrder}
+      />
+
+      <PaymentModal
+        open={isPaymentModalOpen}
+        onOpenChange={setIsPaymentModalOpen}
+        order={localOrder}
+        onSuccess={handlePaymentSuccess}
       />
 
       <RateServiceModal

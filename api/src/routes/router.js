@@ -6,6 +6,9 @@ import { router as serviceRoutes } from "./service.js";
 import { router as imageRoutes } from "./images.js";
 import { router as serviceRequestRoutes } from "./serviceRequests.js";
 import { router as reviewRoutes } from "./reviews.js";
+import { router as providerReviewRoutes } from "./providerReviews.js";
+import { router as userReportRoutes } from "./userReports.js";
+import { router as providerReportRoutes } from "./providerReportRoutes.js";
 import { router as providerRoutes } from "./providers.js";
 import { router as paymentRoutes } from "./payment.js";
 import { router as chatRoutes } from "./chat.js";
@@ -30,8 +33,17 @@ router.use("/images", imageRoutes);
 // Service Requests
 router.use("/service-requests", serviceRequestRoutes);
 
-// Reviews
+// Reviews (user reviews of providers)
 router.use("/reviews", reviewRoutes);
+
+// Provider Reviews (provider reviews of clients)
+router.use("/provider-reviews", providerReviewRoutes);
+
+// User Reports (client reports of providers)
+router.use("/user-reports", userReportRoutes);
+
+// Provider Reports (provider reports of clients)
+router.use("/provider-reports-service", providerReportRoutes);
 
 // Providers
 router.use("/providers", providerRoutes);
