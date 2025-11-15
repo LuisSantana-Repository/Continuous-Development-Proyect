@@ -34,15 +34,25 @@
 # OUTPUTS
 # ============================================
 
-# output "alb_dns_name" {
-#   description = "DNS name of the load balancer"
-#   value       = aws_lb.main.dns_name
-# }
+output "alb_dns_name" {
+  description = "DNS name of the load balancer"
+  value       = aws_lb.main.dns_name
+}
 
-# output "alb_zone_id" {
-#   description = "Zone ID of the load balancer"
-#   value       = aws_lb.main.zone_id
-# }
+output "alb_zone_id" {
+  description = "Zone ID of the load balancer"
+  value       = aws_lb.main.zone_id
+}
+
+output "alb_url" {
+  description = "URL of the Application Load Balancer"
+  value       = "http://${aws_lb.main.dns_name}"
+}
+
+output "web_instance_public_ip" {
+  description = "Public IP of the web instance"
+  value       = aws_instance.web.public_ip
+}
 
 # output "api_asg_name" {
 #   description = "Name of the API Auto Scaling Group"
