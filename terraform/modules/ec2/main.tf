@@ -184,40 +184,40 @@ resource "aws_launch_template" "web" {
 # ============================================
 
 # Auto Scaling Group para API
-# resource "aws_autoscaling_group" "api" {
-#   name                      = "${var.project_name}-api-asg"
-#   vpc_zone_identifier       = var.subnet_ids
-#   target_group_arns         = [var.api_target_group_arn]
-#   health_check_type         = "ELB"
-#   health_check_grace_period = 300
+resource "aws_autoscaling_group" "api" {
+  name                      = "${var.project_name}-api-asg"
+  vpc_zone_identifier       = var.subnet_ids
+  target_group_arns         = [var.api_target_group_arn]
+  health_check_type         = "ELB"
+  health_check_grace_period = 300
 
-#   min_size         = var.api_min_size
-#   max_size         = var.api_max_size
-#   desired_capacity = var.api_desired_capacity
+  min_size         = var.api_min_size
+  max_size         = var.api_max_size
+  desired_capacity = var.api_desired_capacity
 
-#   launch_template {
-#     id      = aws_launch_template.api.id
-#     version = "$Latest"
-#   }
+  launch_template {
+    id      = aws_launch_template.api.id
+    version = "$Latest"
+  }
 
-#   tag {
-#     key                 = "Name"
-#     value               = "${var.project_name}-api-asg"
-#     propagate_at_launch = true
-#   }
+  tag {
+    key                 = "Name"
+    value               = "${var.project_name}-api-asg"
+    propagate_at_launch = true
+  }
 
-#   tag {
-#     key                 = "Project"
-#     value               = var.project_name
-#     propagate_at_launch = true
-#   }
+  tag {
+    key                 = "Project"
+    value               = var.project_name
+    propagate_at_launch = true
+  }
 
-#   tag {
-#     key                 = "Service"
-#     value               = "api"
-#     propagate_at_launch = true
-#   }
-# }
+  tag {
+    key                 = "Service"
+    value               = "api"
+    propagate_at_launch = true
+  }
+}
 
 # Auto Scaling Group para Frontend
 # resource "aws_autoscaling_group" "web" {
@@ -260,58 +260,58 @@ resource "aws_launch_template" "web" {
 # ============================================
 
 # Policy para escalar API hacia arriba (scale out)
-# resource "aws_autoscaling_policy" "api_scale_up" {
-#   name                   = "${var.project_name}-api-scale-up"
-#   scaling_adjustment     = 1
-#   adjustment_type        = "ChangeInCapacity"
-#   cooldown               = 300
-#   autoscaling_group_name = aws_autoscaling_group.api.name
-# }
+resource "aws_autoscaling_policy" "api_scale_up" {
+  name                   = "${var.project_name}-api-scale-up"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  autoscaling_group_name = aws_autoscaling_group.api.name
+}
 
 # CloudWatch Alarm para CPU > 70% en API
-# resource "aws_cloudwatch_metric_alarm" "api_cpu_high" {
-#   alarm_name          = "${var.project_name}-api-cpu-high"
-#   comparison_operator = "GreaterThanThreshold"
-#   evaluation_periods  = "2"
-#   metric_name         = "CPUUtilization"
-#   namespace           = "AWS/EC2"
-#   period              = "120"
-#   statistic           = "Average"
-#   threshold           = "70"
-#   alarm_description   = "This metric monitors API EC2 CPU utilization"
-#   alarm_actions       = [aws_autoscaling_policy.api_scale_up.arn]
+resource "aws_cloudwatch_metric_alarm" "api_cpu_high" {
+  alarm_name          = "${var.project_name}-api-cpu-high"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "70"
+  alarm_description   = "This metric monitors API EC2 CPU utilization"
+  alarm_actions       = [aws_autoscaling_policy.api_scale_up.arn]
 
-#   dimensions = {
-#     AutoScalingGroupName = aws_autoscaling_group.api.name
-#   }
-# }
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.api.name
+  }
+}
 
 # Policy para escalar API hacia abajo (scale in)
-# resource "aws_autoscaling_policy" "api_scale_down" {
-#   name                   = "${var.project_name}-api-scale-down"
-#   scaling_adjustment     = -1
-#   adjustment_type        = "ChangeInCapacity"
-#   cooldown               = 300
-#   autoscaling_group_name = aws_autoscaling_group.api.name
-# }
+resource "aws_autoscaling_policy" "api_scale_down" {
+  name                   = "${var.project_name}-api-scale-down"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  autoscaling_group_name = aws_autoscaling_group.api.name
+}
 
 # CloudWatch Alarm para CPU < 30% en API
-# resource "aws_cloudwatch_metric_alarm" "api_cpu_low" {
-#   alarm_name          = "${var.project_name}-api-cpu-low"
-#   comparison_operator = "LessThanThreshold"
-#   evaluation_periods  = "2"
-#   metric_name         = "CPUUtilization"
-#   namespace           = "AWS/EC2"
-#   period              = "120"
-#   statistic           = "Average"
-#   threshold           = "30"
-#   alarm_description   = "This metric monitors API EC2 CPU utilization"
-#   alarm_actions       = [aws_autoscaling_policy.api_scale_down.arn]
+resource "aws_cloudwatch_metric_alarm" "api_cpu_low" {
+  alarm_name          = "${var.project_name}-api-cpu-low"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "30"
+  alarm_description   = "This metric monitors API EC2 CPU utilization"
+  alarm_actions       = [aws_autoscaling_policy.api_scale_down.arn]
 
-#   dimensions = {
-#     AutoScalingGroupName = aws_autoscaling_group.api.name
-#   }
-# }
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.api.name
+  }
+}
 
 # # Policy para escalar WEB hacia arriba (scale out)
 # resource "aws_autoscaling_policy" "web_scale_up" {
