@@ -126,6 +126,34 @@ resource "aws_launch_template" "web" {
     }
   }
 
+# Attach API instance to target group
+resource "aws_lb_target_group_attachment" "api" {
+  target_group_arn = var.api_target_group_arn
+  target_id        = aws_instance.api.id
+  port             = 3000
+}
+
+# Web/Frontend Instance
+resource "aws_instance" "web" {
+  ami           = aws_launch_template.web.image_id
+  instance_type = aws_launch_template.web.instance_type
+  vpc_security_group_ids = [var.app_sg_id]
+
+  launch_template {
+    id      = aws_launch_template.web.id
+  }
+
+  tags = {
+    Name = "webInstanceFromTemplate"
+  }
+}
+
+# Attach web instance to target group
+resource "aws_lb_target_group_attachment" "web" {
+  target_group_arn = var.web_target_group_arn
+  target_id        = aws_instance.web.id
+  port             = 3001
+}
 
 
 # # EC2 para API
