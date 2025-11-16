@@ -1,21 +1,22 @@
-# ECR Deployment Guide - Optimized Build Process
+# ECR Deployment Guide - Optimized Web Build
 
-This project now uses **AWS ECR (Elastic Container Registry)** to pre-build Docker images, dramatically reducing deployment time and storage usage.
+Este proyecto usa **AWS ECR (Elastic Container Registry)** para pre-compilar la imagen Docker de **Web (Next.js)** solamente, reduciendo dramáticamente el tiempo de despliegue y uso de almacenamiento.
 
-## 🎯 Benefits of This Approach
+**Nota:** La API continúa compilándose directamente en las instancias EC2 (proceso tradicional).
 
-| Before (Building on EC2) | After (Using ECR) |
+## 🎯 Beneficios (Solo para Web)
+
+| Antes (Compilar en EC2) | Después (Usando ECR) |
 |-------------------------|-------------------|
-| **Build Time**: 5-10 minutes per instance | **Deploy Time**: 30-60 seconds |
-| **Storage Used**: ~7GB per instance | **Storage Used**: ~2-3GB per instance |
-| **Auto-Scaling**: Slow (builds on each new instance) | **Auto-Scaling**: Fast (just pull pre-built image) |
-| **Cost**: Higher (larger EBS volumes needed) | **Cost**: Lower (8GB EBS sufficient) |
+| **Tiempo Build**: 5-10 minutos | **Tiempo Deploy**: 30-60 segundos |
+| **Almacenamiento**: ~7GB por instancia | **Almacenamiento**: ~2-3GB por instancia |
+| **Auto-Scaling**: Lento (compila en cada nueva instancia) | **Auto-Scaling**: Rápido (solo descarga imagen) |
 
-## 🚀 Quick Start
+## 🚀 Inicio Rápido
 
-### Step 1: Apply Terraform Infrastructure
+### Paso 1: Aplicar Infraestructura Terraform
 
-This creates ECR repositories, SSM parameters, and updates EC2 configuration:
+Esto crea el repositorio ECR para Web y actualiza la configuración EC2:
 
 ```bash
 cd terraform
@@ -24,269 +25,287 @@ terraform plan
 terraform apply
 ```
 
-### Step 2: Build and Push Docker Images
+### Paso 2: Compilar y Subir Imagen Web a ECR
 
-Run the build script to create and push Docker images to ECR:
-
-```bash
-# From project root
-./scripts/build-and-push.sh all
-
-# Or build individually:
-./scripts/build-and-push.sh api
-./scripts/build-and-push.sh web
+**En Windows (PowerShell):**
+```powershell
+.\scripts\build-and-push.ps1
 ```
 
-**What this does:**
-1. Builds multi-stage Docker images (much smaller!)
-2. Logs into your ECR repositories
-3. Tags images with `latest` and timestamp
-4. Pushes to AWS ECR
-
-### Step 3: Deploy EC2 Instances
-
-Your EC2 instances will now:
-1. Pull pre-built images from ECR (fast!)
-2. Fetch environment variables from SSM Parameter Store
-3. Start containers in ~30 seconds
-
+**En Linux/Mac (Bash):**
 ```bash
-# Trigger auto-scaling group refresh to deploy new instances
-aws autoscaling start-instance-refresh \
-  --auto-scaling-group-name continuous-development-api-asg \
-  --region us-east-1
+./scripts/build-and-push.sh
+```
 
+**Esto hace:**
+1. Compila imagen Docker optimizada de Next.js (multi-stage)
+2. Inicia sesión en tu repositorio ECR
+3. Etiqueta la imagen con `latest` y timestamp
+4. Sube la imagen a AWS ECR
+
+### Paso 3: Desplegar Instancias EC2
+
+Las nuevas instancias Web ahora:
+1. Descargan la imagen pre-compilada de ECR (~30 segundos)
+2. Obtienen variables de entorno de Terraform
+3. Inician el contenedor inmediatamente
+
+Para actualizar instancias existentes:
+```bash
 aws autoscaling start-instance-refresh \
   --auto-scaling-group-name continuous-development-web-asg \
   --region us-east-1
 ```
 
-## 📦 What Changed?
+## 📦 Cambios Implementados
 
-### 1. Multi-Stage Dockerfiles
+### 1. Dockerfile Multi-Stage para Web
 
-**Before** (`api/Dockerfile`):
-- Single stage
-- Included all dependencies in final image
-- ~500MB image size
+**Antes** (`stamin-up/Dockerfile`):
+- Una sola etapa
+- Todo incluido en la imagen final
+- ~800MB de tamaño
 
-**After** (`api/Dockerfile`):
-- 3 stages: deps → builder → runner
-- Only production dependencies in final image
-- ~150MB image size (3x smaller!)
-- Runs as non-root user (more secure)
+**Después** (`stamin-up/Dockerfile`):
+- 3 etapas: deps → builder → runner
+- Solo dependencias de producción
+- Usa Next.js standalone output
+- ~200MB de tamaño (**4x más pequeño!**)
+- Ejecuta como usuario no-root (más seguro)
 
-**Before** (`stamin-up/Dockerfile`):
-- Single stage
-- Full Next.js build in final image
-- ~800MB image size
+### 2. Variables de Entorno
 
-**After** (`stamin-up/Dockerfile`):
-- 3 stages: deps → builder → runner
-- Uses Next.js standalone output
-- ~200MB image size (4x smaller!)
-- Runs as non-root user (more secure)
+Las variables se pasan directamente desde Terraform a través de `user_data`:
 
-### 2. Environment Variable Management
+**En `terraform.tfvars`:**
+```hcl
+stamin_env_vars = {
+  NODE_ENV              = "production"
+  NEXT_PUBLIC_APP_NAME  = "Stamin-Up"
+  # Agrega más variables aquí
+}
+```
 
-**Before**: Variables passed via `terraform.tfvars` → user_data → `.env` file
+Variables automáticas (no necesitas definirlas):
+- `NEXT_PUBLIC_URL` - URL pública del ALB
+- `API_URL` - URL del API (http://alb-dns/api)
 
-**After**: Variables stored in **AWS SSM Parameter Store**
-- Centralized configuration
-- Encrypted sensitive values
-- Easy to update without redeployment
-- Fetch on-demand at runtime
+### 3. Script user_data Actualizado
 
-See: [`ENV_SETUP.md`](./ENV_SETUP.md)
-
-### 3. Updated user_data Scripts
-
-**Before**:
+**Antes**:
 ```bash
 git clone → npm install → docker build → docker run
 ```
 
-**After**:
+**Después** (solo Web):
 ```bash
-fetch SSM params → ECR login → docker pull → docker run
+fetch env vars → ECR login → docker pull → docker run
 ```
 
-See:
-- [`terraform/user_data_api.sh`](./terraform/user_data_api.sh)
-- [`terraform/user_data_stamin.sh`](./terraform/user_data_stamin.sh)
+Ver: [`terraform/user_data_stamin.sh`](./terraform/user_data_stamin.sh)
 
-## 🔄 Development Workflow
+La API sigue el proceso tradicional (no cambió).
 
-### Making Code Changes
+## 🔄 Flujo de Desarrollo
 
-1. **Make your changes** to `api/` or `stamin-up/`
-2. **Build and push new images**:
-   ```bash
-   ./scripts/build-and-push.sh all
+### Cuando Haces Cambios al Código
+
+#### Para Web (Next.js):
+
+1. **Haz tus cambios** en `stamin-up/`
+2. **Compila y sube**:
+   ```powershell
+   # Windows
+   .\scripts\build-and-push.ps1
    ```
-3. **Restart containers on EC2** (or let auto-scaling create new instances):
    ```bash
-   # SSH into EC2
+   # Linux/Mac
+   ./scripts/build-and-push.sh
+   ```
+3. **Reinicia contenedores** en EC2:
+   ```bash
+   # SSH a la instancia
    ssh -i terraform/aws-ec2 ubuntu@<instance-ip>
 
-   # Restart container to pull latest image
+   # Descarga y reinicia con última imagen
    sudo docker pull <ecr-url>:latest
-   sudo docker restart api-server  # or web-server
+   sudo docker restart web-server
    ```
 
-### Updating Environment Variables
+#### Para API:
 
-See [`ENV_SETUP.md`](./ENV_SETUP.md) for detailed instructions.
+La API se compila directamente en EC2 (sin cambios):
+- Los cambios requieren `terraform apply` o re-deploy de instancias
+- No usa ECR
 
-**Quick update**:
-```bash
-# Update a variable in SSM
-aws ssm put-parameter \
-  --name "/continuous-development/api/JWT_SECRET" \
-  --type "SecureString" \
-  --value "new-secret-value" \
-  --overwrite \
-  --region us-east-1
+### Actualizar Variables de Entorno
 
-# Restart container to use new value
-ssh -i terraform/aws-ec2 ubuntu@<instance-ip>
-sudo docker restart api-server
+**Para Web:**
+
+Edita `terraform/terraform.tfvars`:
+```hcl
+stamin_env_vars = {
+  NODE_ENV              = "production"
+  NEXT_PUBLIC_API_URL   = "http://nuevo-valor.com"
+  # etc...
+}
 ```
 
-## 📊 Monitoring
+Luego aplica:
+```bash
+cd terraform
+terraform apply
+```
 
-### View ECR Images
+Reinicia las instancias Web para aplicar cambios.
+
+**Para API:**
+
+Edita `terraform/terraform.tfvars`:
+```hcl
+api_env_vars = {
+  NODE_ENV   = "production"
+  JWT_SECRET = "tu-secreto"
+  # etc...
+}
+```
+
+Luego aplica:
+```bash
+cd terraform
+terraform apply
+```
+
+## 📊 Monitoreo
+
+### Ver Imágenes ECR
 
 ```bash
-# List API images
-aws ecr list-images \
-  --repository-name continuous-development/api \
-  --region us-east-1
-
-# List Web images
+# Listar imágenes Web
 aws ecr list-images \
   --repository-name continuous-development/web \
   --region us-east-1
 ```
 
-### Check EC2 Deployment Status
+### Verificar Estado de Despliegue
 
 ```bash
-# View Auto Scaling Group status
+# Ver Auto Scaling Group status
 aws autoscaling describe-auto-scaling-groups \
-  --auto-scaling-group-names continuous-development-api-asg \
+  --auto-scaling-group-names continuous-development-web-asg \
   --region us-east-1
 
-# View running instances
+# Ver instancias ejecutándose
 aws ec2 describe-instances \
-  --filters "Name=tag:Project,Values=continuous-development" \
+  --filters "Name=tag:Service,Values=stamin-up" \
   --region us-east-1 \
   --query "Reservations[*].Instances[*].[InstanceId,State.Name,PublicIpAddress]" \
   --output table
 ```
 
-### SSH into Instance and Check Logs
+### SSH y Verificar Logs
 
 ```bash
-# SSH into instance
+# SSH a la instancia
 ssh -i terraform/aws-ec2 ubuntu@<instance-ip>
 
-# View user_data execution logs
+# Ver logs de user_data
 sudo cat /var/log/cloud-init-output.log
 
-# View Docker container logs
-sudo docker logs api-server
-# or
+# Ver logs del contenedor
 sudo docker logs web-server
 
-# Check running containers
+# Ver contenedores corriendo
 sudo docker ps
 ```
 
-## 🔧 Troubleshooting
+## 🔧 Solución de Problemas
 
-### Build fails locally
+### No puedo subir a ECR
 
-**Problem**: `docker build` fails
+**Problema**: `denied: User is not authorized`
 
-**Solution**:
-1. Check Docker is running: `docker info`
-2. Check you're in the correct directory
-3. Review error messages in build output
+**Solución**:
+1. Verifica credenciales AWS: `aws sts get-caller-identity`
+2. Asegúrate que el repositorio ECR existe: `terraform apply`
+3. Re-inicia sesión: Ejecuta el script build-and-push nuevamente
 
-### Can't push to ECR
+### La instancia EC2 no puede descargar de ECR
 
-**Problem**: `denied: User is not authorized to perform: ecr:BatchCheckLayerAvailability`
+**Problema**: La instancia falla al descargar imagen
 
-**Solution**:
-1. Check AWS credentials: `aws sts get-caller-identity`
-2. Ensure ECR repositories exist: `terraform apply`
-3. Re-login to ECR: See [`scripts/build-and-push.sh`](./scripts/build-and-push.sh)
-
-### EC2 instance can't pull from ECR
-
-**Problem**: Instance fails to pull image
-
-**Solution**:
-1. Check IAM role has ECR permissions (already configured in `terraform/modules/iam/main.tf`)
-2. SSH into instance and check: `sudo cat /var/log/cloud-init-output.log`
-3. Manually test ECR access:
+**Solución**:
+1. Verifica que el rol IAM tiene permisos ECR (ya configurado en `terraform/modules/iam/main.tf`)
+2. SSH y verifica logs: `sudo cat /var/log/cloud-init-output.log`
+3. Prueba manualmente:
    ```bash
-   aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
+   aws ecr get-login-password --region us-east-1 | \
+     docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
    ```
 
-### Application not starting
+### Script PowerShell falla en Windows
 
-**Problem**: Container starts but app doesn't work
+**Problema**: Error de ejecución de scripts
 
-**Solution**:
-1. Check environment variables: `cat /app/.env`
-2. Check Docker logs: `sudo docker logs api-server`
-3. Verify SSM parameters exist:
-   ```bash
-   aws ssm get-parameters-by-path --path "/continuous-development/api/" --region us-east-1
-   ```
+**Solución**:
+```powershell
+# Permite ejecución de scripts (una vez)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
-## 💰 Cost Optimization
+# Luego ejecuta
+.\scripts\build-and-push.ps1
+```
 
-### ECR Storage Costs
+## 💰 Costos
 
-- **Cost**: $0.10 per GB-month
-- **Lifecycle Policy**: Automatically deletes old images (keeps last 5)
-- **Typical cost**: $0.05-0.20/month
+### ECR Storage
 
-### EBS Volume Optimization
+- **Costo**: $0.10 por GB-mes
+- **Política de ciclo de vida**: Elimina automáticamente imágenes antiguas (mantiene últimas 5)
+- **Costo típico**: $0.02-0.05/mes
 
-You can now use smaller volumes:
-- **Before**: 20GB recommended
-- **After**: 8GB sufficient
-- **Savings**: ~$0.80/month per instance
+### Optimización de Volúmenes EBS
 
-## 🔐 Security Improvements
+Ahora puedes usar volúmenes más pequeños para Web:
+- **Antes**: 20GB recomendado
+- **Después**: 8GB suficiente
+- **Ahorro**: ~$0.80/mes por instancia Web
 
-1. ✅ **Multi-stage builds** reduce attack surface
-2. ✅ **Non-root user** in containers
-3. ✅ **SSM SecureString** encrypts sensitive values
-4. ✅ **IAM roles** instead of hardcoded credentials
-5. ✅ **Health checks** in Dockerfiles
-6. ✅ **No secrets in Git** - all in SSM
+## 🔐 Mejoras de Seguridad
 
-## 📚 Related Documentation
+1. ✅ **Multi-stage builds** reducen superficie de ataque
+2. ✅ **Usuario no-root** en contenedores
+3. ✅ **Roles IAM** en lugar de credenciales hardcodeadas
+4. ✅ **Health checks** en Dockerfiles
 
-- [Environment Variables Setup](./ENV_SETUP.md)
-- [Build Script](./scripts/build-and-push.sh)
-- [API Dockerfile](./api/Dockerfile)
-- [Web Dockerfile](./stamin-up/Dockerfile)
-- [Terraform ECR Module](./terraform/modules/ecr/main.tf)
-- [Terraform SSM Module](./terraform/modules/ssm/main.tf)
+## 📁 Archivos Importantes
 
-## 🆘 Need Help?
+- **Scripts de Build**:
+  - [`scripts/build-and-push.ps1`](./scripts/build-and-push.ps1) - PowerShell para Windows
+  - [`scripts/build-and-push.sh`](./scripts/build-and-push.sh) - Bash para Linux/Mac
 
-1. Check logs: `sudo cat /var/log/cloud-init-output.log`
-2. Review AWS Console: ECR, EC2, SSM Parameter Store
-3. Test locally: `docker build -t test .`
-4. Contact your team or check AWS documentation
+- **Dockerfiles**:
+  - [`stamin-up/Dockerfile`](./stamin-up/Dockerfile) - Multi-stage Web (optimizado con ECR)
+  - [`api/Dockerfile`](./api/Dockerfile) - API tradicional (sin cambios)
+
+- **Terraform**:
+  - [`terraform/modules/ecr/main.tf`](./terraform/modules/ecr/main.tf) - Repositorio ECR
+  - [`terraform/user_data_stamin.sh`](./terraform/user_data_stamin.sh) - Script de inicio Web
+  - [`terraform/user_data_api.sh`](./terraform/user_data_api.sh) - Script de inicio API (sin cambios)
+
+- **Configuración**:
+  - [`stamin-up/.env.example`](./stamin-up/.env.example) - Ejemplo variables Web
+  - [`terraform/terraform.tfvars.example`](./terraform/terraform.tfvars.example) - Ejemplo config Terraform
+
+## 🆘 Necesitas Ayuda?
+
+1. Revisa logs: `sudo cat /var/log/cloud-init-output.log`
+2. Verifica consola AWS: ECR, EC2
+3. Prueba localmente: `docker build -t test ./stamin-up`
+4. Revisa documentación AWS
 
 ---
 
 **Happy Deploying! 🚀**
+
+*Optimización solo para Web - La API mantiene el proceso tradicional de build*

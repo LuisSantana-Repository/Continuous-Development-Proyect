@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Build and Push Docker Images to ECR
-# This script builds the Docker images locally and pushes them to AWS ECR
-# Usage: ./scripts/build-and-push.sh [api|web|all]
+# Build and Push Web Docker Image to ECR
+# This script builds the Web (Next.js) Docker image and pushes it to AWS ECR
+# API continues to build on EC2 instances
+# Usage: ./scripts/build-and-push.sh
 
 set -e
 
@@ -15,7 +16,7 @@ NC='\033[0m' # No Color
 # Configuration
 AWS_REGION="${AWS_REGION:-us-east-1}"
 PROJECT_NAME="${PROJECT_NAME:-continuous-development}"
-SERVICE="${1:-all}"
+SERVICE="web"  # Only Web uses ECR
 
 echo -e "${GREEN}==================================${NC}"
 echo -e "${GREEN}Docker Build and Push to ECR${NC}"
@@ -60,48 +61,6 @@ fi
 echo -e "${GREEN}Successfully logged into ECR${NC}"
 echo ""
 
-# Function to build and push API
-build_api() {
-    echo -e "${YELLOW}==================================${NC}"
-    echo -e "${YELLOW}Building API Image${NC}"
-    echo -e "${YELLOW}==================================${NC}"
-
-    cd "$(dirname "$0")/../api" || exit 1
-
-    ECR_REPO_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$PROJECT_NAME/api"
-
-    echo -e "${YELLOW}Building Docker image for API...${NC}"
-    docker build -t $PROJECT_NAME/api:latest .
-
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}Error: Docker build failed for API${NC}"
-        exit 1
-    fi
-
-    echo -e "${GREEN}API image built successfully${NC}"
-
-    # Tag for ECR
-    echo -e "${YELLOW}Tagging image for ECR...${NC}"
-    docker tag $PROJECT_NAME/api:latest $ECR_REPO_URL:latest
-    docker tag $PROJECT_NAME/api:latest $ECR_REPO_URL:$(date +%Y%m%d-%H%M%S)
-
-    # Push to ECR
-    echo -e "${YELLOW}Pushing to ECR...${NC}"
-    docker push $ECR_REPO_URL:latest
-    docker push $ECR_REPO_URL:$(date +%Y%m%d-%H%M%S)
-
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✓ API image pushed successfully to ECR${NC}"
-        echo -e "${GREEN}  Repository: $ECR_REPO_URL${NC}"
-    else
-        echo -e "${RED}Error: Failed to push API image${NC}"
-        exit 1
-    fi
-
-    cd - > /dev/null
-    echo ""
-}
-
 # Function to build and push Web
 build_web() {
     echo -e "${YELLOW}==================================${NC}"
@@ -144,24 +103,8 @@ build_web() {
     echo ""
 }
 
-# Build based on argument
-case "$SERVICE" in
-    api)
-        build_api
-        ;;
-    web)
-        build_web
-        ;;
-    all)
-        build_api
-        build_web
-        ;;
-    *)
-        echo -e "${RED}Error: Invalid service '$SERVICE'${NC}"
-        echo "Usage: $0 [api|web|all]"
-        exit 1
-        ;;
-esac
+# Build Web only
+build_web
 
 echo -e "${GREEN}==================================${NC}"
 echo -e "${GREEN}Build and Push Complete!${NC}"
@@ -169,6 +112,7 @@ echo -e "${GREEN}==================================${NC}"
 echo ""
 echo -e "${YELLOW}Next steps:${NC}"
 echo "1. Apply Terraform changes: cd terraform && terraform apply"
-echo "2. SSH into EC2 instances will automatically pull these images"
-echo "3. Monitor deployment: aws ec2 describe-instances --region $AWS_REGION"
+echo "2. Web instances will automatically pull this image"
+echo "3. API continues to build on EC2 instances (no ECR needed)"
+echo "4. Monitor deployment: aws ec2 describe-instances --region $AWS_REGION"
 echo ""

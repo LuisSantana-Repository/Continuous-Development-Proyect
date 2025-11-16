@@ -49,41 +49,10 @@ module "iam" {
   s3_bucket_name = "${var.project_name}-bucket-${var.s3_environment}"
 }
 
-# ECR Module - Container Registries
+# ECR Module - Container Registry for Web
 module "ecr" {
   source       = "./modules/ecr"
   project_name = var.project_name
-}
-
-# SSM Module - Parameter Store for Environment Variables
-module "ssm" {
-  source       = "./modules/ssm"
-  project_name = var.project_name
-  api_env_vars = merge(
-    var.api_env_vars,
-    {
-      AWS_REGION         = var.aws_region
-      DB_PRIMARY_HOST     = module.rds.primary_db_address
-      DB_PRIMARY_PORT     = tostring(module.rds.primary_db_port)
-      DB_PRIMARY_NAME     = module.rds.primary_db_name
-      DB_PRIMARY_USER     = var.db_username
-      DB_PRIMARY_PASSWORD = var.db_password
-      DB_SECONDARY_HOST     = var.enable_secondary_db ? module.rds.secondary_db_address : ""
-      DB_SECONDARY_PORT     = var.enable_secondary_db ? tostring(module.rds.secondary_db_port) : "3306"
-      DB_SECONDARY_NAME     = var.enable_secondary_db ? module.rds.secondary_db_name : ""
-      DB_SECONDARY_USER     = var.db_username
-      DB_SECONDARY_PASSWORD = var.db_password
-      S3_BUCKET_NAME        = module.s3.bucket_id
-      S3_REGION             = var.aws_region
-      DYNAMODB_SESSIONS_TABLE = module.dynamodb.sessions_table_name
-      DYNAMODB_CHATS_TABLE    = module.dynamodb.chats_table_name
-      DYNAMODB_MESSAGES_TABLE = module.dynamodb.messages_table_name
-      DYNAMODB_REGION         = var.aws_region
-    }
-  )
-  web_env_vars = var.stamin_env_vars
-
-  depends_on = [module.rds, module.s3, module.dynamodb]
 }
 
 # S3 Module - Complete S3 Configuration
@@ -147,12 +116,11 @@ module "ec2" {
   web_desired_capacity  = var.web_desired_capacity
   lb_public_dns         = module.lb.alb_public_dns
 
-  # ECR configuration for pulling pre-built images
-  ecr_api_url           = module.ecr.api_repository_url
+  # ECR configuration for Web only (API builds on EC2)
   ecr_web_url           = module.ecr.web_repository_url
   aws_region            = var.aws_region
 
-  # Legacy env vars (kept for backwards compatibility but no longer used in user_data)
+  # Environment variables with RDS connection info
   api_env_vars          = merge(
     var.api_env_vars,
     {
@@ -183,5 +151,5 @@ module "ec2" {
   web_target_group_arn  = module.lb.web_target_group_arn
   api_target_group_arn  = module.lb.api_target_group_arn
 
-  depends_on = [module.rds, module.s3, module.iam, module.dynamodb, module.ecr, module.ssm]
+  depends_on = [module.rds, module.s3, module.iam, module.dynamodb, module.ecr]
 }

@@ -8,7 +8,7 @@ apt-get update
 apt-get upgrade -y
 
 # Install dependencies
-apt-get install -y curl ca-certificates gnupg lsb-release jq awscli
+apt-get install -y curl ca-certificates gnupg lsb-release awscli
 
 # Install Docker (official method)
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -22,25 +22,18 @@ systemctl start docker
 mkdir -p /app
 cd /app
 
-# Get AWS region from EC2 metadata
+# Get AWS region from template variables
 AWS_REGION="${aws_region}"
-PROJECT_NAME="${project_name}"
 
-echo "Fetching environment variables from SSM Parameter Store..."
+# Create .env file from Terraform variables (if any)
+echo "Creating .env file..."
+cat > .env << 'EOF'
+%{ for key, value in env_vars ~}
+${key}=${value}
+%{ endfor ~}
+EOF
 
-# Fetch all Web parameters from SSM and create .env file
-aws ssm get-parameters-by-path \
-  --path "/$PROJECT_NAME/web/" \
-  --with-decryption \
-  --region $AWS_REGION \
-  --query 'Parameters[*].[Name,Value]' \
-  --output text | while read name value; do
-    # Extract just the key name (remove path prefix)
-    key=$(echo "$name" | sed "s|/$PROJECT_NAME/web/||")
-    echo "$key=$value" >> .env
-done
-
-echo ".env file created with SSM parameters"
+echo ".env file created"
 
 # Login to ECR
 echo "Logging into ECR..."

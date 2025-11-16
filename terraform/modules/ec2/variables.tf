@@ -99,17 +99,12 @@ variable "lb_public_dns" {
   type        = string
 }
 
-variable "ecr_api_url" {
-  description = "URL of the ECR repository for API"
-  type        = string
-}
-
 variable "ecr_web_url" {
   description = "URL of the ECR repository for Web"
   type        = string
 }
 
 variable "aws_region" {
-  description = "AWS region for SSM and ECR access"
+  description = "AWS region for ECR access (Web only)"
   type        = string
 }
