@@ -158,3 +158,8 @@ terraform/.terraform.lock.hcl
 
 ./terraform/aws-ec2
 ./terraform/aws-ec2.pub
+
+lambda_package/
+lambda_function.zip
+*.pyc
+__pycache__/

@@ -129,6 +129,7 @@ variable "enable_deletion_protection" {
   default     = false  # Set to true for production
 }
 
+
 # ============================================
 # S3 Configuration
 # ============================================

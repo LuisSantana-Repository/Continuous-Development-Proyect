@@ -42,3 +42,9 @@ output "rds_sg_id" {
   description = "Security group ID for RDS instances"
   value       = aws_security_group.rds.id
 }
+
+
+output "rds_security_group_id" {
+  description = "Security group ID for RDS instances (alias)"
+  value       = aws_security_group.rds.id
+}

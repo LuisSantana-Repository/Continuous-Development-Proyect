@@ -41,6 +41,7 @@ module "rds" {
   enable_deletion_protection = var.enable_deletion_protection
 }
 
+
 # IAM Module - EC2 Roles (create FIRST, before S3 and DynamoDB)
 module "iam" {
   source         = "./modules/iam"

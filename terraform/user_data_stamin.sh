@@ -28,8 +28,9 @@ git clone https://github.com/LuisSantana-Repository/Continuous-Development-Proye
 
 cd ./stamin-up
 
-# Crear archivo .env con las variables de entorno desde Terraform
-cat > .env << EOF
+# Crear archivo .env desde Terraform variables
+echo "Creating .env file..."
+cat > .env << 'EOF'
 %{ for key, value in env_vars ~}
 ${key}=${value}
 %{ endfor ~}
@@ -40,4 +41,4 @@ EOF
 sudo docker build -t api-server .
 sudo docker run --name api-server --env-file .env --restart=always -d -p 3000:3000 api-server:latest
 
-echo "Ubuntu API server setup complete!"
+echo "Ubuntu WEB server setup complete!"
