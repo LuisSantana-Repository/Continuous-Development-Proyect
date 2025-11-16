@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Enable standalone output for optimized Docker builds
+  output: 'standalone',
+
   images: {
     remotePatterns: [
       {
@@ -22,13 +25,15 @@ const nextConfig: NextConfig = {
     // Desactivar optimización de imágenes externas, el proxy ya maneja esto
     unoptimized: false,
   },
-  // Add webpack configuration for Docker hot reload
-  webpack: (config, { isServer }) => {
-    // Polling is required for hot reload in Docker
-    config.watchOptions = {
-      poll: 1000, // Check for changes every second
-      aggregateTimeout: 300, // Delay before rebuilding
-    };
+  // Add webpack configuration for Docker hot reload (development only)
+  webpack: (config, { isServer, dev }) => {
+    // Polling is required for hot reload in Docker (only in development)
+    if (dev) {
+      config.watchOptions = {
+        poll: 1000, // Check for changes every second
+        aggregateTimeout: 300, // Delay before rebuilding
+      };
+    }
     return config;
   },
 };
