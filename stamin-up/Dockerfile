@@ -13,4 +13,4 @@ COPY . .
 EXPOSE 3001
 
 # Start Next.js dev server
-CMD ["npm", "run"]
+CMD ["npm", "start"]
