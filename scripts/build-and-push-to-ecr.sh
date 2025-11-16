@@ -11,6 +11,7 @@ NC='\033[0m' # No Color
 AWS_REGION="${AWS_REGION:-us-east-1}"
 PROJECT_NAME="${PROJECT_NAME:-stamin-up}"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}Docker Image Build and Push to ECR${NC}"
@@ -19,6 +20,7 @@ echo ""
 echo "AWS Region: $AWS_REGION"
 echo "Project: $PROJECT_NAME"
 echo "Image Tag: $IMAGE_TAG"
+echo "Timestamp Tag: $TIMESTAMP"
 echo ""
 
 # Check if AWS CLI is installed
@@ -77,12 +79,12 @@ fi
 echo ""
 echo "Tagging WEB image for ECR..."
 docker tag ${WEB_REPO_NAME}:${IMAGE_TAG} ${WEB_ECR_URL}:${IMAGE_TAG}
-docker tag ${WEB_REPO_NAME}:${IMAGE_TAG} ${WEB_ECR_URL}:$(date +%Y%m%d-%H%M%S)
+docker tag ${WEB_REPO_NAME}:${IMAGE_TAG} ${WEB_ECR_URL}:${TIMESTAMP}
 
 echo ""
 echo -e "${YELLOW}Pushing WEB image to ECR...${NC}"
 docker push ${WEB_ECR_URL}:${IMAGE_TAG}
-docker push ${WEB_ECR_URL}:$(date +%Y%m%d-%H%M%S)
+docker push ${WEB_ECR_URL}:${TIMESTAMP}
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Failed to push WEB image${NC}"
@@ -110,12 +112,12 @@ fi
 echo ""
 echo "Tagging API image for ECR..."
 docker tag ${API_REPO_NAME}:${IMAGE_TAG} ${API_ECR_URL}:${IMAGE_TAG}
-docker tag ${API_REPO_NAME}:${IMAGE_TAG} ${API_ECR_URL}:$(date +%Y%m%d-%H%M%S)
+docker tag ${API_REPO_NAME}:${IMAGE_TAG} ${API_ECR_URL}:${TIMESTAMP}
 
 echo ""
 echo -e "${YELLOW}Pushing API image to ECR...${NC}"
 docker push ${API_ECR_URL}:${IMAGE_TAG}
-docker push ${API_ECR_URL}:$(date +%Y%m%d-%H%M%S)
+docker push ${API_ECR_URL}:${TIMESTAMP}
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Failed to push API image${NC}"
@@ -130,11 +132,12 @@ echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}Build and Push Complete!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
-echo "Images available at:"
+echo "Images pushed with tags:"
 echo "  WEB: ${WEB_ECR_URL}:${IMAGE_TAG}"
+echo "  WEB: ${WEB_ECR_URL}:${TIMESTAMP}"
 echo "  API: ${API_ECR_URL}:${IMAGE_TAG}"
+echo "  API: ${API_ECR_URL}:${TIMESTAMP}"
 echo ""
 echo "To use these in Terraform, update your terraform.tfvars:"
-echo "  web_docker_image = \"${WEB_ECR_URL}:${IMAGE_TAG}\""
-echo "  api_docker_image = \"${API_ECR_URL}:${IMAGE_TAG}\""
+echo "  docker_image_tag = \"${IMAGE_TAG}\"  # or \"${TIMESTAMP}\" for specific version"
 echo ""
