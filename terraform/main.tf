@@ -133,6 +133,8 @@ module "ec2" {
       DYNAMODB_CHATS_TABLE    = module.dynamodb.chats_table_name
       DYNAMODB_MESSAGES_TABLE = module.dynamodb.messages_table_name
       DYNAMODB_REGION         = var.aws_region
+      # Frontend URL for CORS
+      FRONTEND_URL            = "http://${module.lb.alb_public_dns}"
     }
   )
   stamin_env_vars       = var.stamin_env_vars
