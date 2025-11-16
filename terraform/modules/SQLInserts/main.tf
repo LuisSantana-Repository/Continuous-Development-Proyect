@@ -1,42 +1,56 @@
-# Archive Lambda function code
-data "archive_file" "lambda_zip" {
-  type        = "zip"
-  source_dir  = "${path.module}/lambda_package"
-  output_path = "${path.module}/lambda_function.zip"
-}
-
 # Null resource to build Lambda package
 resource "null_resource" "build_lambda" {
   triggers = {
     # Rebuild if Lambda code changes
-    lambda_code  = filemd5("${path.module}/lambda/index.py")
-    primary_sql  = filemd5("${var.primary_sql_file}")
+    lambda_code   = filemd5("${path.module}/lambda/index.py")
+    primary_sql   = filemd5("${var.primary_sql_file}")
     secondary_sql = var.secondary_sql_file != "" ? filemd5(var.secondary_sql_file) : ""
   }
 
   provisioner "local-exec" {
-    command = <<-EOT
-      set -e
-      cd ${path.module}/lambda
+    working_dir = path.module
+    interpreter = ["python", "-c"]
+    command     = <<-EOT
+import os
+import shutil
+import subprocess
+import sys
 
-      # Clean up previous builds
-      rm -rf ../lambda_package
-      rm -f ../lambda_function.zip
+# Paths
+lambda_dir = 'lambda'
+package_dir = 'lambda_package'
+zip_file = 'lambda_function.zip'
 
-      # Create package directory
-      mkdir -p ../lambda_package
+# Clean up previous builds
+if os.path.exists(package_dir):
+    shutil.rmtree(package_dir)
+if os.path.exists(zip_file):
+    os.remove(zip_file)
 
-      # Install Python dependencies
-      pip install -r requirements.txt -t ../lambda_package/ --quiet || pip3 install -r requirements.txt -t ../lambda_package/ --quiet
+# Create package directory
+os.makedirs(package_dir, exist_ok=True)
 
-      # Copy Lambda function
-      cp index.py ../lambda_package/
+# Install Python dependencies
+try:
+    subprocess.run([sys.executable, '-m', 'pip', 'install', '-r',
+                   os.path.join(lambda_dir, 'requirements.txt'),
+                   '-t', package_dir, '--quiet'], check=True)
+except subprocess.CalledProcessError:
+    print("Warning: pip install failed, continuing anyway...")
 
-      # Copy SQL initialization files
-      cp ${var.primary_sql_file} ../lambda_package/init-db-primary.sql
-      ${var.secondary_sql_file != "" ? "cp ${var.secondary_sql_file} ../lambda_package/init-db-secondary.sql" : ""}
+# Copy Lambda function
+shutil.copy2(os.path.join(lambda_dir, 'index.py'), package_dir)
 
-      echo "Lambda package built successfully"
+# Copy SQL initialization files
+primary_sql = r'${replace(var.primary_sql_file, "\\", "\\\\")}'
+shutil.copy2(primary_sql, os.path.join(package_dir, 'init-db-primary.sql'))
+
+# Copy secondary SQL file if provided
+secondary_sql = r'${replace(var.secondary_sql_file, "\\", "\\\\")}'
+if secondary_sql:
+    shutil.copy2(secondary_sql, os.path.join(package_dir, 'init-db-secondary.sql'))
+
+print("Lambda package built successfully")
     EOT
   }
 }
@@ -136,12 +150,12 @@ resource "aws_lambda_function" "db_init" {
 
   environment {
     variables = {
-      PRIMARY_DB_HOST     = var.primary_db_host
-      PRIMARY_DB_NAME     = var.primary_db_name
-      SECONDARY_DB_HOST   = var.secondary_db_host
-      SECONDARY_DB_NAME   = var.secondary_db_name
-      DB_USERNAME         = var.db_username
-      DB_PASSWORD         = var.db_password
+      PRIMARY_DB_HOST   = var.primary_db_host
+      PRIMARY_DB_NAME   = var.primary_db_name
+      SECONDARY_DB_HOST = var.secondary_db_host
+      SECONDARY_DB_NAME = var.secondary_db_name
+      DB_USERNAME       = var.db_username
+      DB_PASSWORD       = var.db_password
     }
   }
 
