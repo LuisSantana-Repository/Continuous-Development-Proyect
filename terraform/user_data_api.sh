@@ -1,43 +1,68 @@
 #!/bin/bash
 set -e
 
-# Actualizar sistema
+echo "Starting API server setup..."
+
+# Update system
 apt-get update
 apt-get upgrade -y
 
-# Instalar dependencias
-apt-get install -y git curl ca-certificates gnupg lsb-release
+# Install dependencies
+apt-get install -y curl ca-certificates gnupg lsb-release jq awscli
 
-# Instalar Docker (método oficial)
+# Install Docker (official method)
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 
-# Instalar Docker Compose plugin
-apt-get install -y docker-compose-plugin
-
-# Habilitar Docker
+# Enable Docker
 systemctl enable docker
 systemctl start docker
 
-# Crear carpeta de la app
+# Create app directory
 mkdir -p /app
 cd /app
 
-# Clonar tu repo
-git clone https://github.com/LuisSantana-Repository/Continuous-Development-Proyect.git .
+# Get AWS region from EC2 metadata
+AWS_REGION="${aws_region}"
+PROJECT_NAME="${project_name}"
 
-cd ./api/
+echo "Fetching environment variables from SSM Parameter Store..."
 
-# Crear archivo .env desde Terraform variables
-echo "Creating .env file..."
-cat > .env << 'EOF'
-%{ for key, value in env_vars ~}
-${key}=${value}
-%{ endfor ~}
-EOF
+# Fetch all API parameters from SSM and create .env file
+aws ssm get-parameters-by-path \
+  --path "/$PROJECT_NAME/api/" \
+  --with-decryption \
+  --region $AWS_REGION \
+  --query 'Parameters[*].[Name,Value]' \
+  --output text | while read name value; do
+    # Extract just the key name (remove path prefix)
+    key=$(echo "$name" | sed "s|/$PROJECT_NAME/api/||")
+    echo "$key=$value" >> .env
+done
 
-#run the application using DOCKERFILE
-sudo docker build -t api-server .
-sudo docker run  --env-file .env --restart=always -d -p 3000:3000 api-server:latest
+echo ".env file created with SSM parameters"
 
-echo "Ubuntu API server setup complete!"
+# Login to ECR
+echo "Logging into ECR..."
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${ecr_api_url} 2>/dev/null
+
+# Pull the pre-built API image from ECR
+echo "Pulling API image from ECR..."
+docker pull ${ecr_api_url}:latest
+
+# Stop and remove any existing container
+docker stop api-server 2>/dev/null || true
+docker rm api-server 2>/dev/null || true
+
+# Run the application
+echo "Starting API container..."
+docker run --name api-server \
+  --env-file .env \
+  --restart=always \
+  -d \
+  -p 3000:3000 \
+  ${ecr_api_url}:latest
+
+echo "API server setup complete!"
+echo "Container status:"
+docker ps | grep api-server

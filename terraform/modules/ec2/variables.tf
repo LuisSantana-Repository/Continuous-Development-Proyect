@@ -98,3 +98,18 @@ variable "lb_public_dns" {
   description = "DNS name of the Load Balancer"
   type        = string
 }
+
+variable "ecr_api_url" {
+  description = "URL of the ECR repository for API"
+  type        = string
+}
+
+variable "ecr_web_url" {
+  description = "URL of the ECR repository for Web"
+  type        = string
+}
+
+variable "aws_region" {
+  description = "AWS region for SSM and ECR access"
+  type        = string
+}

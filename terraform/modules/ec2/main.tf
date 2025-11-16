@@ -19,7 +19,9 @@ resource "aws_launch_template" "api" {
   }
 
   user_data = base64encode(templatefile("${path.module}/../../user_data_api.sh", {
-    env_vars = var.api_env_vars
+    aws_region   = var.aws_region
+    project_name = var.project_name
+    ecr_api_url  = var.ecr_api_url
   }))
 
   block_device_mappings {
@@ -61,13 +63,9 @@ resource "aws_launch_template" "web" {
   }
   
   user_data = base64encode(templatefile("${path.module}/../../user_data_stamin.sh", {
-    env_vars = merge(var.stamin_env_vars,
-    { 
-      NEXT_PUBLIC_URL = "http://${var.lb_public_dns}"
-      API_URL         = "http://${var.lb_public_dns}/api"
-    }
-    )
-    alb_url  = "http://${var.alb_dns_name}"
+    aws_region   = var.aws_region
+    project_name = var.project_name
+    ecr_web_url  = var.ecr_web_url
   }))
 
   block_device_mappings {
