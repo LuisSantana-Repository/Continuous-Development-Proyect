@@ -43,7 +43,7 @@ sudo docker build \
   --build-arg REACT_APP_VERSION="${env_vars.REACT_APP_VERSION}" \
   -t stamin-up .
 
-sudo docker run -d -p 3001:3001 stamin-up:latest
+sudo docker run --name stamin-up --restart=always -d -p 3001:3001 stamin-up:latest
 
 
 echo "Ubuntu API server setup complete!"
