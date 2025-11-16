@@ -98,3 +98,18 @@ variable "lb_public_dns" {
   description = "DNS name of the Load Balancer"
   type        = string
 }
+
+variable "web_docker_image" {
+  description = "Docker image URL for web application (ECR)"
+  type        = string
+}
+
+variable "api_docker_image" {
+  description = "Docker image URL for API application (ECR)"
+  type        = string
+}
+
+variable "aws_region" {
+  description = "AWS region for ECR authentication"
+  type        = string
+}

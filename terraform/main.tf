@@ -49,6 +49,12 @@ module "iam" {
   s3_bucket_name = "${var.project_name}-bucket-${var.s3_environment}"
 }
 
+# ECR Module - Container Registry for Docker Images
+module "ecr" {
+  source       = "./modules/ecr"
+  project_name = var.project_name
+}
+
 # S3 Module - Complete S3 Configuration
 module "s3" {
   source                    = "./modules/s3"
@@ -141,5 +147,10 @@ module "ec2" {
   web_target_group_arn  = module.lb.web_target_group_arn
   api_target_group_arn  = module.lb.api_target_group_arn
 
-  depends_on = [module.rds, module.s3, module.iam, module.dynamodb]
+  # Docker images from ECR
+  web_docker_image = "${module.ecr.web_repository_url}:${var.docker_image_tag}"
+  api_docker_image = "${module.ecr.api_repository_url}:${var.docker_image_tag}"
+  aws_region       = var.aws_region
+
+  depends_on = [module.rds, module.s3, module.iam, module.dynamodb, module.ecr]
 }
