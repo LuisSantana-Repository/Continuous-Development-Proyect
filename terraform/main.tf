@@ -41,6 +41,36 @@ module "rds" {
   enable_deletion_protection = var.enable_deletion_protection
 }
 
+# SQL Inserts Module - Initialize RDS databases with SQL scripts
+module "sql_inserts" {
+  source = "./modules/SQLInserts"
+
+  project_name           = var.project_name
+  vpc_id                 = module.networking.vpc_id
+  subnet_ids             = module.networking.subnet_ids
+  rds_security_group_id  = module.rds.rds_security_group_id
+
+  # Primary database configuration
+  primary_db_host        = module.rds.primary_db_address
+  primary_db_name        = module.rds.primary_db_name
+  primary_sql_file       = "${path.module}/../init-db-primary.sql"
+
+  # Secondary database configuration (conditional)
+  secondary_db_host      = var.enable_secondary_db ? module.rds.secondary_db_address : ""
+  secondary_db_name      = var.enable_secondary_db ? module.rds.secondary_db_name : ""
+  secondary_sql_file     = var.enable_secondary_db ? "${path.module}/../init-db-secondary.sql" : ""
+
+  # Database credentials
+  db_username            = var.db_username
+  db_password            = var.db_password
+
+  # Auto-invoke Lambda after creation
+  auto_invoke            = var.auto_invoke_db_init
+  force_reinvoke         = var.force_reinvoke_db_init
+
+  depends_on = [module.rds]
+}
+
 # IAM Module - EC2 Roles (create FIRST, before S3 and DynamoDB)
 module "iam" {
   source         = "./modules/iam"

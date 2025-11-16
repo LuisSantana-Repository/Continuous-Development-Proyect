@@ -129,6 +129,18 @@ variable "enable_deletion_protection" {
   default     = false  # Set to true for production
 }
 
+variable "auto_invoke_db_init" {
+  description = "Automatically invoke Lambda to initialize databases after RDS creation"
+  type        = bool
+  default     = true
+}
+
+variable "force_reinvoke_db_init" {
+  description = "Force re-invocation of database initialization Lambda (useful for re-running SQL scripts)"
+  type        = bool
+  default     = false
+}
+
 # ============================================
 # S3 Configuration
 # ============================================

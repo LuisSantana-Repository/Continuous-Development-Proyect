@@ -64,6 +64,22 @@ output "secondary_db_name" {
   description = "Database name of the secondary RDS"
   value       = module.rds.secondary_db_name
 }
+
+# ============================================
+# Database Initialization Outputs
+# ============================================
+
+output "db_init_lambda_function" {
+  description = "Name of the database initialization Lambda function"
+  value       = module.sql_inserts.lambda_function_name
+}
+
+output "db_init_result" {
+  description = "Result of database initialization"
+  value       = module.sql_inserts.invocation_result
+  sensitive   = true
+}
+
 # ============================================
 # S3 Bucket Outputs
 # ============================================
