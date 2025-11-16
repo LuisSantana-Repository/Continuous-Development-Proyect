@@ -17,10 +17,11 @@ const httpServer = createServer(app);
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
+  process.env.FRONTEND_URL, // URL del frontend (ej: ALB URL)
   `http://${process.env.PUBLIC_IP}:3000`,
   `http://${process.env.DOMAIN}`,
   "*"
-];
+].filter(Boolean); // Remove undefined values
 
 app.use(
   cors({
