@@ -61,7 +61,12 @@ resource "aws_launch_template" "web" {
   }
   
   user_data = base64encode(templatefile("${path.module}/../../user_data_stamin.sh", {
-    env_vars = var.stamin_env_vars
+    env_vars = merge(var.stamin_env_vars,
+    { 
+      NEXT_PUBLIC_URL = "http://${var.lb_public_dns}"
+      API_URL         = "http://${var.lb_public_dns}/api"
+    }
+    )
     alb_url  = "http://${var.alb_dns_name}"
   }))
 
@@ -90,19 +95,19 @@ resource "aws_launch_template" "web" {
 }
 
 # Web Instance
-# resource "aws_instance" "web" {
-#   ami           = aws_launch_template.web.image_id
-#   instance_type = aws_launch_template.web.instance_type
-#   vpc_security_group_ids = [var.app_sg_id]
+resource "aws_instance" "web" {
+  ami           = aws_launch_template.web.image_id
+  instance_type = aws_launch_template.web.instance_type
+  vpc_security_group_ids = [var.app_sg_id]
 
-#   launch_template {
-#     id      = aws_launch_template.web.id
-#   }
+  launch_template {
+    id      = aws_launch_template.web.id
+  }
 
-#   tags = {
-#     Name = "webInstanceFromTemplate"
-#   }
-# }
+  tags = {
+    Name = "webInstanceFromTemplate"
+  }
+}
 
 # # Attach web instance to target group
 # resource "aws_lb_target_group_attachment" "web" {
@@ -220,40 +225,40 @@ resource "aws_autoscaling_group" "api" {
 }
 
 # Auto Scaling Group para Frontend
-# resource "aws_autoscaling_group" "web" {
-#   name                      = "${var.project_name}-web-asg"
-#   vpc_zone_identifier       = var.subnet_ids
-#   target_group_arns         = [var.web_target_group_arn]
-#   health_check_type         = "ELB"
-#   health_check_grace_period = 300
+resource "aws_autoscaling_group" "web" {
+  name                      = "${var.project_name}-web-asg"
+  vpc_zone_identifier       = var.subnet_ids
+  target_group_arns         = [var.web_target_group_arn]
+  health_check_type         = "ELB"
+  health_check_grace_period = 300
 
-#   min_size         = var.web_min_size
-#   max_size         = var.web_max_size
-#   desired_capacity = var.web_desired_capacity
+  min_size         = var.web_min_size
+  max_size         = var.web_max_size
+  desired_capacity = var.web_desired_capacity
 
-#   launch_template {
-#     id      = aws_launch_template.web.id
-#     version = "$Latest"
-#   }
+  launch_template {
+    id      = aws_launch_template.web.id
+    version = "$Latest"
+  }
 
-#   tag {
-#     key                 = "Name"
-#     value               = "${var.project_name}-web-asg"
-#     propagate_at_launch = true
-#   }
+  tag {
+    key                 = "Name"
+    value               = "${var.project_name}-web-asg"
+    propagate_at_launch = true
+  }
 
-#   tag {
-#     key                 = "Project"
-#     value               = var.project_name
-#     propagate_at_launch = true
-#   }
+  tag {
+    key                 = "Project"
+    value               = var.project_name
+    propagate_at_launch = true
+  }
 
-#   tag {
-#     key                 = "Service"
-#     value               = "stamin-up"
-#     propagate_at_launch = true
-#   }
-# }
+  tag {
+    key                 = "Service"
+    value               = "stamin-up"
+    propagate_at_launch = true
+  }
+}
 
 # ============================================
 # AUTO SCALING POLICIES - CPU BASED
@@ -314,55 +319,55 @@ resource "aws_cloudwatch_metric_alarm" "api_cpu_low" {
 }
 
 # # Policy para escalar WEB hacia arriba (scale out)
-# resource "aws_autoscaling_policy" "web_scale_up" {
-#   name                   = "${var.project_name}-web-scale-up"
-#   scaling_adjustment     = 1
-#   adjustment_type        = "ChangeInCapacity"
-#   cooldown               = 300
-#   autoscaling_group_name = aws_autoscaling_group.web.name
-# }
+resource "aws_autoscaling_policy" "web_scale_up" {
+  name                   = "${var.project_name}-web-scale-up"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  autoscaling_group_name = aws_autoscaling_group.web.name
+}
 
-# # CloudWatch Alarm para CPU > 70% en WEB
-# resource "aws_cloudwatch_metric_alarm" "web_cpu_high" {
-#   alarm_name          = "${var.project_name}-web-cpu-high"
-#   comparison_operator = "GreaterThanThreshold"
-#   evaluation_periods  = "2"
-#   metric_name         = "CPUUtilization"
-#   namespace           = "AWS/EC2"
-#   period              = "120"
-#   statistic           = "Average"
-#   threshold           = "70"
-#   alarm_description   = "This metric monitors WEB EC2 CPU utilization"
-#   alarm_actions       = [aws_autoscaling_policy.web_scale_up.arn]
+# CloudWatch Alarm para CPU > 70% en WEB
+resource "aws_cloudwatch_metric_alarm" "web_cpu_high" {
+  alarm_name          = "${var.project_name}-web-cpu-high"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "70"
+  alarm_description   = "This metric monitors WEB EC2 CPU utilization"
+  alarm_actions       = [aws_autoscaling_policy.web_scale_up.arn]
 
-#   dimensions = {
-#     AutoScalingGroupName = aws_autoscaling_group.web.name
-#   }
-# }
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.web.name
+  }
+}
 
-# # Policy para escalar WEB hacia abajo (scale in)
-# resource "aws_autoscaling_policy" "web_scale_down" {
-#   name                   = "${var.project_name}-web-scale-down"
-#   scaling_adjustment     = -1
-#   adjustment_type        = "ChangeInCapacity"
-#   cooldown               = 300
-#   autoscaling_group_name = aws_autoscaling_group.web.name
-# }
+# Policy para escalar WEB hacia abajo (scale in)
+resource "aws_autoscaling_policy" "web_scale_down" {
+  name                   = "${var.project_name}-web-scale-down"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  autoscaling_group_name = aws_autoscaling_group.web.name
+}
 
-# # CloudWatch Alarm para CPU < 30% en WEB
-# resource "aws_cloudwatch_metric_alarm" "web_cpu_low" {
-#   alarm_name          = "${var.project_name}-web-cpu-low"
-#   comparison_operator = "LessThanThreshold"
-#   evaluation_periods  = "2"
-#   metric_name         = "CPUUtilization"
-#   namespace           = "AWS/EC2"
-#   period              = "120"
-#   statistic           = "Average"
-#   threshold           = "30"
-#   alarm_description   = "This metric monitors WEB EC2 CPU utilization"
-#   alarm_actions       = [aws_autoscaling_policy.web_scale_down.arn]
+# CloudWatch Alarm para CPU < 30% en WEB
+resource "aws_cloudwatch_metric_alarm" "web_cpu_low" {
+  alarm_name          = "${var.project_name}-web-cpu-low"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "30"
+  alarm_description   = "This metric monitors WEB EC2 CPU utilization"
+  alarm_actions       = [aws_autoscaling_policy.web_scale_down.arn]
 
-#   dimensions = {
-#     AutoScalingGroupName = aws_autoscaling_group.web.name
-#   }
-# }
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.web.name
+  }
+}

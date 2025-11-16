@@ -29,10 +29,8 @@ variable "stamin_env_vars" {
   description = "Environment variables for Stamin-Up"
   type        = map(string)
   default = {
-    REACT_APP_API_URL      = "0.0.0.0"
-    REACT_APP_ENV          = "production"
-    REACT_APP_NAME         = "lorem_ipsum"
-    REACT_APP_VERSION      = "1.0.0"
+    NODE_ENV  = "development"
+    NEXT_TELEMETRY_DISABLED=1
   }
 }
 

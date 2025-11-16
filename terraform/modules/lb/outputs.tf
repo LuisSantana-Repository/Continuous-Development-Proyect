@@ -13,10 +13,16 @@ output "alb_zone_id" {
   value       = aws_lb.main.zone_id
 }
 
+output "alb_public_dns" {
+  description = "Public DNS of the Application Load Balancer"
+  value       = aws_lb.main.dns_name
+}
+
 output "api_target_group_arn" {
   description = "ARN of the API target group"
   value       = aws_lb_target_group.api.arn
 }
+
 
 output "web_target_group_arn" {
   description = "ARN of the web target group"

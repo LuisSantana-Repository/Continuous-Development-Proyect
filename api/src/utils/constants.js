@@ -2,8 +2,6 @@ export const BUCKET = process.env.S3_BUCKET_NAME || process.env.S3_BUCKET || "lo
 
 export const DYNAMODB_TABLE = process.env.DYNAMODB_SESSIONS_TABLE || process.env.DYNAMODB_TABLE || "sessions";
 
- 
-
 export const PROFILE_PREFIX = "profile/";
 
 export const INE_PREFIX = "INE/";

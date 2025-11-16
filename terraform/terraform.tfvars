@@ -36,10 +36,8 @@ api_env_vars = {
 # Variables de entorno para Stamin-Up
 # ============================================
 stamin_env_vars = {
-  REACT_APP_API_URL = "0.0.0.0"
-  REACT_APP_ENV     = "production"
-  REACT_APP_NAME    = "Stamin-Up"
-  REACT_APP_VERSION = "1.0.0"
+  NODE_ENV="development"
+  NEXT_TELEMETRY_DISABLED=1
 }
 # ============================================
 # S3 Configuration

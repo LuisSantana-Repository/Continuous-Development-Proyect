@@ -21,15 +21,15 @@ output "alb_url" {
 # EC2 Instance Outputs
 # ============================================
 
-# output "api_asg_name" {
-#   description = "Name of the API Auto Scaling Group"
-#   value       = module.ec2.api_asg_name
-# }
+output "api_asg_name" {
+  description = "Name of the API Auto Scaling Group"
+  value       = module.ec2.api_asg_name
+}
 
-# output "web_asg_name" {
-#   description = "Name of the Web Auto Scaling Group"
-#   value       = module.ec2.web_asg_name
-# }
+output "web_asg_name" {
+  description = "Name of the Web Auto Scaling Group"
+  value       = module.ec2.web_asg_name
+}
 
 # ============================================
 # RDS Database Outputs

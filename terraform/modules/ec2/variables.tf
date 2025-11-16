@@ -93,3 +93,8 @@ variable "iam_instance_profile_name" {
   description = "Name of the IAM instance profile for EC2"
   type        = string
 }
+
+variable "lb_public_dns" {
+  description = "DNS name of the Load Balancer"
+  type        = string
+}

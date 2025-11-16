@@ -26,20 +26,20 @@ module "security" {
 }
 
 # RDS Module - MySQL Databases
-# module "rds" {
-#   source                     = "./modules/rds"
-#   project_name               = var.project_name
-#   vpc_id                     = module.networking.vpc_id
-#   subnet_ids                 = module.networking.subnet_ids
-#   app_sg_id                  = module.security.app_sg_id
-#   db_instance_class          = var.db_instance_class
-#   db_username                = var.db_username
-#   db_password                = var.db_password
-#   enable_multi_az            = var.enable_multi_az
-#   enable_secondary_db        = var.enable_secondary_db
-#   backup_retention_period    = var.backup_retention_period
-#   enable_deletion_protection = var.enable_deletion_protection
-# }
+module "rds" {
+  source                     = "./modules/rds"
+  project_name               = var.project_name
+  vpc_id                     = module.networking.vpc_id
+  subnet_ids                 = module.networking.subnet_ids
+  app_sg_id                  = module.security.app_sg_id
+  db_instance_class          = var.db_instance_class
+  db_username                = var.db_username
+  db_password                = var.db_password
+  enable_multi_az            = var.enable_multi_az
+  enable_secondary_db        = var.enable_secondary_db
+  backup_retention_period    = var.backup_retention_period
+  enable_deletion_protection = var.enable_deletion_protection
+}
 
 # IAM Module - EC2 Roles (create FIRST, before S3 and DynamoDB)
 module "iam" {
@@ -107,7 +107,7 @@ module "ec2" {
   web_min_size          = var.web_min_size
   web_max_size          = var.web_max_size
   web_desired_capacity  = var.web_desired_capacity
-  
+  lb_public_dns         = module.lb.alb_public_dns
   
   # Environment variables with RDS connection info
   api_env_vars          = merge(
@@ -141,5 +141,4 @@ module "ec2" {
   api_target_group_arn  = module.lb.api_target_group_arn
 
   depends_on = [module.rds, module.s3, module.iam, module.dynamodb]
-
 }

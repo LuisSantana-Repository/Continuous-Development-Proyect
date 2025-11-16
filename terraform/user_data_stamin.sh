@@ -35,15 +35,9 @@ ${key}=${value}
 %{ endfor ~}
 EOF
 
-#start the application using DOCKERFILE with build args for Next.js
-sudo docker build \
-  --build-arg REACT_APP_API_URL="${alb_url}/api" \
-  --build-arg REACT_APP_ENV="${env_vars.REACT_APP_ENV}" \
-  --build-arg REACT_APP_NAME="${env_vars.REACT_APP_NAME}" \
-  --build-arg REACT_APP_VERSION="${env_vars.REACT_APP_VERSION}" \
-  -t stamin-up .
-
-sudo docker run -d -p 3001:3001 stamin-up:latest
-
+  
+#run the application using DOCKERFILE.dev
+sudo docker build -t api-server .
+sudo docker run --name api-server --env-file .env --restart=always -d -p 3000:3000 api-server:latest
 
 echo "Ubuntu API server setup complete!"
