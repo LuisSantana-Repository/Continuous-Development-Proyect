@@ -14,3 +14,15 @@ docker-compose restart api
 
 - Correr el container
 docker run -d --name stamin-up -p 3000:3000 stamin-up-test:latest
+
+
+
+
+terraform apply -target=module.ecr
+
+
+bash ./scripts/build-and-push-to-ecr.sh
+
+cd terraform
+terraform init
+terraform apply

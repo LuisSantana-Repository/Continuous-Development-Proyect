@@ -97,6 +97,29 @@ output "ec2_instance_profile_name" {
   value       = module.iam.instance_profile_name
 }
 
+# ============================================
+# ECR Outputs
+# ============================================
+
+output "ecr_web_repository_url" {
+  description = "URL of the web ECR repository"
+  value       = module.ecr.web_repository_url
+}
+
+output "ecr_api_repository_url" {
+  description = "URL of the API ECR repository"
+  value       = module.ecr.api_repository_url
+}
+
+output "ecr_web_repository_name" {
+  description = "Name of the web ECR repository"
+  value       = module.ecr.web_repository_name
+}
+
+output "ecr_api_repository_name" {
+  description = "Name of the API ECR repository"
+  value       = module.ecr.api_repository_name
+}
 
 # ============================================
 # DynamoDB Outputs
