@@ -49,6 +49,12 @@ module "iam" {
   s3_bucket_name = "${var.project_name}-bucket-${var.s3_environment}"
 }
 
+# ECR Module - Container Registry for Web
+module "ecr" {
+  source       = "./modules/ecr"
+  project_name = var.project_name
+}
+
 # S3 Module - Complete S3 Configuration
 module "s3" {
   source                    = "./modules/s3"
@@ -109,7 +115,11 @@ module "ec2" {
   web_max_size          = var.web_max_size
   web_desired_capacity  = var.web_desired_capacity
   lb_public_dns         = module.lb.alb_public_dns
-  
+
+  # ECR configuration for Web only (API builds on EC2)
+  ecr_web_url           = module.ecr.web_repository_url
+  aws_region            = var.aws_region
+
   # Environment variables with RDS connection info
   api_env_vars          = merge(
     var.api_env_vars,
@@ -141,5 +151,5 @@ module "ec2" {
   web_target_group_arn  = module.lb.web_target_group_arn
   api_target_group_arn  = module.lb.api_target_group_arn
 
-  depends_on = [module.rds, module.s3, module.iam, module.dynamodb]
+  depends_on = [module.rds, module.s3, module.iam, module.dynamodb, module.ecr]
 }

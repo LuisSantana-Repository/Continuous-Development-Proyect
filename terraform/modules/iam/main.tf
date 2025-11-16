@@ -69,6 +69,30 @@ resource "aws_iam_role_policy" "cloudwatch_logs" {
   })
 }
 
+# IAM Policy for ECR access (pull Docker images)
+resource "aws_iam_role_policy" "ecr_access" {
+  name = "${var.project_name}-ecr-access-policy"
+  role = aws_iam_role.ec2_s3_access.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:DescribeRepositories",
+          "ecr:ListImages"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 # Instance Profile (required to attach IAM role to EC2)
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "${var.project_name}-ec2-instance-profile"
