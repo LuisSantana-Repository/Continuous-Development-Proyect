@@ -6,7 +6,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useChat } from '@/hooks/useChat';
 import { useAuth } from '@/hooks/useAuth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// Use empty string for relative URLs
+const API_BASE_URL = '';
 
 export default function ChatPage() {
   const params = useParams();
@@ -39,7 +40,7 @@ export default function ChatPage() {
 
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/users/me`, {
+        const res = await fetch(`${API_BASE_URL}/users/me`, {
           method: 'GET',
           credentials: 'include',
         });

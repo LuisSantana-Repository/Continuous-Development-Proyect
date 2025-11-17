@@ -1,11 +1,12 @@
 // lib/api/chat.js - COOKIE VERSION
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// Use empty string for relative URLs to work with load balancer
+const API_BASE_URL = '';
 
 /**
  * Fetch with authentication (uses cookies automatically)
  */
 async function fetchWithAuth(endpoint, options = {}) {
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     credentials: 'include', // ← IMPORTANT: Include cookies
     headers: {

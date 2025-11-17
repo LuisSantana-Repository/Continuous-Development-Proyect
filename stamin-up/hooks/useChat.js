@@ -2,7 +2,14 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { io } from "socket.io-client";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// Use window.location.origin for socket connections (needs full URL)
+// Empty string for fetch requests (relative URLs)
+const getSocketUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+};
 
 /**
  * Hook personalizado para manejo de chat en tiempo real
@@ -24,7 +31,7 @@ export function useChat(userId = null) {
     if (!currentUserId) {
       const fetchUserId = async () => {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/users/me`, {
+          const response = await fetch('/users/me', {
             credentials: "include",
           });
           if (response.ok) {
@@ -41,7 +48,7 @@ export function useChat(userId = null) {
 
   // Initialize socket ONCE
   useEffect(() => {
-    const newSocket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000", {
+    const newSocket = io(getSocketUrl(), {
       withCredentials: true,
       reconnection: true,
       reconnectionDelay: 1000,
@@ -183,7 +190,7 @@ export function useChat(userId = null) {
       // Fetch existing messages from API
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/chats/${chatId}/messages?limit=50`,
+          `/chats/${chatId}/messages?limit=50`,
           {
             credentials: "include",
           }
