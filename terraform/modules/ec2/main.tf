@@ -65,8 +65,9 @@ resource "aws_launch_template" "web" {
   user_data = base64encode(templatefile("${path.module}/../../user_data_stamin_ecr.sh", {
     env_vars = merge(var.stamin_env_vars,
     {
-      NEXT_PUBLIC_API_URL = "http://${var.lb_public_dns}"
-      API_URL             = "http://${var.lb_public_dns}/api/api"
+      NEXT_PUBLIC_URL     = "http://${var.lb_public_dns}"
+      NEXT_PUBLIC_API_URL = "http://${var.lb_public_dns}/api"
+      API_URL             = "http://${var.lb_public_dns}/api"
     }
     )
     docker_image = var.web_docker_image

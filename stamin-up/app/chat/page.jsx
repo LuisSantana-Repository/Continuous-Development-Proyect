@@ -20,7 +20,7 @@ export default function ChatsListPage() {
   const fetchChats = async () => {
     try {
       // Cookies are automatically sent with fetch requests
-      const response = await fetch(`${API_BASE_URL}/chats`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/chats`, {
         credentials: 'include', // Important: Include cookies
       });
 
