@@ -18,7 +18,7 @@ docker run -d --name stamin-up -p 3000:3000 stamin-up-test:latest
 
 
 
-terraform apply -target=module.ecr
+terraform apply -target="module.ecr"
 
 
 bash ./scripts/build-and-push-to-ecr.sh
