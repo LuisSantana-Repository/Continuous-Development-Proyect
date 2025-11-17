@@ -40,24 +40,24 @@ app.get("/", (req, res) => {
     message: "Welcome to the API server!",
     version: "1.0.0",
     endpoints: {
-      health: "/health",
-      auth: "/auth/*",
-      users: "/users/*",
-      services: "/services/*",
-      images: "/images/*",
-      serviceRequests: "/service-requests/*",
-      reviews: "/reviews/*",
-      providerReviews: "/provider-reviews/*",
-      userReports: "/user-reports/*",
-      providerReportsService: "/provider-reports-service/*",
-      chats: "/chats/*",
+      health: "/api/health",
+      auth: "/api/auth/*",
+      users: "/api/users/*",
+      services: "/api/services/*",
+      images: "/api/images/*",
+      serviceRequests: "/api/service-requests/*",
+      reviews: "/api/reviews/*",
+      providerReviews: "/api/provider-reviews/*",
+      userReports: "/api/user-reports/*",
+      providerReportsService: "/api/provider-reports-service/*",
+      chats: "/api/chats/*",
       websocket: `ws://localhost:${PORT}`,
     },
   });
 });
 
-// API Routes
-app.use(routes);
+// API Routes - mount under /api prefix to match ALB routing
+app.use("/api", routes);
 
 // Error handling
 app.use((req, res) => res.status(404).json({ error: "not found" }));
@@ -71,7 +71,7 @@ app.set("io", io);
 httpServer.listen(PORT, "0.0.0.0", async () => {
   console.log(`🚀 API Server running on http://localhost:${PORT}`);
   console.log(`🔌 WebSocket Server running on ws://localhost:${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(
     `🗄️  Database: ${process.env.DB_PRIMARY_HOST}:${process.env.DB_PRIMARY_PORT}`
   );
