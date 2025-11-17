@@ -22,7 +22,7 @@ export function useProviderUser() {
 
       // Obtener información del proveedor
       const providersResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/providers/user/${profile.user.user_id}`,
+        `/api/providers/user/${profile.user.user_id}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -47,7 +47,7 @@ export function useProviderUser() {
       
       try {
         const ratingResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/reviews/provider/${providerInfo.provider_id}/rating`,
+          `/api/reviews/provider/${providerInfo.provider_id}/rating`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
@@ -67,7 +67,7 @@ export function useProviderUser() {
       let completedJobs = 0;
       try {
         const requestsResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/service-requests/provider/${providerInfo.provider_id}?status=completed`,
+          `/api/service-requests/provider/${providerInfo.provider_id}?status=completed`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },

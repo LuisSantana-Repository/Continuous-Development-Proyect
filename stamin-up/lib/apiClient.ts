@@ -1,7 +1,8 @@
 import { Service, Category, SearchFilters, ServiceRequest, ServiceRequestResponse } from '@/types';
 
 // URL base del API (desde variables de entorno)
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// Using /api for relative URLs - load balancer will route to backend
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 /**
  * API Client centralizado para manejo de datos
@@ -156,12 +157,12 @@ export const apiClient = {
       const item = result.data;
 
       // Construir URLs de imágenes
-      const imageUrl = item.IMAGE 
-        ? `${API_BASE_URL}/images/${item.IMAGE}`
+      const imageUrl = item.IMAGE
+        ? `/api/images/${item.IMAGE}`
         : '/images/placeholder-service.jpg';
-      
-      const avatarUrl = item.user_photo 
-        ? `${API_BASE_URL}/images/${item.user_photo}`
+
+      const avatarUrl = item.user_photo
+        ? `/api/images/${item.user_photo}`
         : '/images/placeholder-avatar.jpg';
 
       // Obtener rating del proveedor

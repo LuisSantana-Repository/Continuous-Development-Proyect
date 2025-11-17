@@ -22,7 +22,7 @@ export function useProviderRequests() {
 
       // Obtener el providerId desde la tabla providers
       const providersResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/providers/user/${profile.user.user_id}`,
+        `/api/providers/user/${profile.user.user_id}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
