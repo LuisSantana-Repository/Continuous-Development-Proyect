@@ -17,6 +17,7 @@ interface RequestsListProps {
   onViewDetail: (requestId: string) => void;
   onStartWork: (requestId: string) => void;
   onCompleteWork: (requestId: string) => void;
+  onRateClient: (requestId: string) => void;
 }
 
 const ITEMS_PER_PAGE = 5;
@@ -32,6 +33,7 @@ export default function RequestsList({
   onViewDetail,
   onStartWork,
   onCompleteWork,
+  onRateClient,
 }: RequestsListProps) {
   const [filter, setFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -167,6 +169,7 @@ export default function RequestsList({
                 onViewDetail={onViewDetail}
                 onStartWork={onStartWork}
                 onCompleteWork={onCompleteWork}
+                onRateClient={onRateClient}
               />
             ))}
           </div>

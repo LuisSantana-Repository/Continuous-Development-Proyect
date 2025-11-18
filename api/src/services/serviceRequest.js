@@ -141,6 +141,7 @@ export async function getUserServiceRequests(
   `;
 
   // Query base para datos - INCLUIR JOIN con providers y users para obtener el nombre del proveedor
+  // También incluir información de reviews y reports del usuario
   let dataQuery = `
     SELECT 
       sr.request_id,
@@ -161,12 +162,17 @@ export async function getUserServiceRequests(
       u.email as provider_email,
       st.type_name as service_type,
       ur.review_id,
-      ur.rating as review_rating
+      ur.rating as review_rating,
+      ur.comment as review_comment,
+      IF(urep.report_id IS NOT NULL, 1, 0) as has_user_report,
+      IF(prep.review_id IS NOT NULL, 1, 0) as has_provider_review
     FROM service_requests sr
     INNER JOIN providers p ON sr.provider_id = p.provider_id
     INNER JOIN users u ON p.user_id = u.user_id
     LEFT JOIN ServiceType st ON p.Service_Type = st.id
     LEFT JOIN user_reviews ur ON sr.request_id = ur.service_request_id AND sr.user_id = ur.user_id
+    LEFT JOIN user_reports urep ON sr.request_id = urep.service_request_id AND sr.user_id = urep.user_id
+    LEFT JOIN provider_reviews prep ON sr.request_id = prep.service_request_id
     WHERE sr.user_id = ?
   `;
 
@@ -246,6 +252,7 @@ export async function getProviderServiceRequests(
   `;
 
   // Query base para datos - INCLUIR JOIN con users para obtener información del cliente
+  // También incluir información de provider reviews y provider reports
   let dataQuery = `
     SELECT 
       sr.request_id,
@@ -263,9 +270,13 @@ export async function getProviderServiceRequests(
       sr.updated_at,
       u.username as client_username,
       u.email as client_email,
-      u.Foto as client_photo
+      u.Foto as client_photo,
+      IF(prev.review_id IS NOT NULL, 1, 0) as has_provider_review,
+      IF(prep.report_id IS NOT NULL, 1, 0) as has_provider_report
     FROM service_requests sr
     INNER JOIN users u ON sr.user_id = u.user_id
+    LEFT JOIN provider_reviews prev ON sr.request_id = prev.service_request_id
+    LEFT JOIN provider_reports prep ON sr.request_id = prep.service_request_id
     WHERE sr.provider_id = ?
   `;
 

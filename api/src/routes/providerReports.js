@@ -1,5 +1,6 @@
 import express from "express";
 import { authenticate } from "../middleware/auth.js";
+import { getProviderIdFromUser } from "../utils/authHelpers.js";
 import {
   validateProviderReport,
   validateReportUpdate,
@@ -23,15 +24,15 @@ const router = express.Router();
  */
 router.post("/", authenticate, async (req, res) => {
   try {
-    const { providerId } = req.body;
+    // Get userId from JWT token (already validated by authenticate middleware)
+    const userId = req.user.sub;
 
-    if (!providerId) {
-      return res.status(400).json({ error: "provider id is required" });
-    }
+    // Get providerId from database using userId (secure)
+    const providerId = await getProviderIdFromUser(userId);
 
     const reportData = {
       ...req.body,
-      providerId: parseInt(providerId),
+      providerId,
     };
 
     // Validate report data
@@ -48,6 +49,11 @@ router.post("/", authenticate, async (req, res) => {
       data: result,
     });
   } catch (error) {
+    if (error.message === "USER_NOT_PROVIDER") {
+      return res.status(403).json({
+        error: "Only providers can create reports",
+      });
+    }
     if (error.message === "SERVICE_REQUEST_NOT_FOUND_OR_NOT_YOURS") {
       return res.status(404).json({
         error: "service request not found or does not belong to you",
@@ -59,6 +65,55 @@ router.post("/", authenticate, async (req, res) => {
       });
     }
     console.error("Error creating provider report:", error);
+    res.status(500).json({ error: "internal server error" });
+  }
+});
+
+/**
+ * GET /provider-reports/my-reports
+ * Get all reports created by the authenticated provider
+ * Requires authentication
+ */
+router.get("/my-reports", authenticate, async (req, res) => {
+  try {
+    // Get userId from JWT token (already validated by authenticate middleware)
+    const userId = req.user.sub;
+
+    // Get providerId from database using userId (secure)
+    const providerId = await getProviderIdFromUser(userId);
+
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const status = req.query.status || null;
+
+    // Validate status if provided
+    if (status !== null) {
+      const validStatuses = ["pending", "reviewing", "resolved", "rejected"];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: "invalid status value" });
+      }
+    }
+
+    const result = await getProviderReports(providerId, page, pageSize, status);
+
+    res.json({
+      success: true,
+      data: result.reports,
+      pagination: result.pagination,
+    });
+  } catch (error) {
+    console.error("Error getting my reports:", error);
+
+    if (error.message === "USER_NOT_PROVIDER") {
+      return res.status(403).json({
+        error: "only providers can access this endpoint",
+      });
+    }
+
+    if (error.message === "INVALID_PARAMETERS") {
+      return res.status(400).json({ error: "invalid query parameters" });
+    }
+
     res.status(500).json({ error: "internal server error" });
   }
 });

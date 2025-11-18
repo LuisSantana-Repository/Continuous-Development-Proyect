@@ -499,44 +499,6 @@ export function validateReview(data) {
 }
 
 /**
- * Valida las actualizaciones de una reseña
- */
-export function validateReviewUpdate(data) {
-  const { rating, comment } = data;
-
-  // Al menos un campo debe estar presente
-  if (rating === undefined && comment === undefined) {
-    return "at least one field must be provided";
-  }
-
-  // Validar rating si está presente
-  if (rating !== undefined) {
-    const ratingNum = Number(rating);
-    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
-      return "rating must be a number between 1 and 5";
-    }
-    if (!Number.isInteger(ratingNum)) {
-      return "rating must be an integer";
-    }
-  }
-
-  // Validar comment si está presente
-  if (comment !== undefined) {
-    if (typeof comment !== "string") {
-      return "comment must be a string";
-    }
-    if (comment.trim().length > 0 && comment.trim().length < 10) {
-      return "comment must be at least 10 characters if provided";
-    }
-    if (comment.length > 1000) {
-      return "comment must be less than 1000 characters";
-    }
-  }
-
-  return null;
-}
-
-/**
  * Valida los datos de una nueva reseña de proveedor
  */
 export function validateProviderReview(data) {

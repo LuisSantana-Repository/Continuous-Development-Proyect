@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import ProfileHero from "@/components/profile/ProfileHero";
@@ -11,8 +11,11 @@ import EditRequestModal from "@/components/provider/EditRequestModal";
 import RequestDetailDrawer from "@/components/provider/RequestDetailDrawer";
 import ReportRequestModal from "@/components/provider/ReportRequestModal";
 import ChatPlaceholderDialog from "@/components/provider/ChatPlaceholderDialog";
+import RateClientModal from "@/components/provider/RateClientModal";
 import { useProviderUser } from "@/hooks/useProviderUser";
 import { useProviderRequests } from "@/hooks/useProviderRequests";
+import { useProviderReviews } from "@/hooks/useProviderReviews";
+import { useProviderReports } from "@/hooks/useProviderReports";
 import type { ProviderRequest, ProviderUser, ClientUser } from "@/types";
 
 export default function ProviderPage() {
@@ -50,6 +53,11 @@ export default function ProviderPage() {
   }>({ open: false, request: null });
 
   const [reportModal, setReportModal] = useState<{
+    open: boolean;
+    request: ProviderRequest | null;
+  }>({ open: false, request: null });
+
+  const [rateClientModal, setRateClientModal] = useState<{
     open: boolean;
     request: ProviderRequest | null;
   }>({ open: false, request: null });
@@ -118,6 +126,27 @@ export default function ProviderPage() {
     if (request) {
       setReportModal({ open: true, request });
     }
+  };
+
+  const handleReportSuccess = () => {
+    // Ya no necesitamos actualizar estado, el refetch traerá los datos actualizados
+    setTimeout(() => {
+      alert("Reporte creado exitosamente");
+    }, 250);
+  };
+
+  const handleRateClient = (requestId: string) => {
+    const request = requests.find((r) => r.requestId === requestId);
+    if (request) {
+      setRateClientModal({ open: true, request });
+    }
+  };
+
+  const handleRateClientSuccess = () => {
+    // Ya no necesitamos actualizar estado, el refetch traerá los datos actualizados
+    setTimeout(() => {
+      alert("Cliente calificado exitosamente");
+    }, 250);
   };
 
   const handleViewDetail = (requestId: string) => {
@@ -212,6 +241,7 @@ export default function ProviderPage() {
               onViewDetail={handleViewDetail}
               onStartWork={handleStartWork}
               onCompleteWork={handleCompleteWork}
+              onRateClient={handleRateClient}
             />
           </div>
 
@@ -254,6 +284,18 @@ export default function ProviderPage() {
           open={reportModal.open}
           onOpenChange={(open) => setReportModal({ ...reportModal, open })}
           request={reportModal.request}
+          onSuccess={handleReportSuccess}
+        />
+      )}
+
+      {rateClientModal.request && provider && (
+        <RateClientModal
+          open={rateClientModal.open}
+          onOpenChange={(open) =>
+            setRateClientModal({ ...rateClientModal, open })
+          }
+          request={rateClientModal.request}
+          onSuccess={handleRateClientSuccess}
         />
       )}
 

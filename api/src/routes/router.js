@@ -43,7 +43,7 @@ router.use("/provider-reviews", providerReviewRoutes);
 router.use("/user-reports", userReportRoutes);
 
 // Provider Reports (provider reports of clients)
-router.use("/provider-reports-service", providerReportRoutes);
+router.use("/provider-reports", providerReportRoutes);
 
 // Providers
 router.use("/providers", providerRoutes);

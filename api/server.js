@@ -19,7 +19,7 @@ const allowedOrigins = [
   "http://localhost:3001",
   `http://${process.env.PUBLIC_IP}:3000`,
   `http://${process.env.DOMAIN}`,
-  "*"
+  "*",
 ];
 
 app.use(
@@ -28,7 +28,6 @@ app.use(
     credentials: true,
   })
 );
-
 
 app.use(cookieParser());
 app.use(express.json({ limit: "50mb" }));
@@ -49,7 +48,7 @@ app.get("/", (req, res) => {
       reviews: "/reviews/*",
       providerReviews: "/provider-reviews/*",
       userReports: "/user-reports/*",
-      providerReportsService: "/provider-reports-service/*",
+      providerReports: "/provider-reports/*",
       chats: "/chats/*",
       websocket: `ws://localhost:${PORT}`,
     },

@@ -35,16 +35,12 @@ Write-Host "📊 Tablas creadas:" -ForegroundColor Cyan
 Write-Host "   - users" -ForegroundColor White
 Write-Host "   - ServiceType" -ForegroundColor White
 Write-Host "   - providers" -ForegroundColor White
-Write-Host "   - service_requests (NUEVA)" -ForegroundColor Yellow
-Write-Host "   - user_reviews (NUEVA)" -ForegroundColor Yellow
+Write-Host "   - service_requests" -ForegroundColor White
+Write-Host "   - user_reviews" -ForegroundColor White
+Write-Host "   - provider_reviews" -ForegroundColor Yellow
+Write-Host "   - user_reports" -ForegroundColor Yellow
+Write-Host "   - provider_reports" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "🎯 Comandos útiles:" -ForegroundColor Cyan
 Write-Host "   Conectar a MySQL:" -ForegroundColor White
 Write-Host "   docker exec -it mysql-primary mysql -uadmin -p'3deAsada.' -D my-sql-rds-hot" -ForegroundColor Gray
-Write-Host ""
-Write-Host "   Ver estructura de service_requests:" -ForegroundColor White
-Write-Host "   docker exec mysql-primary mysql -uadmin -p'3deAsada.' -D my-sql-rds-hot -e 'DESCRIBE service_requests;'" -ForegroundColor Gray
-Write-Host ""
-Write-Host "   Ver estructura de user_reviews:" -ForegroundColor White
-Write-Host "   docker exec mysql-primary mysql -uadmin -p'3deAsada.' -D my-sql-rds-hot -e 'DESCRIBE user_reviews;'" -ForegroundColor Gray
-Write-Host ""

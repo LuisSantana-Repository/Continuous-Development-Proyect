@@ -84,6 +84,9 @@ export function useProviderRequests() {
           createdAt: req.created_at,
           chatId: req.chat_id || undefined, // ✅ Incluir chatId de la respuesta del backend
           rejectionReason: undefined, // TODO: Agregar campo en backend
+          // ✅ Nuevos flags para ocultar botones
+          hasProviderReview: Boolean(req.has_provider_review),
+          hasProviderReport: Boolean(req.has_provider_report),
           history: [
             {
               action: 'created',
