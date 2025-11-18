@@ -7,7 +7,7 @@ export async function getUserProfile(userId) {
   const db = await getPrimaryPool();
 
   const [rows] = await db.execute(
-    "SELECT user_id, email, username, provider, Foto, Latitude, Longitude, created_at FROM users WHERE user_id = ? LIMIT 1",
+    "SELECT user_id, email, username, provider, Foto, address, created_at FROM users WHERE user_id = ? LIMIT 1",
     [userId]
   );
 
@@ -37,8 +37,7 @@ export async function getUserProfile(userId) {
 export async function getProviderWork(userId) {
   const db = await getPrimaryPool();
   const [rows] = await db.execute(
-    `SELECT workname, description, base_price, Service_Type, Job_Permit, 
-            Latitude, Longitude, Time_Available 
+    `SELECT workname, description, base_price, Service_Type, Job_Permit, address, Time_Available 
      FROM providers WHERE user_id = ? LIMIT 1`,
     [userId]
   );
@@ -52,7 +51,7 @@ export async function getProviderWork(userId) {
 
 export async function updateUserProfile(userId, updates) {
   const db = await getPrimaryPool();
-  const allowedFields = ["username", "Latitude", "Longitude"];
+  const allowedFields = ["username", "address"];
 
   const fields = [];
   const values = [];

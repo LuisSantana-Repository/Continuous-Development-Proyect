@@ -22,13 +22,28 @@ export default function ServiceCard({ service }: ServiceCardProps) {
       <Card className="group h-full overflow-hidden transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 rounded-2xl p-0">
         {/* Image */}
         <div className="relative h-48 w-full overflow-hidden bg-[var(--color-background-secondary)]">
-          <Image
-            src={service.imageUrl}
-            alt={service.title}
-            fill
-            className="object-cover transition-transform duration-200 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
+   
+          {(() => {
+            const src = service.imageUrl || "";
+            // If it's a relative API path, prefix with configured API host
+            const apiBaseRaw = process.env.NEXT_PUBLIC_API_URL || "";
+            const apiBase = apiBaseRaw
+              .replace(/\/api\/?$/, "")
+              .replace(/\/$/, "");
+            const resolvedSrc =
+              src.startsWith("/api/") && apiBase ? `${apiBase}${src}` : src;
+
+            return (
+              <Image
+                src={resolvedSrc}
+                alt={service.title}
+                fill
+                unoptimized
+                className="object-cover transition-transform duration-200 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            );
+          })()}
           {service.featured && (
             <div className="absolute right-2 top-2 rounded-full bg-[var(--color-primary)] px-3 py-1 text-xs font-semibold text-white">
               Destacado
@@ -53,12 +68,26 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           <div className="mb-1.5 flex items-center space-x-2">
             <div className="relative h-6 w-6 overflow-hidden rounded-full bg-[var(--color-background-secondary)] flex items-center justify-center">
               {service.provider.avatarUrl ? (
-                <Image
-                  src={service.provider.avatarUrl}
-                  alt={service.provider.name}
-                  fill
-                  className="object-cover"
-                />
+                (() => {
+                  const src = service.provider.avatarUrl || "";
+                  const apiBaseRaw = process.env.NEXT_PUBLIC_API_URL || "";
+                  const apiBase = apiBaseRaw
+                    .replace(/\/api\/?$/, "")
+                    .replace(/\/$/, "");
+                  const resolved =
+                    src.startsWith("/api/") && apiBase
+                      ? `${apiBase}${src}`
+                      : src;
+                  return (
+                    <Image
+                      src={resolved}
+                      alt={service.provider.name}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  );
+                })()
               ) : (
                 <User
                   className="h-4 w-4 text-white"

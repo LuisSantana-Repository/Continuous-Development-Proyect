@@ -92,7 +92,6 @@ export interface ClientUser {
   id: string;
   name: string;
   email: string;
-  phone: string;
   address: string;
   memberSince: string;
   profileImage?: string;

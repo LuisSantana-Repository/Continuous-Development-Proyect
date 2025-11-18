@@ -19,36 +19,6 @@ export const fileToBase64 = (file: File): Promise<string> => {
 };
 
 /**
- * Obtiene la geolocalización del usuario
- * @returns Promise con las coordenadas {latitude, longitude}
- */
-export const getUserLocation = (): Promise<{ latitude: number; longitude: number }> => {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocalización no soportada por el navegador'));
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-      },
-      (error) => {
-        reject(new Error(`Error al obtener ubicación: ${error.message}`));
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
-  });
-};
-
-/**
  * Valida que un archivo sea una imagen y no exceda el tamaño máximo
  * @param file - Archivo a validar
  * @param maxSizeMB - Tamaño máximo en MB (default: 5)

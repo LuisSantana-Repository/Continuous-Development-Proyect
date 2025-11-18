@@ -22,7 +22,7 @@ export function useProviderUser() {
 
       // Obtener información del proveedor
       const providersResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/providers/user/${profile.user.user_id}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/providers/user/${profile.user.user_id}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -46,19 +46,12 @@ export function useProviderUser() {
       let totalReviews = 0;
       
       try {
-        const ratingResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/reviews/provider/${providerInfo.provider_id}/rating`,
-          {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          }
+        // Usar método centralizado del apiClient para evitar inconsistencias en las rutas
+        const ratingData = await apiClient.getProviderRating(
+          providerInfo.provider_id.toString()
         );
-        
-        if (ratingResponse.ok) {
-          const ratingData = await ratingResponse.json();
-          averageRating = ratingData.data?.averageRating || 0;
-          totalReviews = ratingData.data?.totalReviews || 0;
-        }
+        averageRating = ratingData.averageRating || 0;
+        totalReviews = ratingData.totalReviews || 0;
       } catch (err) {
         console.warn("No se pudo obtener el rating del proveedor:", err);
       }
@@ -67,7 +60,7 @@ export function useProviderUser() {
       let completedJobs = 0;
       try {
         const requestsResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/service-requests/provider/${providerInfo.provider_id}?status=completed`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/service-requests/provider/${providerInfo.provider_id}?status=completed`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },

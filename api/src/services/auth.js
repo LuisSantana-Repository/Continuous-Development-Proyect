@@ -11,17 +11,8 @@ import {
 } from "../utils/constants.js";
 
 export async function registerUser(userData) {
-  const {
-    email,
-    password,
-    username,
-    INE,
-    provider,
-    Foto,
-    Latitude,
-    Longitude,
-    work,
-  } = userData;
+  const { email, password, username, INE, provider, Foto, address, work } =
+    userData;
 
   const hash = await bcrypt.hash(password, 12);
   const db = await getPrimaryPool();
@@ -37,8 +28,8 @@ export async function registerUser(userData) {
   }
 
   await db.execute(
-    `INSERT INTO users (user_id, email, password_hash, username, INE, provider, Foto, Latitude, Longitude) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO users (user_id, email, password_hash, username, INE, provider, Foto, address) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       user_id,
       email.toLowerCase(),
@@ -47,12 +38,16 @@ export async function registerUser(userData) {
       ineKey,
       provider,
       fotoKey,
-      Latitude,
-      Longitude,
+      address.trim(),
     ]
   );
 
   if (provider && work) {
+    // Se asume que `work` fue validado antes; aquí sólo normalizamos
+    // `validateRegister` / `validateProviderWork` garantizan que work.address
+    // exista y sea un string no vacío, por lo que aquí usamos trim() directamente
+    // para evitar insertar NULL en la columna address de providers.
+    const workAddress = work.address.trim();
     const jobPermitKey = await uploadToS3(
       WORK_PERMIT,
       work.Job_Permit.data,
@@ -69,8 +64,8 @@ export async function registerUser(userData) {
     }
 
     await db.execute(
-      `INSERT INTO providers (user_id, workname, description, base_price, Service_Type, Job_Permit, IMAGE, Latitude, Longitude, Time_Available) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO providers (user_id, workname, description, base_price, Service_Type, Job_Permit, IMAGE, address, Time_Available) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         user_id,
         work.workname,
@@ -79,8 +74,7 @@ export async function registerUser(userData) {
         work.Service_Type,
         jobPermitKey,
         serviceImageKey,
-        work.Latitude,
-        work.Longitude,
+        workAddress,
         JSON.stringify(work.Time_Available),
       ]
     );

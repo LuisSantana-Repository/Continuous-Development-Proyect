@@ -1,17 +1,8 @@
 import { getPrimaryPool } from "../config/database.js";
 
 export async function validateRegister(data) {
-  const {
-    email,
-    password,
-    username,
-    INE,
-    provider,
-    Foto,
-    Latitude,
-    Longitude,
-    work,
-  } = data;
+  const { email, password, username, INE, provider, Foto, address, work } =
+    data;
 
   if (
     !email ||
@@ -19,8 +10,7 @@ export async function validateRegister(data) {
     !username ||
     !INE ||
     provider === undefined ||
-    !Latitude ||
-    !Longitude
+    !address
   ) {
     //log missing fields
     console.log("Validation error: missing fields", {
@@ -30,8 +20,7 @@ export async function validateRegister(data) {
       INE,
       provider,
       Foto,
-      Latitude,
-      Longitude,
+      address,
     });
     return "all required fields must be provided";
   }
@@ -51,10 +40,7 @@ export async function validateRegister(data) {
     return "password must be at least 8 characters";
   }
 
-  console.log("Validate coordinates");
-  if (!isValidCoordinates(Latitude, Longitude)) {
-    return "invalid coordinates";
-  }
+  // No coordinates validation needed
 
   console.log("Validate provider work data");
   if (provider && !work) {
@@ -133,8 +119,7 @@ export async function validateProviderWork(work) {
     base_price,
     Service_Type,
     Job_Permit,
-    Latitude: workLat,
-    Longitude: workLng,
+    address,
     Time_Available,
     Images,
   } = work;
@@ -146,8 +131,7 @@ export async function validateProviderWork(work) {
     !base_price ||
     !Service_Type ||
     !Job_Permit ||
-    !workLat ||
-    !workLng ||
+    !address ||
     !Time_Available ||
     !Images
   ) {
@@ -204,10 +188,7 @@ export async function validateProviderWork(work) {
     return "job permit must be jpeg, jpg, png or webp";
   }
 
-  // Validar coordenadas del trabajo
-  if (!isValidCoordinates(workLat, workLng)) {
-    return "invalid work location coordinates";
-  }
+  // No coordinates validation needed for provider work
 
   // Validar Time_Available (debe ser un objeto con los 7 días de la semana)
   if (typeof Time_Available !== "object" || Time_Available === null) {

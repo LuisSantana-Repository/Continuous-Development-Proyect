@@ -38,14 +38,14 @@ export const chatApi = {
    * Get all chats for current user
    */
   async getChats() {
-    return fetchWithAuth('/chats');
+    return fetchWithAuth('/api/chats');
   },
 
   /**
    * Get a specific chat by ID
    */
   async getChat(chatId) {
-    return fetchWithAuth(`/chats/${chatId}`);
+    return fetchWithAuth(`/api/chats/${chatId}`);
   },
 
   /**
@@ -56,14 +56,14 @@ export const chatApi = {
     if (lastTimestamp) {
       params.append('lastTimestamp', lastTimestamp.toString());
     }
-    return fetchWithAuth(`/chats/${chatId}/messages?${params}`);
+    return fetchWithAuth(`/api/chats/${chatId}/messages?${params}`);
   },
 
   /**
    * Send a message (REST API - use WebSocket for real-time)
    */
   async sendMessage(chatId, content) {
-    return fetchWithAuth(`/chats/${chatId}/messages`, {
+    return fetchWithAuth(`/api/chats/${chatId}/messages`, {
       method: 'POST',
       body: JSON.stringify({ content }),
     });
@@ -73,7 +73,7 @@ export const chatApi = {
    * Mark messages as read
    */
   async markAsRead(chatId) {
-    return fetchWithAuth(`/chats/${chatId}/read`, {
+    return fetchWithAuth(`/api/chats/${chatId}/read`, {
       method: 'PATCH',
     });
   },
@@ -82,7 +82,7 @@ export const chatApi = {
    * Create or get chat with provider (usually done automatically)
    */
   async createChat(providerId) {
-    return fetchWithAuth('/chats', {
+    return fetchWithAuth('/api/chats', {
       method: 'POST',
       body: JSON.stringify({ providerId }),
     });

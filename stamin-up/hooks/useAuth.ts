@@ -7,8 +7,7 @@ interface User {
   username: string;
   provider: boolean;
   Foto?: string;
-  Latitude?: number;
-  Longitude?: number;
+  address?: string;
   work?: any;
 }
 

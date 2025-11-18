@@ -24,7 +24,7 @@ export function useChat(userId = null) {
     if (!currentUserId) {
       const fetchUserId = async () => {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/users/me`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/users/me`, {
             credentials: "include",
           });
           if (response.ok) {
@@ -183,7 +183,7 @@ export function useChat(userId = null) {
       // Fetch existing messages from API
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/chats/${chatId}/messages?limit=50`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/chats/${chatId}/messages?limit=50`,
           {
             credentials: "include",
           }

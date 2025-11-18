@@ -41,6 +41,21 @@ Write-Host "   - provider_reviews" -ForegroundColor Yellow
 Write-Host "   - user_reports" -ForegroundColor Yellow
 Write-Host "   - provider_reports" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "🎯 Comandos útiles:" -ForegroundColor Cyan
 Write-Host "   Conectar a MySQL:" -ForegroundColor White
 Write-Host "   docker exec -it mysql-primary mysql -uadmin -p'3deAsada.' -D my-sql-rds-hot" -ForegroundColor Gray
+Write-Host ""
+Write-Host "🔄 Aplicando script de inicialización SQL manualmente..." -ForegroundColor Yellow
+try {
+	# Resolver la ruta del archivo SQL relativa al directorio del script
+	$initRelative = '..\init-db-primary.sql'
+	$initPath = Join-Path -Path $PSScriptRoot -ChildPath $initRelative
+	if (-not (Test-Path $initPath)) {
+		Write-Host "   ✗ No se encontró el archivo SQL en: $initPath" -ForegroundColor Red
+		Write-Host "     Asegúrate de ejecutar este script desde la carpeta 'scripts' o que el archivo exista en el root del proyecto." -ForegroundColor Yellow
+	} else {
+		Get-Content $initPath | docker exec -i mysql-primary mysql -uadmin -p3deAsada. my-sql-rds-hot
+		Write-Host "   ✓ Script SQL ejecutado correctamente" -ForegroundColor Green
+	}
+} catch {
+	Write-Host "   ✗ Error al ejecutar el script SQL" -ForegroundColor Red
+}
