@@ -10,9 +10,16 @@ const activeUsers = new Map();
  * Initialize Socket.IO server
  */
 export function initializeWebSocket(httpServer) {
+    // Configure allowed origins for WebSocket CORS
+    const allowedOrigins = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        process.env.FRONTEND_URL, // URL del frontend desde Terraform
+    ].filter(Boolean); // Remove undefined values
+
     const io = new Server(httpServer, {
         cors: {
-            origin: ["http://localhost:3000", "http://localhost:3001"],
+            origin: allowedOrigins,
             credentials: true,
         },
         pingTimeout: 60000,

@@ -28,14 +28,30 @@ git clone https://github.com/LuisSantana-Repository/Continuous-Development-Proye
 
 cd ./stamin-up
 
-# Crear archivo .env con las variables de entorno desde Terraform
-cat > .env << EOF
+# Crear archivo .env desde Terraform variables (para variables de runtime)
+echo "Creating .env file..."
+cat > .env << 'EOF'
 %{ for key, value in env_vars ~}
 ${key}=${value}
 %{ endfor ~}
 EOF
 
-#start the application using DOCKERFILE
-sudo docker build -t stamin-up .
+# Extraer NEXT_PUBLIC_API_URL del archivo .env para usarla en build time
+NEXT_PUBLIC_API_URL=$(grep -E '^NEXT_PUBLIC_API_URL=' .env | cut -d '=' -f2)
 
-echo "Ubuntu API server setup complete!"
+# Build Docker image pasando NEXT_PUBLIC_API_URL como build argument
+echo "Building Docker image with NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}..."
+sudo docker build \
+  --build-arg NEXT_PUBLIC_API_URL="${NEXT_PUBLIC_API_URL}" \
+  -t stamin-up-server .
+
+# Run container con el resto de las variables de entorno
+sudo docker run \
+  --name stamin-up-server \
+  --env-file .env \
+  --restart=always \
+  -d \
+  -p 3001:3001 \
+  stamin-up-server:latest
+
+echo "Ubuntu WEB server setup complete!"
