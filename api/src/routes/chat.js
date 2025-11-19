@@ -1,7 +1,6 @@
 import express from "express";
 import { authenticate } from "../middleware/auth.js";
 import {
-  getOrCreateChat,
   getChatById,
   getUserChats,
   sendMessage,
@@ -17,28 +16,14 @@ export const router = express.Router();
 
 /**
  * POST /chats
- * get existing chat between user and provider
+ * DEPRECATED: Chats are now automatically created with service requests
+ * Each service request has its own dedicated chat
  */
-router.post("/", authenticate, async (req, res) => {
-  try {
-    const { providerId } = req.body;
-    const userId = req.user.sub;
-
-    if (!providerId) {
-      return res.status(400).json({ error: "provider id is required" });
-    }
-
-    const chat = await getOrCreateChat(userId, providerId);
-
-    res.status(200).json({
-      success: true,
-      data: chat,
-    });
-  } catch (error) {
-    console.error("Error creating/getting chat:", error);
-    res.status(500).json({ error: "server error" });
-  }
-});
+// router.post("/", authenticate, async (req, res) => {
+//   return res.status(410).json({
+//     error: "This endpoint is deprecated. Chats are now created automatically with service requests."
+//   });
+// });
 
 /**
  * GET /chats

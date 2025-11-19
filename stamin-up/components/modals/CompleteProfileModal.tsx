@@ -171,14 +171,15 @@ export default function CompleteProfileModal({
   const handleImagesChange = (e: ChangeEvent<HTMLInputElement>) => {
     try {
       setError("");
-      const files = e.target.files;
+      const file = e.target.files?.[0]; // Solo tomar el primer archivo
 
-      if (!files || files.length === 0) {
+      if (!file) {
         setImageFiles([]);
         return;
       }
 
-      const validationError = validateMultipleImages(files, 10, 5);
+      // Validar una sola imagen (máximo 5MB)
+      const validationError = validateImageFile(file, 5);
       if (validationError) {
         setError(validationError);
         setImageFiles([]);
@@ -186,10 +187,10 @@ export default function CompleteProfileModal({
         return;
       }
 
-      setImageFiles(Array.from(files));
+      setImageFiles([file]); // Guardar solo una imagen en el array
     } catch (err) {
-      console.error("Error handling service images:", err);
-      setError("Error al procesar las imágenes del servicio");
+      console.error("Error handling service image:", err);
+      setError("Error al procesar la imagen del servicio");
       setImageFiles([]);
       e.target.value = "";
     }
@@ -267,7 +268,7 @@ export default function CompleteProfileModal({
           throw new Error("Debes proporcionar la dirección del negocio");
         }
         if (imageFiles.length === 0) {
-          throw new Error("Debes subir al menos una imagen del servicio");
+          throw new Error("Debes subir una imagen del servicio");
         }
 
         // Validar formato de precio
@@ -835,7 +836,7 @@ export default function CompleteProfileModal({
 
               <div className="space-y-2">
                 <label className="body-sm font-medium text-secondary">
-                  Galería de imágenes * (mín. 1, máx. 10)
+                  Imagen del servicio *
                 </label>
                 <div className="flex items-center gap-2">
                   <label
@@ -845,15 +846,14 @@ export default function CompleteProfileModal({
                     <ImageIcon className="h-4 w-4 text-muted" />
                     <span className="body-sm text-secondary">
                       {imageFiles.length > 0
-                        ? `${imageFiles.length} imagen(es) seleccionada(s)`
-                        : "Seleccionar imágenes"}
+                        ? imageFiles[0].name
+                        : "Seleccionar imagen"}
                     </span>
                   </label>
                   <input
                     id="images-upload"
                     type="file"
                     accept="image/*"
-                    multiple
                     onChange={handleImagesChange}
                     className="hidden"
                   />

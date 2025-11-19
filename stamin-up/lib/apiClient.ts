@@ -508,6 +508,41 @@ export const apiClient = {
   },
 
   /**
+   * Actualiza el perfil del usuario autenticado
+   * @param updates - Campos a actualizar
+   * @returns Promise con los datos actualizados del usuario
+   */
+  async updateProfile(updates: {
+    username?: string;
+    email?: string;
+    address?: string;
+    Foto?: string;
+  }): Promise<{
+    user: {
+      user_id: string;
+      email: string;
+      username: string;
+      provider: boolean;
+      Foto?: string;
+      address?: string;
+      created_at?: string;
+      work?: any;
+    }
+  }> {
+  const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(updates),
+    });
+
+    await handleApiError(response);
+    return response.json();
+  },
+
+  /**
    * REVIEWS
    */
 
@@ -922,6 +957,33 @@ export const apiClient = {
       console.error('Error fetching provider calendar:', error);
       throw error;
     }
+  },
+
+  /**
+   * Actualiza el perfil del proveedor
+   * @param providerId - ID del proveedor
+   * @param updates - Campos a actualizar (workname, email, Foto)
+   * @returns Promise con los datos actualizados del proveedor
+   */
+  async updateProviderProfile(
+    providerId: number,
+    updates: {
+      workname?: string;
+      email?: string;
+      Foto?: string;
+    }
+  ): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/api/providers/${providerId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(updates),
+    });
+
+    await handleApiError(response);
+    return response.json();
   },
 
   /**

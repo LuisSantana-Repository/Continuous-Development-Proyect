@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { getPrimaryPool } from "../config/database.js";
-import { getOrCreateChat, getUserChats } from "./chat.js";
+import { getOrCreateChatForRequest, getUserChats } from "./chat.js";
 
 /**
  * Convierte una fecha ISO 8601 a formato MySQL DATETIME (YYYY-MM-DD HH:MM:SS)
@@ -70,7 +70,7 @@ export async function createServiceRequest(data) {
   );
 
   try {
-    const chat = await getOrCreateChat(userId, providerId);
+    const chat = await getOrCreateChatForRequest(userId, providerId, requestId);
     console.log(
       `Chat created/retrieved for request ${requestId}: ${chat.chat_id}`
     );
@@ -194,12 +194,16 @@ export async function getUserServiceRequests(
   dataQuery += ` ORDER BY sr.created_at DESC LIMIT ${safePageSize} OFFSET ${offset}`;
   const [rows] = await db.query(dataQuery, params);
 
-  // Obtener chatId para cada solicitud (igual que en getProviderServiceRequests)
+  // Obtener chatId para cada solicitud
   const requestsWithChat = await Promise.all(
     rows.map(async (row) => {
       try {
-        // Obtener o crear el chat entre el usuario y el proveedor
-        const chat = await getOrCreateChat(userId, row.provider_id);
+        // Obtener o crear el chat para esta solicitud específica
+        const chat = await getOrCreateChatForRequest(
+          userId,
+          row.provider_id,
+          row.request_id
+        );
         return {
           ...row,
           chat_id: chat.chat_id, // Agregar chatId a la respuesta
@@ -299,12 +303,15 @@ export async function getProviderServiceRequests(
   const [rows] = await db.query(dataQuery, params);
 
   // Obtener chatId para cada solicitud
-  // Intentar obtener el chat existente entre el proveedor y el usuario
   const requestsWithChat = await Promise.all(
     rows.map(async (row) => {
       try {
-        // Obtener o crear el chat entre el usuario y el proveedor
-        const chat = await getOrCreateChat(row.user_id, providerId);
+        // Obtener o crear el chat para esta solicitud específica
+        const chat = await getOrCreateChatForRequest(
+          row.user_id,
+          providerId,
+          row.request_id
+        );
         return {
           ...row,
           chat_id: chat.chat_id, // Agregar chatId a la respuesta

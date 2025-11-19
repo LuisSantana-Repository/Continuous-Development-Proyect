@@ -6,6 +6,7 @@ import { Clock, MessageSquare, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Section from "@/components/layout/Section";
 import ProfileHero from "@/components/profile/ProfileHero";
+import EditProfileModal from "@/components/modals/EditProfileModal";
 import PersonalInfoCard from "@/components/profile/PersonalInfoCard";
 import OrdersList from "@/components/profile/OrdersList";
 import ClientReviewsList from "@/components/profile/ClientReviewsList";
@@ -18,22 +19,43 @@ import type { ClientUser } from "@/types";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, isLoading: userLoading, error: userError } = useClientUser();
+  const {
+    user,
+    isLoading: userLoading,
+    error: userError,
+    updateProfile,
+  } = useClientUser();
   const { orders, isLoading: ordersLoading } = useOrders();
   const { reviews, isLoading: reviewsLoading } = useClientReviews();
   const { logout } = useAuth();
 
   // Estado local para el usuario (permite actualizaciones optimistas)
   const [localUser, setLocalUser] = useState<ClientUser | null>(user);
+  const [editProfileModal, setEditProfileModal] = useState(false);
 
   // Actualizar localUser cuando user cambie (primera carga)
   if (user && !localUser) {
     setLocalUser(user);
   }
 
-  const handleUpdateUser = (updatedUser: Partial<ClientUser>) => {
-    if (localUser) {
-      setLocalUser({ ...localUser, ...updatedUser });
+  const handleUpdateUser = () => {
+    // Abrir el modal de edición de cliente
+    setEditProfileModal(true);
+  };
+
+  const handleSaveProfile = async (updates: {
+    username?: string;
+    email?: string;
+    address?: string;
+    Foto?: string;
+  }) => {
+    try {
+      const updatedUser = await updateProfile(updates);
+      // Actualizar el estado local con el usuario actualizado del backend
+      setLocalUser(updatedUser);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      throw error;
     }
   };
 
@@ -128,6 +150,16 @@ export default function ProfilePage() {
           </div>
         </div>
       </Section>
+
+      {/* Modal de edición de perfil de cliente */}
+      {localUser && (
+        <EditProfileModal
+          open={editProfileModal}
+          onOpenChange={setEditProfileModal}
+          user={localUser}
+          onSave={handleSaveProfile}
+        />
+      )}
     </div>
   );
 }

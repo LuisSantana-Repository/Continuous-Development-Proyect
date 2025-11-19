@@ -10,40 +10,38 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, User, Mail, Phone, MapPin, Upload } from "lucide-react";
+import { Loader2, Briefcase, Mail, Upload } from "lucide-react";
 import { fileToBase64, validateImageFile } from "@/lib/fileUtils";
-import {
-  validateEmail,
-  validateUsername,
-  validateAddress,
-} from "@/lib/validators";
-import type { ClientUser } from "@/types";
+import { validateEmail } from "@/lib/validators";
+import type { ProviderUser } from "@/types";
 
-interface EditProfileModalProps {
+interface EditProviderProfileModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: ClientUser;
-  onSave: (updatedUser: Partial<ClientUser>) => Promise<void>;
+  provider: ProviderUser;
+  onSave: (updates: {
+    workname?: string;
+    email?: string;
+    Foto?: string;
+  }) => Promise<void>;
 }
 
-export default function EditProfileModal({
+export default function EditProviderProfileModal({
   open,
   onOpenChange,
-  user,
+  provider,
   onSave,
-}: EditProfileModalProps) {
+}: EditProviderProfileModalProps) {
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
-    address: user.address,
+    workname: provider.name,
+    email: provider.email,
   });
   const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{
-    name?: string;
+    workname?: string;
     email?: string;
-    address?: string;
   }>({});
 
   const handleChange = (field: keyof typeof formData, value: string) => {
@@ -72,6 +70,23 @@ export default function EditProfileModal({
     setError("");
   };
 
+  const validateWorkname = (workname: string): string | null => {
+    if (!workname || typeof workname !== "string") {
+      return "El nombre del servicio es requerido";
+    }
+
+    const trimmed = workname.trim();
+    if (trimmed.length < 3) {
+      return "El nombre del servicio debe tener al menos 3 caracteres";
+    }
+
+    if (trimmed.length > 100) {
+      return "El nombre del servicio no puede exceder 100 caracteres";
+    }
+
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -80,16 +95,13 @@ export default function EditProfileModal({
 
     try {
       // Validar todos los campos antes de enviar
-      const errors: { name?: string; email?: string; address?: string } = {};
+      const errors: { workname?: string; email?: string } = {};
 
-      const nameError = validateUsername(formData.name);
-      if (nameError) errors.name = nameError;
+      const worknameError = validateWorkname(formData.workname);
+      if (worknameError) errors.workname = worknameError;
 
       const emailError = validateEmail(formData.email);
       if (emailError) errors.email = emailError;
-
-      const addressError = validateAddress(formData.address);
-      if (addressError) errors.address = addressError;
 
       // Si hay errores de validación, mostrarlos
       if (Object.keys(errors).length > 0) {
@@ -98,10 +110,13 @@ export default function EditProfileModal({
         return;
       }
 
-      const updates: any = {
-        username: formData.name,
+      const updates: {
+        workname?: string;
+        email?: string;
+        Foto?: string;
+      } = {
+        workname: formData.workname,
         email: formData.email,
-        address: formData.address,
       };
 
       // Si hay una foto nueva, convertirla a base64
@@ -143,9 +158,8 @@ export default function EditProfileModal({
   const handleCancel = () => {
     // Restaurar valores originales
     setFormData({
-      name: user.name,
-      email: user.email,
-      address: user.address,
+      workname: provider.name,
+      email: provider.email,
     });
     setProfilePhotoFile(null);
     setError("");
@@ -158,10 +172,10 @@ export default function EditProfileModal({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="heading-md text-primary">
-            Editar perfil
+            Editar perfil de proveedor
           </DialogTitle>
           <DialogDescription className="body-base text-secondary">
-            Actualiza tu información personal. Los cambios se guardarán al
+            Actualiza la información de tu servicio. Los cambios se guardarán al
             confirmar.
           </DialogDescription>
         </DialogHeader>
@@ -173,26 +187,28 @@ export default function EditProfileModal({
             </div>
           )}
 
-          {/* Campo Nombre */}
+          {/* Campo Nombre del Servicio */}
           <div className="space-y-2">
             <label
-              htmlFor="name"
+              htmlFor="workname"
               className="body-sm font-medium text-secondary flex items-center gap-2"
             >
-              <User className="h-4 w-4 text-primary" />
-              Nombre completo
+              <Briefcase className="h-4 w-4 text-primary" />
+              Nombre del servicio
             </label>
             <Input
-              id="name"
+              id="workname"
               type="text"
-              placeholder="Tu nombre completo"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
+              placeholder="Nombre de tu servicio"
+              value={formData.workname}
+              onChange={(e) => handleChange("workname", e.target.value)}
               required
-              className={`w-full ${fieldErrors.name ? "border-red-500" : ""}`}
+              className={`w-full ${
+                fieldErrors.workname ? "border-red-500" : ""
+              }`}
             />
-            {fieldErrors.name && (
-              <p className="text-xs text-red-500">{fieldErrors.name}</p>
+            {fieldErrors.workname && (
+              <p className="text-xs text-red-500">{fieldErrors.workname}</p>
             )}
           </div>
 
@@ -216,51 +232,6 @@ export default function EditProfileModal({
             />
             {fieldErrors.email && (
               <p className="text-xs text-red-500">{fieldErrors.email}</p>
-            )}
-          </div>
-
-          {/* Campo Teléfono */}
-          {/* <div className="space-y-2">
-            <label
-              htmlFor="phone"
-              className="body-sm font-medium text-secondary flex items-center gap-2"
-            >
-              <Phone className="h-4 w-4 text-primary" />
-              Teléfono
-            </label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+52 123 456 7890"
-              value={formData.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
-              required
-              className="w-full"
-            />
-          </div> */}
-
-          {/* Campo Dirección */}
-          <div className="space-y-2">
-            <label
-              htmlFor="address"
-              className="body-sm font-medium text-secondary flex items-center gap-2"
-            >
-              <MapPin className="h-4 w-4 text-primary" />
-              Dirección
-            </label>
-            <Input
-              id="address"
-              type="text"
-              placeholder="Tu dirección completa"
-              value={formData.address}
-              onChange={(e) => handleChange("address", e.target.value)}
-              required
-              className={`w-full ${
-                fieldErrors.address ? "border-red-500" : ""
-              }`}
-            />
-            {fieldErrors.address && (
-              <p className="text-xs text-red-500">{fieldErrors.address}</p>
             )}
           </div>
 

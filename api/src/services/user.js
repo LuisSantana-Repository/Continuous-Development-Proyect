@@ -51,15 +51,37 @@ export async function getProviderWork(userId) {
 
 export async function updateUserProfile(userId, updates) {
   const db = await getPrimaryPool();
-  const allowedFields = ["username", "address"];
+  const allowedFields = ["username", "email", "address", "Foto"];
 
   const fields = [];
   const values = [];
 
+  // Verificar si el email ya existe (si se está actualizando)
+  if (updates.email) {
+    const [existingUser] = await db.execute(
+      "SELECT user_id FROM users WHERE email = ? AND user_id != ? LIMIT 1",
+      [updates.email.toLowerCase(), userId]
+    );
+
+    if (existingUser.length > 0) {
+      throw new Error("EMAIL_ALREADY_EXISTS");
+    }
+  }
+
+  // Si hay una foto nueva, subirla a S3
+  if (updates.Foto) {
+    const { uploadToS3 } = await import("./storage.js");
+    const { PROFILE_PREFIX } = await import("../utils/constants.js");
+
+    const fotoKey = await uploadToS3(PROFILE_PREFIX, updates.Foto);
+    updates.Foto = fotoKey;
+  }
+
   for (const [key, value] of Object.entries(updates)) {
     if (allowedFields.includes(key)) {
       fields.push(`${key} = ?`);
-      values.push(value);
+      // Normalizar email a minúsculas
+      values.push(key === "email" ? value.toLowerCase() : value);
     }
   }
 

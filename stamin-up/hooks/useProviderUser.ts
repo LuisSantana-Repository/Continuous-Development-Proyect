@@ -146,11 +146,42 @@ export function useProviderUser() {
     }
   };
 
+  /**
+   * Actualiza el perfil del proveedor en el backend
+   */
+  const updateProviderProfile = async (updates: {
+    workname?: string;
+    email?: string;
+    Foto?: string;
+  }) => {
+    if (!provider) {
+      throw new Error("No hay proveedor para actualizar");
+    }
+
+    try {
+      const response = await apiClient.updateProviderProfile(
+        Number(provider.id),
+        updates
+      );
+
+      if (!response?.provider) {
+        throw new Error("No se pudo actualizar el perfil");
+      }
+
+      // Refrescar los datos del proveedor
+      await fetchProvider();
+    } catch (err) {
+      console.error('Error updating provider profile:', err);
+      throw err;
+    }
+  };
+
   return { 
     provider, 
     loading, 
     error, 
     updateProvider,
+    updateProviderProfile,
     refetch: fetchProvider,
   };
 }

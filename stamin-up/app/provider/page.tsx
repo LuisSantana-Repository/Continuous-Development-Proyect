@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import ProfileHero from "@/components/profile/ProfileHero";
+import EditProviderProfileModal from "@/components/modals/EditProviderProfileModal";
 import RequestsList from "@/components/provider/RequestsList";
 import ProviderCalendar from "@/components/provider/ProviderCalendar";
 import RejectRequestModal from "@/components/provider/RejectRequestModal";
@@ -24,6 +25,7 @@ export default function ProviderPage() {
     provider,
     loading: providerLoading,
     updateProvider,
+    updateProviderProfile,
   } = useProviderUser();
   const {
     requests,
@@ -33,9 +35,12 @@ export default function ProviderPage() {
     updateRequest,
     startWork,
     completeWork,
+    refetch: refetchRequests,
   } = useProviderRequests();
 
   // Modals state
+  const [editProfileModal, setEditProfileModal] = useState(false);
+
   const [rejectModal, setRejectModal] = useState<{
     open: boolean;
     requestId: string;
@@ -129,7 +134,8 @@ export default function ProviderPage() {
   };
 
   const handleReportSuccess = () => {
-    // Ya no necesitamos actualizar estado, el refetch traerá los datos actualizados
+    // Recargar las solicitudes para actualizar los botones
+    refetchRequests();
     setTimeout(() => {
       alert("Reporte creado exitosamente");
     }, 250);
@@ -143,7 +149,8 @@ export default function ProviderPage() {
   };
 
   const handleRateClientSuccess = () => {
-    // Ya no necesitamos actualizar estado, el refetch traerá los datos actualizados
+    // Recargar las solicitudes para actualizar los botones
+    refetchRequests();
     setTimeout(() => {
       alert("Cliente calificado exitosamente");
     }, 250);
@@ -171,8 +178,16 @@ export default function ProviderPage() {
   };
 
   const handleUpdateUser = (updates: Partial<ClientUser>) => {
-    // Convertir ClientUser a ProviderUser para compatibilidad
-    updateProvider(updates as Partial<ProviderUser>);
+    // Abrir el modal de edición de proveedor en lugar de usar el modal de cliente
+    setEditProfileModal(true);
+  };
+
+  const handleSaveProviderProfile = async (updates: {
+    workname?: string;
+    email?: string;
+    Foto?: string;
+  }) => {
+    await updateProviderProfile(updates);
   };
 
   // Convertir ProviderUser a ClientUser para ProfileHero
@@ -300,6 +315,16 @@ export default function ProviderPage() {
       )}
 
       <ChatPlaceholderDialog open={chatDialog} onOpenChange={setChatDialog} />
+
+      {/* Modal de edición de perfil de proveedor */}
+      {provider && (
+        <EditProviderProfileModal
+          open={editProfileModal}
+          onOpenChange={setEditProfileModal}
+          provider={provider}
+          onSave={handleSaveProviderProfile}
+        />
+      )}
     </div>
   );
 }

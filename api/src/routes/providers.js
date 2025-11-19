@@ -71,3 +71,47 @@ router.get("/:providerId/calendar", authenticate, async (req, res) => {
     res.status(500).json({ error: "server error" });
   }
 });
+
+/**
+ * PATCH /providers/:providerId
+ * Actualizar información del proveedor (solo workname, email del usuario, y foto)
+ */
+router.patch("/:providerId", authenticate, async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    const allowedUpdates = ["workname", "email", "Foto"];
+    const updates = {};
+
+    // Solo incluir campos permitidos que vengan en el body
+    for (const field of allowedUpdates) {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: "no valid fields to update" });
+    }
+
+    const { updateProviderProfile } = await import("../services/provider.js");
+    const result = await updateProviderProfile(
+      parseInt(providerId),
+      req.user.sub,
+      updates
+    );
+
+    res.status(200).json(result);
+  } catch (error) {
+    if (error.message === "PROVIDER_NOT_FOUND") {
+      return res.status(404).json({ error: "provider not found" });
+    }
+    if (error.message === "UNAUTHORIZED") {
+      return res.status(403).json({ error: "unauthorized" });
+    }
+    if (error.message === "EMAIL_ALREADY_EXISTS") {
+      return res.status(409).json({ error: "email already in use" });
+    }
+    console.error("Update provider error:", error);
+    res.status(500).json({ error: "server error" });
+  }
+});

@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import { Pencil, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import EditProfileModal from "@/components/modals/EditProfileModal";
 import type { ClientUser } from "@/types";
 
 interface ProfileHeroProps {
@@ -13,7 +12,6 @@ interface ProfileHeroProps {
 }
 
 export default function ProfileHero({ user, onUpdateUser }: ProfileHeroProps) {
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   const memberSinceDate = new Date(user.memberSince).toLocaleDateString(
@@ -24,13 +22,11 @@ export default function ProfileHero({ user, onUpdateUser }: ProfileHeroProps) {
     }
   );
 
-  const handleSaveProfile = async (updatedUser: Partial<ClientUser>) => {
-    // Simular guardado (en producción, aquí iría la llamada a la API)
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Llamar al callback para actualizar el usuario en el componente padre
+  const handleEditClick = () => {
+    // Llamar al callback si existe, esto permitirá que el componente padre
+    // maneje la apertura del modal apropiado (cliente o proveedor)
     if (onUpdateUser) {
-      onUpdateUser(updatedUser);
+      onUpdateUser({});
     }
   };
 
@@ -77,7 +73,7 @@ export default function ProfileHero({ user, onUpdateUser }: ProfileHeroProps) {
               <Button
                 variant="outline"
                 className="gap-2"
-                onClick={() => setIsEditModalOpen(true)}
+                onClick={handleEditClick}
               >
                 <Pencil className="h-4 w-4" />
                 Editar perfil
@@ -86,14 +82,6 @@ export default function ProfileHero({ user, onUpdateUser }: ProfileHeroProps) {
           </div>
         </div>
       </div>
-
-      {/* Modal de edición */}
-      <EditProfileModal
-        open={isEditModalOpen}
-        onOpenChange={setIsEditModalOpen}
-        user={user}
-        onSave={handleSaveProfile}
-      />
     </section>
   );
 }

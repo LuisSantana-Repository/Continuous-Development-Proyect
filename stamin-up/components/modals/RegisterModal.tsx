@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Briefcase } from "lucide-react";
+import { User, Briefcase, Eye, EyeOff } from "lucide-react";
 import CompleteProfileModal from "./CompleteProfileModal";
 
 interface RegisterModalProps {
@@ -27,6 +27,7 @@ export default function RegisterModal({
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [userType, setUserType] = useState<"client" | "provider">("client");
   const [error, setError] = useState("");
 
@@ -215,16 +216,29 @@ export default function RegisterModal({
               >
                 Contraseña
               </label>
-              <Input
-                id="register-password"
-                type="password"
-                placeholder="Mínimo 8 caracteres"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-                className="w-full"
-              />
+              <div className="relative">
+                <Input
+                  id="register-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Mínimo 8 caracteres"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className="w-full pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-secondary transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <Button

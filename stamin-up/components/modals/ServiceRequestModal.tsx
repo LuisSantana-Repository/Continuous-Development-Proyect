@@ -86,7 +86,6 @@ export function ServiceRequestModal({
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [requestResult, setRequestResult] =
     useState<ServiceRequestResponse | null>(null);
-  const [showChatAlert, setShowChatAlert] = useState(false);
 
   // Ref para focus management
   const firstInputRef = useRef<HTMLInputElement>(null);
@@ -307,8 +306,11 @@ export function ServiceRequestModal({
       // Redirigir al chat
       router.push(`/chat/${requestResult.chatId}`);
     } else {
-      // Si no hay chatId, mostrar alerta
-      setShowChatAlert(true);
+      // Si no hay chatId, mostrar error en consola y cerrar modal
+      console.error("No chatId available in request result:", requestResult);
+      setShowConfirmation(false);
+      setRequestResult(null);
+      onOpenChange(false);
     }
   };
 
@@ -622,23 +624,6 @@ export function ServiceRequestModal({
             <AlertDialogAction onClick={handleInitiateChat} className="gap-2">
               <MessageCircle className="w-4 h-4" />
               Iniciar chat
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Alert simple: Chat no implementado */}
-      <AlertDialog open={showChatAlert} onOpenChange={setShowChatAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Chat no disponible</AlertDialogTitle>
-            <AlertDialogDescription>
-              La funcionalidad de chat despues la hago xd
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setShowChatAlert(false)}>
-              Entendido
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

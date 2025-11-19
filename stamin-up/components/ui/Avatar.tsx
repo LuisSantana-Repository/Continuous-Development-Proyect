@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface AvatarProps {
   src?: string | null;
@@ -22,15 +22,21 @@ export function Avatar({
   size = "md",
   className = "",
 }: AvatarProps) {
+  const [imageError, setImageError] = useState(false);
   const firstLetter = fallbackText.charAt(0).toUpperCase();
 
-  if (src) {
+  if (src && !imageError) {
     return (
-      <img
-        src={src}
-        alt={alt}
-        className={`${sizeClasses[size]} rounded-full object-cover ${className}`}
-      />
+      <div
+        className={`${sizeClasses[size]} rounded-full p-0.5 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center ${className}`}
+      >
+        <img
+          src={src}
+          alt={alt}
+          onError={() => setImageError(true)}
+          className="w-full h-full rounded-full object-cover bg-white"
+        />
+      </div>
     );
   }
 

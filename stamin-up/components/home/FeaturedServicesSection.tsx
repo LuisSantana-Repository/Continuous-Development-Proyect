@@ -43,8 +43,12 @@ export default function FeaturedServicesSection() {
 
       {/* Services Grid */}
       <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {services.map((service) => (
-          <ServiceCard key={service.id} service={service} />
+        {services.map((service, index) => (
+          <ServiceCard
+            key={service.id}
+            service={service}
+            priority={index === 0}
+          />
         ))}
       </div>
 

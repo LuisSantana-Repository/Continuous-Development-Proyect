@@ -6,9 +6,13 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 interface ServiceCardProps {
   service: Service;
+  priority?: boolean;
 }
 
-export default function ServiceCard({ service }: ServiceCardProps) {
+export default function ServiceCard({
+  service,
+  priority = false,
+}: ServiceCardProps) {
   // json: priceType: str
   const getPriceDisplay = () => {
     if (service.priceType === "hourly") {
@@ -22,7 +26,6 @@ export default function ServiceCard({ service }: ServiceCardProps) {
       <Card className="group h-full overflow-hidden transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 rounded-2xl p-0">
         {/* Image */}
         <div className="relative h-48 w-full overflow-hidden bg-[var(--color-background-secondary)]">
-   
           {(() => {
             const src = service.imageUrl || "";
             // If it's a relative API path, prefix with configured API host
@@ -39,6 +42,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
                 alt={service.title}
                 fill
                 unoptimized
+                priority={priority}
                 className="object-cover transition-transform duration-200 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />

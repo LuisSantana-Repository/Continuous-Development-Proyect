@@ -6,8 +6,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { useChat } from '@/hooks/useChat';
 import { useAuth } from '@/hooks/useAuth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
 export default function ChatPage() {
   const params = useParams();
   const router = useRouter();
@@ -20,7 +18,6 @@ export default function ChatPage() {
   const previousMessagesLengthRef = useRef(0);
 
   const {
-    socket,
     messages,
     sendMessage,
     openChat,
@@ -309,20 +306,7 @@ export default function ChatPage() {
               />
             </svg>
           </button>
-        </form>
-        
-        {/* Debug Button */}
-        <button
-          onClick={() => {
-            console.log("🧪 Test - Socket:", socket);
-            console.log("🧪 Test - Connected:", isConnected);
-            console.log("🧪 Test - Current Chat:", currentChatId);
-            console.log("🧪 Test - Messages:", messages);
-          }}
-          className="mt-2 px-4 py-2 bg-gray-200 rounded text-sm"
-        >
-          Debug Info
-        </button>
+        </form>        
       </footer>
     </div>
   );
