@@ -1,7 +1,8 @@
 import { Service, Category, SearchFilters, ServiceRequest, ServiceRequestResponse } from '@/types';
 
 // URL base del API (desde variables de entorno)
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// Using /api for relative URLs - load balancer will route to backend
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 /**
  * API Client centralizado para manejo de datos
