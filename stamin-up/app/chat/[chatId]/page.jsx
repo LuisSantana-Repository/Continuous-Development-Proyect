@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useChat } from '@/hooks/useChat';
 import { useAuth } from '@/hooks/useAuth';
+import { API_BASE_URL } from '@/lib/config';
 
 export default function ChatPage() {
   const params = useParams();
@@ -36,7 +37,7 @@ export default function ChatPage() {
 
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/users/me`, {
+        const res = await fetch(`${API_BASE_URL}/api/users/me`, {
           method: 'GET',
           credentials: 'include',
         });

@@ -107,7 +107,7 @@ resource "aws_db_instance" "secondary" {
   storage_type          = "gp3"
   storage_encrypted     = true
 
-  db_name  = "cold_rds"
+  db_name  = "analytics_db"
   username = var.db_username
   password = var.db_password
 

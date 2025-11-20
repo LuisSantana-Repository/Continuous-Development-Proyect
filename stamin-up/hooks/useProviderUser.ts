@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/apiClient";
 import type { ProviderUser } from "@/types";
+import { API_BASE_URL } from "@/lib/config";
 
 export function useProviderUser() {
   const [provider, setProvider] = useState<ProviderUser | null>(null);
@@ -22,7 +23,7 @@ export function useProviderUser() {
 
       // Obtener información del proveedor
       const providersResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/providers/user/${profile.user.user_id}`,
+        `${API_BASE_URL}/providers/user/${profile.user.user_id}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -47,7 +48,7 @@ export function useProviderUser() {
       
       try {
         const ratingResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/reviews/provider/${providerInfo.provider_id}/rating`,
+          `${API_BASE_URL}/reviews/provider/${providerInfo.provider_id}/rating`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
@@ -67,7 +68,7 @@ export function useProviderUser() {
       let completedJobs = 0;
       try {
         const requestsResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/service-requests/provider/${providerInfo.provider_id}?status=completed`,
+          `${API_BASE_URL}/service-requests/provider/${providerInfo.provider_id}?status=completed`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },

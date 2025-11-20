@@ -2,7 +2,7 @@ import { Service, Category, SearchFilters, ServiceRequest, ServiceRequestRespons
 
 // URL base del API (desde variables de entorno)
 // Using /api for relative URLs - load balancer will route to backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+import { API_BASE_URL } from '@/lib/config';
 
 /**
  * API Client centralizado para manejo de datos

@@ -4,8 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+import { API_BASE_URL } from '@/lib/config';
 
 export default function ChatsListPage() {
   const router = useRouter();
@@ -20,7 +19,7 @@ export default function ChatsListPage() {
   const fetchChats = async () => {
     try {
       // Cookies are automatically sent with fetch requests
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/chats`, {
+      const response = await fetch(`${API_BASE_URL}/api/chats`, {
         credentials: 'include', // Important: Include cookies
       });
 

@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { io } from "socket.io-client";
+import { API_BASE_URL } from "@/lib/config";
 
-// Using /api for relative URLs - load balancer will route to backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 /**
  * Hook personalizado para manejo de chat en tiempo real
@@ -25,7 +24,7 @@ export function useChat(userId = null) {
     if (!currentUserId) {
       const fetchUserId = async () => {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/users/me`, {
+          const response = await fetch(`${API_BASE_URL}/users/me`, {
             credentials: "include",
           });
           if (response.ok) {
@@ -185,7 +184,7 @@ export function useChat(userId = null) {
       // Fetch existing messages from API
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/chats/${chatId}/messages?limit=50`,
+          `${API_BASE_URL}/chats/${chatId}/messages?limit=50`,
           {
             credentials: "include",
           }

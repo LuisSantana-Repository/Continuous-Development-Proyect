@@ -53,6 +53,14 @@ resource "aws_dynamodb_table" "chats" {
     type = "N"
   }
 
+  attribute {
+
+    name = "service_request_id"
+
+    type = "S"
+
+  }
+
   # Global Secondary Index: UserProviderIndex
   global_secondary_index {
     name            = "UserProviderIndex"
@@ -66,6 +74,15 @@ resource "aws_dynamodb_table" "chats" {
     name            = "ProviderIndex"
     hash_key        = "provider_id"
     projection_type = "ALL"
+  }
+
+  # Global Secondary Index: ServiceRequestIndex
+
+  global_secondary_index {
+    name            = "ServiceRequestIndex"
+    hash_key        = "service_request_id"
+    projection_type = "ALL"
+
   }
 
   # Point-in-time recovery

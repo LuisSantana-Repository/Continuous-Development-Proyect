@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { API_BASE_URL } from '@/lib/config';
 
 /**
  * Proxy para servir imágenes desde el backend
@@ -15,7 +16,7 @@ export async function GET(
     
     // Usar la URL del servidor para comunicación entre contenedores
     // Esta variable está disponible en el servidor (docker-compose.yml)
-    const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const apiUrl = process.env.API_URL || API_BASE_URL;
     const imageUrl = `${apiUrl}/images/${imagePath}`;
     
     console.log('[Image Proxy] Fetching image:', imageUrl);
