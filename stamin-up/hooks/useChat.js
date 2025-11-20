@@ -42,12 +42,26 @@ export function useChat(userId = null) {
   // Initialize socket ONCE
   useEffect(() => {
     // For Socket.IO: empty string or undefined will connect to current domain
-    const newSocket = io(API_BASE_URL || undefined, {
+      // Determine the correct protocol and host for Socket.IO connection
+    // When API_BASE_URL is relative (starts with /), use current window location
+    let socketUrl = API_BASE_URL;
+
+    // If API_BASE_URL is a relative path, Socket.IO will use the current page's protocol/host
+    // This ensures ws:// for http:// pages and wss:// for https:// pages
+    if (typeof window !== 'undefined' && (!API_BASE_URL || API_BASE_URL.startsWith('/'))) {
+      socketUrl = undefined; // Let Socket.IO use current page's origin
+    }
+
+    const newSocket = io(socketUrl, {
       path: "/api/socket.io/",
       withCredentials: true,
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 5,
+      // Force transports order: try WebSocket first, then fallback to polling
+      transports: ['websocket', 'polling'],
+      // Increase timeout for ALB health checks
+      timeout: 20000,
     });
 
     // Connection events

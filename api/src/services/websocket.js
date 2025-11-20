@@ -25,6 +25,16 @@ export function initializeWebSocket(httpServer) {
         path: "/api/socket.io/",
         pingTimeout: 60000,
         pingInterval: 25000,
+        // Enable WebSocket transport (preferred) with polling fallback
+        transports: ['websocket', 'polling'],
+        // Allow upgrades from HTTP polling to WebSocket
+        allowUpgrades: true,
+        // Increase per-message deflate threshold for better performance behind ALB
+        perMessageDeflate: {
+            threshold: 1024, // Only compress messages larger than 1KB
+        },
+        // Handle ALB connection draining gracefully
+        connectTimeout: 45000,
     });
 
     // Authentication middleware

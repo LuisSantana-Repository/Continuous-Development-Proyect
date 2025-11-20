@@ -33,6 +33,15 @@ resource "aws_lb_target_group" "api" {
 
   deregistration_delay = 10
 
+  # Enable sticky sessions for WebSocket/Socket.IO support
+
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 86400  # 24 hours
+    enabled         = true
+  }
+
+
   tags = {
     Name    = "${var.project_name}-api-tg"
     Project = var.project_name
