@@ -6,12 +6,13 @@
  *
  * Esta variable DEBE ser configurada en el entorno donde se ejecuta la aplicación.
  */
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+
 
 /**
  * URL base de la aplicación web
  */
-export const APP_BASE_URL = process.env.NEXT_PUBLIC_URL || 'http://localhost:3001';
+export const APP_BASE_URL = process.env.NEXT_PUBLIC_URL || '/api';
 
 /**
  * Modo de ambiente
