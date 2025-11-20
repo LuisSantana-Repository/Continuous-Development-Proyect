@@ -156,10 +156,16 @@ export const apiClient = {
 
       const item = result.data;
 
+      // Construir URLs de imágenes (usar ruta /api/images en el backend)
+      const imageUrl = item.IMAGE 
+        ? `${API_BASE_URL}/api/images/${item.IMAGE}`
       // Construir URLs de imágenes
       const imageUrl = item.IMAGE
         ? `/api/images/${item.IMAGE}`
         : '/images/placeholder-service.jpg';
+      
+      const avatarUrl = item.user_photo 
+        ? `${API_BASE_URL}/api/images/${item.user_photo}`
 
       const avatarUrl = item.user_photo
         ? `/api/images/${item.user_photo}`
