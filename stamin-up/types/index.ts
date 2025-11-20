@@ -92,7 +92,6 @@ export interface ClientUser {
   id: string;
   name: string;
   email: string;
-  phone: string;
   address: string;
   memberSince: string;
   profileImage?: string;
@@ -131,6 +130,9 @@ export interface Order {
   paymentStatus?: 'pending' | 'paid';
   completedAt?: string;
   chatId?: string; // ✅ ID del chat asociado a esta solicitud
+  // Flags para saber si ya tiene review/report (para ocultar botones)
+  hasUserReport?: boolean; // ✅ Si el cliente ya reportó este servicio
+  hasProviderReview?: boolean; // ✅ Si el proveedor ya calificó al cliente
 }
 
 // Client Review - Reseña completa del cliente (para la sección "Mis Reseñas")
@@ -208,6 +210,9 @@ export interface ProviderRequest {
   rejectionReason?: string;
   chatId?: string; // ID del chat asociado con el cliente
   history: RequestHistoryEntry[];
+  // Flags para saber si ya tiene review/report (para ocultar botones)
+  hasProviderReview?: boolean; // ✅ Si el proveedor ya calificó al cliente
+  hasProviderReport?: boolean; // ✅ Si el proveedor ya reportó al cliente
 }
 
 export interface RequestHistoryEntry {

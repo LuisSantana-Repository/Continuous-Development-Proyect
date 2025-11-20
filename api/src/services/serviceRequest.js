@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { getPrimaryPool } from "../config/database.js";
-import { getOrCreateChat, getUserChats } from "./chat.js";
+import { getOrCreateChatForRequest, getUserChats } from "./chat.js";
 
 /**
  * Convierte una fecha ISO 8601 a formato MySQL DATETIME (YYYY-MM-DD HH:MM:SS)
@@ -70,7 +70,7 @@ export async function createServiceRequest(data) {
   );
 
   try {
-    const chat = await getOrCreateChat(userId, providerId);
+    const chat = await getOrCreateChatForRequest(userId, providerId, requestId);
     console.log(
       `Chat created/retrieved for request ${requestId}: ${chat.chat_id}`
     );
@@ -141,6 +141,7 @@ export async function getUserServiceRequests(
   `;
 
   // Query base para datos - INCLUIR JOIN con providers y users para obtener el nombre del proveedor
+  // También incluir información de reviews y reports del usuario
   let dataQuery = `
     SELECT 
       sr.request_id,
@@ -161,12 +162,17 @@ export async function getUserServiceRequests(
       u.email as provider_email,
       st.type_name as service_type,
       ur.review_id,
-      ur.rating as review_rating
+      ur.rating as review_rating,
+      ur.comment as review_comment,
+      IF(urep.report_id IS NOT NULL, 1, 0) as has_user_report,
+      IF(prep.review_id IS NOT NULL, 1, 0) as has_provider_review
     FROM service_requests sr
     INNER JOIN providers p ON sr.provider_id = p.provider_id
     INNER JOIN users u ON p.user_id = u.user_id
     LEFT JOIN ServiceType st ON p.Service_Type = st.id
     LEFT JOIN user_reviews ur ON sr.request_id = ur.service_request_id AND sr.user_id = ur.user_id
+    LEFT JOIN user_reports urep ON sr.request_id = urep.service_request_id AND sr.user_id = urep.user_id
+    LEFT JOIN provider_reviews prep ON sr.request_id = prep.service_request_id
     WHERE sr.user_id = ?
   `;
 
@@ -188,12 +194,16 @@ export async function getUserServiceRequests(
   dataQuery += ` ORDER BY sr.created_at DESC LIMIT ${safePageSize} OFFSET ${offset}`;
   const [rows] = await db.query(dataQuery, params);
 
-  // Obtener chatId para cada solicitud (igual que en getProviderServiceRequests)
+  // Obtener chatId para cada solicitud
   const requestsWithChat = await Promise.all(
     rows.map(async (row) => {
       try {
-        // Obtener o crear el chat entre el usuario y el proveedor
-        const chat = await getOrCreateChat(userId, row.provider_id);
+        // Obtener o crear el chat para esta solicitud específica
+        const chat = await getOrCreateChatForRequest(
+          userId,
+          row.provider_id,
+          row.request_id
+        );
         return {
           ...row,
           chat_id: chat.chat_id, // Agregar chatId a la respuesta
@@ -246,6 +256,7 @@ export async function getProviderServiceRequests(
   `;
 
   // Query base para datos - INCLUIR JOIN con users para obtener información del cliente
+  // También incluir información de provider reviews y provider reports
   let dataQuery = `
     SELECT 
       sr.request_id,
@@ -263,9 +274,13 @@ export async function getProviderServiceRequests(
       sr.updated_at,
       u.username as client_username,
       u.email as client_email,
-      u.Foto as client_photo
+      u.Foto as client_photo,
+      IF(prev.review_id IS NOT NULL, 1, 0) as has_provider_review,
+      IF(prep.report_id IS NOT NULL, 1, 0) as has_provider_report
     FROM service_requests sr
     INNER JOIN users u ON sr.user_id = u.user_id
+    LEFT JOIN provider_reviews prev ON sr.request_id = prev.service_request_id
+    LEFT JOIN provider_reports prep ON sr.request_id = prep.service_request_id
     WHERE sr.provider_id = ?
   `;
 
@@ -288,12 +303,15 @@ export async function getProviderServiceRequests(
   const [rows] = await db.query(dataQuery, params);
 
   // Obtener chatId para cada solicitud
-  // Intentar obtener el chat existente entre el proveedor y el usuario
   const requestsWithChat = await Promise.all(
     rows.map(async (row) => {
       try {
-        // Obtener o crear el chat entre el usuario y el proveedor
-        const chat = await getOrCreateChat(row.user_id, providerId);
+        // Obtener o crear el chat para esta solicitud específica
+        const chat = await getOrCreateChatForRequest(
+          row.user_id,
+          providerId,
+          row.request_id
+        );
         return {
           ...row,
           chat_id: chat.chat_id, // Agregar chatId a la respuesta

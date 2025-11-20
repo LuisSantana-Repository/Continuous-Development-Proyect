@@ -60,6 +60,53 @@ router.post("/", authenticate, async (req, res) => {
 });
 
 /**
+ * GET /user-reports/my-reports
+ * @deprecated Este endpoint ya no es necesario. Los datos ahora se incluyen
+ * directamente en el endpoint /service-requests (getUserServiceRequests)
+ * con el flag has_user_report.
+ *
+ * Get all reports created by the authenticated user
+ * Requires authentication
+ */
+router.get("/my-reports", authenticate, async (req, res) => {
+  try {
+    // Get userId from JWT token (already validated by authenticate middleware)
+    const userId = req.user.sub;
+
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const status = req.query.status || null;
+
+    // Validate status if provided
+    if (status !== null) {
+      const validStatuses = ["pending", "reviewing", "resolved", "rejected"];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: "invalid status value" });
+      }
+    }
+
+    const result = await getUserReports(userId, page, pageSize, status);
+
+    res.json({
+      success: true,
+      data: result.reports,
+      pagination: result.pagination,
+      deprecated: true,
+      message:
+        "This endpoint is deprecated. Report flags are now included in service requests.",
+    });
+  } catch (error) {
+    console.error("Error getting my reports:", error);
+
+    if (error.message === "INVALID_PARAMETERS") {
+      return res.status(400).json({ error: "invalid query parameters" });
+    }
+
+    res.status(500).json({ error: "internal server error" });
+  }
+});
+
+/**
  * GET /user-reports/:reportId
  * Get a user report by ID
  * Requires authentication

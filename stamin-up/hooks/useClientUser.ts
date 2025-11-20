@@ -10,6 +10,63 @@ export function useClientUser() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Actualiza el perfil del usuario
+   */
+  const updateProfile = async (updates: {
+    username?: string;
+    email?: string;
+    address?: string;
+    Foto?: string;
+  }) => {
+    try {
+      const response = await apiClient.updateProfile(updates);
+      
+      if (!response || !response.user) {
+        throw new Error('No se pudo actualizar el perfil');
+      }
+
+      const backendUser = response.user;
+      
+      // Helper para validar si es una URL válida
+      const isValidUrl = (str: string | null | undefined): boolean => {
+        if (!str) return false;
+        try {
+          new URL(str);
+          return true;
+        } catch {
+          return false;
+        }
+      };
+
+      // Usar solo URLs válidas para profileImage
+      const profileImage = isValidUrl(backendUser.Foto) ? backendUser.Foto : undefined;
+
+      const address =
+        backendUser.address && typeof backendUser.address === 'string' && backendUser.address.trim().length > 0
+          ? backendUser.address.trim()
+          : 'Dirección no disponible';
+
+      const memberSince = backendUser.created_at || new Date().toISOString();
+
+      // Transformar al formato ClientUser
+      const clientUser: ClientUser = {
+        id: backendUser.user_id,
+        name: backendUser.username,
+        email: backendUser.email,
+        address,
+        memberSince,
+        profileImage,
+      };
+
+      setUser(clientUser);
+      return clientUser;
+    } catch (err) {
+      console.error('Error updating user profile:', err);
+      throw err;
+    }
+  };
+
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -39,10 +96,12 @@ export function useClientUser() {
         // Usar solo URLs válidas para profileImage
         const profileImage = isValidUrl(backendUser.Foto) ? backendUser.Foto : undefined;
 
-        // Formatear la dirección con Latitud y Longitud
-        const address = backendUser.Latitude && backendUser.Longitude
-          ? `Lat: ${Number(backendUser.Latitude).toFixed(6)}, Lng: ${Number(backendUser.Longitude).toFixed(6)}`
-          : 'Dirección no disponible';
+        // Usar la dirección provista por el backend (campo `address`).
+        // Si no existe o está vacía, mostrar un fallback amigable.
+        const address =
+          backendUser.address && typeof backendUser.address === 'string' && backendUser.address.trim().length > 0
+            ? backendUser.address.trim()
+            : 'Dirección no disponible';
 
         // Usar created_at del backend o fecha actual como fallback
         const memberSince = backendUser.created_at || new Date().toISOString();
@@ -52,7 +111,6 @@ export function useClientUser() {
           id: backendUser.user_id,
           name: backendUser.username,
           email: backendUser.email,
-          phone: 'No disponible', // TODO: Agregar teléfono al backend
           address,
           memberSince,
           profileImage,
@@ -74,5 +132,5 @@ export function useClientUser() {
     fetchUser();
   }, []);
 
-  return { user, isLoading, error };
+  return { user, isLoading, error, updateProfile };
 }

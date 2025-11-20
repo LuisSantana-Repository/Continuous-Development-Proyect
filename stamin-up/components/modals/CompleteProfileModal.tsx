@@ -32,7 +32,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   fileToBase64,
   filesToBase64Array,
-  getUserLocation,
   validateImageFile,
   validateMultipleImages,
   extractContentType,
@@ -63,10 +62,7 @@ export default function CompleteProfileModal({
   // Datos comunes (Cliente y Proveedor)
   const [ineFile, setIneFile] = useState<File | null>(null);
   const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null);
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
-    null
-  );
-  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [address, setAddress] = useState("");
 
   // Datos específicos de Proveedor
   const [workname, setWorkname] = useState("");
@@ -74,11 +70,7 @@ export default function CompleteProfileModal({
   const [basePrice, setBasePrice] = useState("");
   const [serviceType, setServiceType] = useState("");
   const [jobPermitFile, setJobPermitFile] = useState<File | null>(null);
-  const [workLocation, setWorkLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
-  const [loadingWorkLocation, setLoadingWorkLocation] = useState(false);
+  const [workAddress, setWorkAddress] = useState("");
 
   // Estado para disponibilidad horaria
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set());
@@ -93,60 +85,6 @@ export default function CompleteProfileModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-
-  // Handler para ubicación personal
-  const handleGetLocation = async () => {
-    try {
-      setLoadingLocation(true);
-      setError("");
-      const coords = await getUserLocation();
-      setLocation({ lat: coords.latitude, lng: coords.longitude });
-    } catch (err) {
-      console.error("Error getting location:", err);
-      const errorMessage =
-        err instanceof Error ? err.message : "No se pudo obtener la ubicación";
-      setError(errorMessage);
-      setLocation(null);
-    } finally {
-      setLoadingLocation(false);
-    }
-  };
-
-  // Handler para ubicación del negocio
-  const handleGetWorkLocation = async () => {
-    try {
-      setLoadingWorkLocation(true);
-      setError("");
-      const coords = await getUserLocation();
-      setWorkLocation({ lat: coords.latitude, lng: coords.longitude });
-    } catch (err) {
-      console.error("Error getting work location:", err);
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "No se pudo obtener la ubicación del negocio";
-      setError(errorMessage);
-      setWorkLocation(null);
-    } finally {
-      setLoadingWorkLocation(false);
-    }
-  };
-
-  // Usar ubicación personal como ubicación del negocio
-  const handleUsePersonalLocation = () => {
-    try {
-      setError("");
-      if (!location) {
-        throw new Error("Primero debes obtener tu ubicación personal");
-      }
-      setWorkLocation({ ...location });
-    } catch (err) {
-      console.error("Error using personal location:", err);
-      const errorMessage =
-        err instanceof Error ? err.message : "Error al usar ubicación personal";
-      setError(errorMessage);
-    }
-  };
 
   const handleIneChange = (e: ChangeEvent<HTMLInputElement>) => {
     try {
@@ -233,14 +171,15 @@ export default function CompleteProfileModal({
   const handleImagesChange = (e: ChangeEvent<HTMLInputElement>) => {
     try {
       setError("");
-      const files = e.target.files;
+      const file = e.target.files?.[0]; // Solo tomar el primer archivo
 
-      if (!files || files.length === 0) {
+      if (!file) {
         setImageFiles([]);
         return;
       }
 
-      const validationError = validateMultipleImages(files, 10, 5);
+      // Validar una sola imagen (máximo 5MB)
+      const validationError = validateImageFile(file, 5);
       if (validationError) {
         setError(validationError);
         setImageFiles([]);
@@ -248,10 +187,10 @@ export default function CompleteProfileModal({
         return;
       }
 
-      setImageFiles(Array.from(files));
+      setImageFiles([file]); // Guardar solo una imagen en el array
     } catch (err) {
-      console.error("Error handling service images:", err);
-      setError("Error al procesar las imágenes del servicio");
+      console.error("Error handling service image:", err);
+      setError("Error al procesar la imagen del servicio");
       setImageFiles([]);
       e.target.value = "";
     }
@@ -281,8 +220,8 @@ export default function CompleteProfileModal({
         throw new Error("Debes subir una foto de tu INE");
       }
 
-      if (!location) {
-        throw new Error("Debes proporcionar tu ubicación");
+      if (!address.trim()) {
+        throw new Error("Debes proporcionar tu dirección");
       }
 
       // Validaciones específicas para proveedores
@@ -325,11 +264,11 @@ export default function CompleteProfileModal({
         if (!jobPermitFile) {
           throw new Error("Debes subir el permiso de trabajo");
         }
-        if (!workLocation) {
-          throw new Error("Debes proporcionar la ubicación del negocio");
+        if (!workAddress.trim()) {
+          throw new Error("Debes proporcionar la dirección del negocio");
         }
         if (imageFiles.length === 0) {
-          throw new Error("Debes subir al menos una imagen del servicio");
+          throw new Error("Debes subir una imagen del servicio");
         }
 
         // Validar formato de precio
@@ -353,8 +292,7 @@ export default function CompleteProfileModal({
         provider: userType === "provider",
         INE: ineBase64,
         Foto: profilePhotoBase64,
-        Latitude: location.lat,
-        Longitude: location.lng,
+        address: address.trim(),
       };
 
       // Si es proveedor, agregar datos del trabajo
@@ -391,13 +329,12 @@ export default function CompleteProfileModal({
           workname: workname.trim(),
           description: description.trim(),
           base_price: Number(basePrice),
-          Service_Type: serviceType.trim(), // Enviar como nombre de categoría (string)
+          Service_Type: serviceType.trim(),
           Job_Permit: {
             data: jobPermitBase64,
             contentType: jobPermitContentType || "image/jpeg",
           },
-          Latitude: workLocation!.lat,
-          Longitude: workLocation!.lng,
+          address: workAddress.trim(),
           Time_Available: timeAvailableObj,
           Images: imagesBase64,
         };
@@ -495,13 +432,13 @@ export default function CompleteProfileModal({
   const resetForm = () => {
     setIneFile(null);
     setProfilePhotoFile(null);
-    setLocation(null);
+    setAddress("");
     setWorkname("");
     setDescription("");
     setBasePrice("");
     setServiceType("");
     setJobPermitFile(null);
-    setWorkLocation(null);
+    setWorkAddress("");
     setSelectedDays(new Set());
     setStartTime("09:00");
     setEndTime("18:00");
@@ -649,40 +586,20 @@ export default function CompleteProfileModal({
               )}
             </div>
 
-            {/* Location */}
+            {/* Dirección */}
             <div className="space-y-2">
               <label className="body-sm font-medium text-secondary">
-                Tu ubicación *
+                Dirección *
               </label>
-              <Button
-                type="button"
-                onClick={handleGetLocation}
-                disabled={loadingLocation || !!location}
-                variant="outline"
-                className="w-full"
-              >
-                {loadingLocation ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Obteniendo ubicación...
-                  </>
-                ) : location ? (
-                  <>
-                    <MapPin className="mr-2 h-4 w-4 text-green-600" />
-                    Ubicación obtenida ✓
-                  </>
-                ) : (
-                  <>
-                    <MapPin className="mr-2 h-4 w-4" />
-                    Obtener mi ubicación
-                  </>
-                )}
-              </Button>
-              {location && (
-                <p className="text-xs text-muted-foreground">
-                  Lat: {location.lat.toFixed(4)}, Lng: {location.lng.toFixed(4)}
-                </p>
-              )}
+              <Input
+                type="text"
+                placeholder="Ej: Calle 123, Colonia, Ciudad, Estado"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+                minLength={10}
+                maxLength={255}
+              />
             </div>
           </div>
 
@@ -761,6 +678,21 @@ export default function CompleteProfileModal({
 
               <div className="space-y-2">
                 <label className="body-sm font-medium text-secondary">
+                  Dirección del negocio *
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Ej: Calle 456, Colonia, Ciudad, Estado"
+                  value={workAddress}
+                  onChange={(e) => setWorkAddress(e.target.value)}
+                  required
+                  minLength={10}
+                  maxLength={255}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="body-sm font-medium text-secondary">
                   Permiso de trabajo *
                 </label>
                 <div className="flex items-center gap-2">
@@ -770,7 +702,9 @@ export default function CompleteProfileModal({
                   >
                     <Upload className="h-4 w-4 text-muted" />
                     <span className="body-sm text-secondary">
-                      {jobPermitFile ? jobPermitFile.name : "Subir permiso"}
+                      {jobPermitFile
+                        ? jobPermitFile.name
+                        : "Subir permiso de trabajo"}
                     </span>
                   </label>
                   <input
@@ -783,52 +717,6 @@ export default function CompleteProfileModal({
                 </div>
                 {jobPermitFile && (
                   <p className="text-xs text-green-600">✓ Archivo cargado</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="body-sm font-medium text-secondary">
-                  Ubicación del negocio *
-                </label>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    onClick={handleGetWorkLocation}
-                    disabled={loadingWorkLocation || !!workLocation}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    {loadingWorkLocation ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Obteniendo...
-                      </>
-                    ) : workLocation ? (
-                      <>
-                        <MapPin className="mr-2 h-4 w-4 text-green-600" />
-                        Ubicación ✓
-                      </>
-                    ) : (
-                      <>
-                        <MapPin className="mr-2 h-4 w-4" />
-                        Ubicación actual
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={handleUsePersonalLocation}
-                    disabled={!location}
-                    variant="outline"
-                  >
-                    Usar mi ubicación
-                  </Button>
-                </div>
-                {workLocation && (
-                  <p className="text-xs text-muted-foreground">
-                    Lat: {workLocation.lat.toFixed(4)}, Lng:{" "}
-                    {workLocation.lng.toFixed(4)}
-                  </p>
                 )}
               </div>
 
@@ -948,7 +836,7 @@ export default function CompleteProfileModal({
 
               <div className="space-y-2">
                 <label className="body-sm font-medium text-secondary">
-                  Galería de imágenes * (mín. 1, máx. 10)
+                  Imagen del servicio *
                 </label>
                 <div className="flex items-center gap-2">
                   <label
@@ -958,15 +846,14 @@ export default function CompleteProfileModal({
                     <ImageIcon className="h-4 w-4 text-muted" />
                     <span className="body-sm text-secondary">
                       {imageFiles.length > 0
-                        ? `${imageFiles.length} imagen(es) seleccionada(s)`
-                        : "Seleccionar imágenes"}
+                        ? imageFiles[0].name
+                        : "Seleccionar imagen"}
                     </span>
                   </label>
                   <input
                     id="images-upload"
                     type="file"
                     accept="image/*"
-                    multiple
                     onChange={handleImagesChange}
                     className="hidden"
                   />

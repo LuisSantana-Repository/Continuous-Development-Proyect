@@ -11,8 +11,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `INE` VARCHAR(500),
   `provider` BOOLEAN DEFAULT FALSE,
   `Foto` VARCHAR(500),
-  `Latitude` DECIMAL(10, 8),
-  `Longitude` DECIMAL(11, 8),
+  `address` VARCHAR(255),
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_email (email)
@@ -36,8 +35,7 @@ CREATE TABLE IF NOT EXISTS `providers` (
   `Service_Type` INT NOT NULL,
   `Job_Permit` VARCHAR(500),
   `IMAGE` VARCHAR(500),
-  `Latitude` DECIMAL(10, 8),
-  `Longitude` DECIMAL(11, 8),
+  `address` VARCHAR(255),
   `Time_Available` JSON,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -151,25 +149,6 @@ CREATE TABLE IF NOT EXISTS `provider_reports` (
   INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
--- Insertar usuario de prueba (password: "test123")
-INSERT INTO `users` (
-  `user_id`, 
-  `email`, 
-  `password_hash`, 
-  `username`, 
-  `provider`, 
-  `Latitude`, 
-  `Longitude`
-) VALUES (
-  'test-user-123',
-  'test@example.com',
-  '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5Ru4FqY6ue8zG', -- hash de "test123"
-  'Test User',
-  FALSE,
-  20.6737777,
-  -103.4054536
-) ON DUPLICATE KEY UPDATE email=email;
 
 INSERT INTO `ServiceType` (`type_name`) VALUES 
 ('Plumbing'),

@@ -1,17 +1,8 @@
 import { getPrimaryPool } from "../config/database.js";
 
 export async function validateRegister(data) {
-  const {
-    email,
-    password,
-    username,
-    INE,
-    provider,
-    Foto,
-    Latitude,
-    Longitude,
-    work,
-  } = data;
+  const { email, password, username, INE, provider, Foto, address, work } =
+    data;
 
   if (
     !email ||
@@ -19,8 +10,7 @@ export async function validateRegister(data) {
     !username ||
     !INE ||
     provider === undefined ||
-    !Latitude ||
-    !Longitude
+    !address
   ) {
     //log missing fields
     console.log("Validation error: missing fields", {
@@ -30,8 +20,7 @@ export async function validateRegister(data) {
       INE,
       provider,
       Foto,
-      Latitude,
-      Longitude,
+      address,
     });
     return "all required fields must be provided";
   }
@@ -51,10 +40,7 @@ export async function validateRegister(data) {
     return "password must be at least 8 characters";
   }
 
-  console.log("Validate coordinates");
-  if (!isValidCoordinates(Latitude, Longitude)) {
-    return "invalid coordinates";
-  }
+  // No coordinates validation needed
 
   console.log("Validate provider work data");
   if (provider && !work) {
@@ -133,8 +119,7 @@ export async function validateProviderWork(work) {
     base_price,
     Service_Type,
     Job_Permit,
-    Latitude: workLat,
-    Longitude: workLng,
+    address,
     Time_Available,
     Images,
   } = work;
@@ -146,8 +131,7 @@ export async function validateProviderWork(work) {
     !base_price ||
     !Service_Type ||
     !Job_Permit ||
-    !workLat ||
-    !workLng ||
+    !address ||
     !Time_Available ||
     !Images
   ) {
@@ -204,10 +188,7 @@ export async function validateProviderWork(work) {
     return "job permit must be jpeg, jpg, png or webp";
   }
 
-  // Validar coordenadas del trabajo
-  if (!isValidCoordinates(workLat, workLng)) {
-    return "invalid work location coordinates";
-  }
+  // No coordinates validation needed for provider work
 
   // Validar Time_Available (debe ser un objeto con los 7 días de la semana)
   if (typeof Time_Available !== "object" || Time_Available === null) {
@@ -484,44 +465,6 @@ export function validateReview(data) {
 
   // Validar comment si está presente
   if (comment !== undefined && comment !== null) {
-    if (typeof comment !== "string") {
-      return "comment must be a string";
-    }
-    if (comment.trim().length > 0 && comment.trim().length < 10) {
-      return "comment must be at least 10 characters if provided";
-    }
-    if (comment.length > 1000) {
-      return "comment must be less than 1000 characters";
-    }
-  }
-
-  return null;
-}
-
-/**
- * Valida las actualizaciones de una reseña
- */
-export function validateReviewUpdate(data) {
-  const { rating, comment } = data;
-
-  // Al menos un campo debe estar presente
-  if (rating === undefined && comment === undefined) {
-    return "at least one field must be provided";
-  }
-
-  // Validar rating si está presente
-  if (rating !== undefined) {
-    const ratingNum = Number(rating);
-    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
-      return "rating must be a number between 1 and 5";
-    }
-    if (!Number.isInteger(ratingNum)) {
-      return "rating must be an integer";
-    }
-  }
-
-  // Validar comment si está presente
-  if (comment !== undefined) {
     if (typeof comment !== "string") {
       return "comment must be a string";
     }

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import ProfileHero from "@/components/profile/ProfileHero";
+import EditProviderProfileModal from "@/components/modals/EditProviderProfileModal";
 import RequestsList from "@/components/provider/RequestsList";
 import ProviderCalendar from "@/components/provider/ProviderCalendar";
 import RejectRequestModal from "@/components/provider/RejectRequestModal";
@@ -11,8 +12,11 @@ import EditRequestModal from "@/components/provider/EditRequestModal";
 import RequestDetailDrawer from "@/components/provider/RequestDetailDrawer";
 import ReportRequestModal from "@/components/provider/ReportRequestModal";
 import ChatPlaceholderDialog from "@/components/provider/ChatPlaceholderDialog";
+import RateClientModal from "@/components/provider/RateClientModal";
 import { useProviderUser } from "@/hooks/useProviderUser";
 import { useProviderRequests } from "@/hooks/useProviderRequests";
+import { useProviderReviews } from "@/hooks/useProviderReviews";
+import { useProviderReports } from "@/hooks/useProviderReports";
 import type { ProviderRequest, ProviderUser, ClientUser } from "@/types";
 
 export default function ProviderPage() {
@@ -21,6 +25,7 @@ export default function ProviderPage() {
     provider,
     loading: providerLoading,
     updateProvider,
+    updateProviderProfile,
   } = useProviderUser();
   const {
     requests,
@@ -30,9 +35,12 @@ export default function ProviderPage() {
     updateRequest,
     startWork,
     completeWork,
+    refetch: refetchRequests,
   } = useProviderRequests();
 
   // Modals state
+  const [editProfileModal, setEditProfileModal] = useState(false);
+
   const [rejectModal, setRejectModal] = useState<{
     open: boolean;
     requestId: string;
@@ -50,6 +58,11 @@ export default function ProviderPage() {
   }>({ open: false, request: null });
 
   const [reportModal, setReportModal] = useState<{
+    open: boolean;
+    request: ProviderRequest | null;
+  }>({ open: false, request: null });
+
+  const [rateClientModal, setRateClientModal] = useState<{
     open: boolean;
     request: ProviderRequest | null;
   }>({ open: false, request: null });
@@ -120,6 +133,29 @@ export default function ProviderPage() {
     }
   };
 
+  const handleReportSuccess = () => {
+    // Recargar las solicitudes para actualizar los botones
+    refetchRequests();
+    setTimeout(() => {
+      alert("Reporte creado exitosamente");
+    }, 250);
+  };
+
+  const handleRateClient = (requestId: string) => {
+    const request = requests.find((r) => r.requestId === requestId);
+    if (request) {
+      setRateClientModal({ open: true, request });
+    }
+  };
+
+  const handleRateClientSuccess = () => {
+    // Recargar las solicitudes para actualizar los botones
+    refetchRequests();
+    setTimeout(() => {
+      alert("Cliente calificado exitosamente");
+    }, 250);
+  };
+
   const handleViewDetail = (requestId: string) => {
     const request = requests.find((r) => r.requestId === requestId);
     if (request) {
@@ -142,8 +178,16 @@ export default function ProviderPage() {
   };
 
   const handleUpdateUser = (updates: Partial<ClientUser>) => {
-    // Convertir ClientUser a ProviderUser para compatibilidad
-    updateProvider(updates as Partial<ProviderUser>);
+    // Abrir el modal de edición de proveedor en lugar de usar el modal de cliente
+    setEditProfileModal(true);
+  };
+
+  const handleSaveProviderProfile = async (updates: {
+    workname?: string;
+    email?: string;
+    Foto?: string;
+  }) => {
+    await updateProviderProfile(updates);
   };
 
   // Convertir ProviderUser a ClientUser para ProfileHero
@@ -212,6 +256,7 @@ export default function ProviderPage() {
               onViewDetail={handleViewDetail}
               onStartWork={handleStartWork}
               onCompleteWork={handleCompleteWork}
+              onRateClient={handleRateClient}
             />
           </div>
 
@@ -254,10 +299,32 @@ export default function ProviderPage() {
           open={reportModal.open}
           onOpenChange={(open) => setReportModal({ ...reportModal, open })}
           request={reportModal.request}
+          onSuccess={handleReportSuccess}
+        />
+      )}
+
+      {rateClientModal.request && provider && (
+        <RateClientModal
+          open={rateClientModal.open}
+          onOpenChange={(open) =>
+            setRateClientModal({ ...rateClientModal, open })
+          }
+          request={rateClientModal.request}
+          onSuccess={handleRateClientSuccess}
         />
       )}
 
       <ChatPlaceholderDialog open={chatDialog} onOpenChange={setChatDialog} />
+
+      {/* Modal de edición de perfil de proveedor */}
+      {provider && (
+        <EditProviderProfileModal
+          open={editProfileModal}
+          onOpenChange={setEditProfileModal}
+          provider={provider}
+          onSave={handleSaveProviderProfile}
+        />
+      )}
     </div>
   );
 }

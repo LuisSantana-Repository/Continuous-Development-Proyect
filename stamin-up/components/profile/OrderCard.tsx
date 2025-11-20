@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ import RateServiceModal from "@/components/modals/RateServiceModal";
 import ReportServiceModal from "@/components/modals/ReportServiceModal";
 import OrderDetailsModal from "@/components/modals/OrderDetailsModal";
 import PaymentModal from "@/components/modals/PaymentModal";
+import { useUserReports } from "@/hooks/useUserReports";
 import { canRate, canReport, hasActiveReports } from "@/lib/orderUtils";
 import type { Order, OrderRating, OrderReport } from "@/types";
 
@@ -32,6 +33,11 @@ export default function OrderCard({ order }: OrderCardProps) {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [localOrder, setLocalOrder] = useState(order);
+
+  // Sincronizar el estado local cuando cambia la prop order (ej. después de refetch)
+  useEffect(() => {
+    setLocalOrder(order);
+  }, [order]);
 
   const statusConfig = {
     Completado: {
@@ -73,22 +79,20 @@ export default function OrderCard({ order }: OrderCardProps) {
     setLocalOrder({ ...localOrder, rating: newRating });
   };
 
-  const handleReportSuccess = (reportId: string, category: string) => {
-    // Agregar el nuevo reporte al array de reportes
-    const newReport: OrderReport = {
-      id: reportId,
-      category: category as OrderReport["category"],
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    };
-
-    const updatedReports = [...(localOrder.reports || []), newReport];
-    setLocalOrder({ ...localOrder, reports: updatedReports });
+  const handleReportSuccess = () => {
+    // Actualizar el flag local para ocultar el botón inmediatamente
+    setLocalOrder((prev) => ({ ...prev, hasUserReport: true }));
   };
 
-  // Determinar qué botones mostrar usando las funciones helper
+  // Determinar qué botones mostrar
   const showRateButton = canRate(localOrder);
-  const showReportButton = canReport(localOrder);
+
+  // Solo mostrar botón de reportar si:
+  // 1. El estado es "En curso" o "Completado"
+  // 2. No existe un reporte previo (usando el flag del backend)
+  const showReportButton =
+    (localOrder.status === "En curso" || localOrder.status === "Completado") &&
+    !localOrder.hasUserReport;
 
   // Botón de chat solo para estado "Pendiente"
   const showChatButton = localOrder.status === "Pendiente";

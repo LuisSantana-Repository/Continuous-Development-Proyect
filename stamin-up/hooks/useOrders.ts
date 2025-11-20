@@ -65,7 +65,7 @@ export function useOrders(autoRefresh?: number) {
         const rating = request.review_id && request.review_rating 
           ? {
               value: request.review_rating,
-              createdAt: request.created_at, // Podríamos agregar ur.created_at al query si queremos la fecha exacta de la review
+              createdAt: request.created_at,
             }
           : undefined;
 
@@ -87,6 +87,9 @@ export function useOrders(autoRefresh?: number) {
           userId: request.user_id,
           paymentStatus: request.payment_status,
           completedAt: request.completed_at,
+          // ✅ Nuevos flags para ocultar botones
+          hasUserReport: Boolean(request.has_user_report),
+          hasProviderReview: Boolean(request.has_provider_review),
         };
       });
 

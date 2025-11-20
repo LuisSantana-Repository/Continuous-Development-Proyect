@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticate } from "../middleware/auth.js";
-import { validateReview, validateReviewUpdate } from "../utils/validators.js";
+import { validateReview } from "../utils/validators.js";
 import {
   createReview,
   getReviewById,
@@ -212,49 +212,6 @@ router.get("/provider/:providerId/rating", async (req, res) => {
     });
   } catch (error) {
     console.error("Error getting provider rating:", error);
-    res.status(500).json({ error: "internal server error" });
-  }
-});
-
-/**
- * PATCH /reviews/:reviewId
- * Update a review
- * Requires authentication and user must be the review author
- */
-router.patch("/:reviewId", authenticate, async (req, res) => {
-  try {
-    const { reviewId } = req.params;
-    const userId = req.user.sub;
-
-    // Validate update data
-    const validationError = validateReviewUpdate(req.body);
-    if (validationError) {
-      return res.status(400).json({ error: validationError });
-    }
-
-    // Check if review exists and belongs to user
-    const review = await getReviewById(reviewId);
-    if (review.user_id !== userId) {
-      return res
-        .status(403)
-        .json({ error: "you can only update your own reviews" });
-    }
-
-    // Update review
-    await updateReview(reviewId, req.body);
-
-    res.json({
-      success: true,
-      message: "review updated successfully",
-    });
-  } catch (error) {
-    if (error.message === "REVIEW_NOT_FOUND") {
-      return res.status(404).json({ error: "review not found" });
-    }
-    if (error.message === "NO_VALID_FIELDS_TO_UPDATE") {
-      return res.status(400).json({ error: "no valid fields to update" });
-    }
-    console.error("Error updating review:", error);
     res.status(500).json({ error: "internal server error" });
   }
 });

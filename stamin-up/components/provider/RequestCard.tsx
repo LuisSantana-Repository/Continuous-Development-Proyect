@@ -10,8 +10,8 @@ import {
   Flag,
   Edit,
   Clock,
-  Play,
   CheckCircle,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +33,7 @@ interface RequestCardProps {
   onViewDetail: (requestId: string) => void;
   onStartWork: (requestId: string) => void;
   onCompleteWork: (requestId: string) => void;
+  onRateClient: (requestId: string) => void;
 }
 
 const STATUS_CONFIG = {
@@ -69,10 +70,15 @@ export default function RequestCard({
   onViewDetail,
   onStartWork,
   onCompleteWork,
+  onRateClient,
 }: RequestCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const statusConfig = STATUS_CONFIG[request.status];
+
+  // Usar los flags que vienen en el objeto request
+  const hasReview = request.hasProviderReview || false;
+  const hasReport = request.hasProviderReport || false;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -197,7 +203,7 @@ export default function RequestCard({
           </Button>
         )}
 
-        {/* Segunda fila: Ver detalles, Chat (solo pendiente), Editar (solo pendiente), Reportar (solo completado) */}
+        {/* Segunda fila: Ver detalles, Chat (solo pendiente), Editar (solo pendiente), Reportar/Calificar (solo completado) */}
         <div className="flex flex-wrap gap-2 w-full">
           <Button
             size="sm"
@@ -230,15 +236,30 @@ export default function RequestCard({
             </>
           )}
           {request.status === "completed" && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onReport(request.requestId)}
-              className="gap-2"
-            >
-              <Flag className="h-4 w-4" />
-              Reportar
-            </Button>
+            <>
+              {!hasReview && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onRateClient(request.requestId)}
+                  className="gap-2 border-yellow-400 text-yellow-600 hover:bg-yellow-50"
+                >
+                  <Star className="h-4 w-4" />
+                  Calificar Cliente
+                </Button>
+              )}
+              {!hasReport && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onReport(request.requestId)}
+                  className="gap-2"
+                >
+                  <Flag className="h-4 w-4" />
+                  Reportar
+                </Button>
+              )}
+            </>
           )}
         </div>
       </CardFooter>

@@ -18,40 +18,13 @@ export function getCardType(cardNumber: string): string {
 }
 
 /**
- * Valida el número de tarjeta usando el algoritmo de Luhn
+ * Valida el número de tarjeta (solo verifica que sean 16 dígitos)
  */
 export function validateCardNumber(cardNumber: string): boolean {
   const cleaned = cardNumber.replace(/\s/g, '');
   
-  // Verificar que solo contenga dígitos
-  if (!/^\d+$/.test(cleaned)) {
-    return false;
-  }
-  
-  // Verificar longitud (13-19 dígitos)
-  if (cleaned.length < 13 || cleaned.length > 19) {
-    return false;
-  }
-  
-  // Algoritmo de Luhn
-  let sum = 0;
-  let isEven = false;
-  
-  for (let i = cleaned.length - 1; i >= 0; i--) {
-    let digit = parseInt(cleaned[i]);
-    
-    if (isEven) {
-      digit *= 2;
-      if (digit > 9) {
-        digit -= 9;
-      }
-    }
-    
-    sum += digit;
-    isEven = !isEven;
-  }
-  
-  return sum % 10 === 0;
+  // Verificar que solo contenga dígitos y que sean exactamente 16
+  return /^\d{16}$/.test(cleaned);
 }
 
 /**

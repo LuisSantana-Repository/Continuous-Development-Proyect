@@ -36,12 +36,27 @@ export async function createProviderReview(data) {
   // If serviceRequestId is provided, verify it exists and belongs to the provider and user
   if (serviceRequestId) {
     const [requestRows] = await db.execute(
-      "SELECT request_id FROM service_requests WHERE request_id = ? AND user_id = ? AND provider_id = ?",
+      "SELECT request_id, status FROM service_requests WHERE request_id = ? AND user_id = ? AND provider_id = ?",
       [serviceRequestId, userId, providerId]
     );
 
     if (requestRows.length === 0) {
       throw new Error("SERVICE_REQUEST_NOT_FOUND_OR_INVALID");
+    }
+
+    // Verify the service request is completed
+    if (requestRows[0].status !== "completed") {
+      throw new Error("SERVICE_REQUEST_NOT_COMPLETED");
+    }
+
+    // Check if review already exists for this service request
+    const [existingReview] = await db.execute(
+      "SELECT review_id FROM provider_reviews WHERE service_request_id = ? AND provider_id = ?",
+      [serviceRequestId, providerId]
+    );
+
+    if (existingReview.length > 0) {
+      throw new Error("REVIEW_ALREADY_EXISTS");
     }
   }
 
@@ -251,68 +266,6 @@ export async function getProviderCreatedReviews(
       hasPrevPage: safePage > 1,
     },
   };
-}
-
-/**
- * Update a provider review
- * @param {string} reviewId - Review ID
- * @param {Object} updates - Fields to update
- * @param {number} [updates.rating] - Rating (1-5)
- * @param {string} [updates.comment] - Comment
- * @returns {Promise<Object>} Success status
- */
-export async function updateProviderReview(reviewId, updates) {
-  const db = await getPrimaryPool();
-
-  const allowedFields = ["rating", "comment"];
-  const updateFields = [];
-  const updateValues = [];
-
-  for (const [key, value] of Object.entries(updates)) {
-    if (allowedFields.includes(key) && value !== undefined) {
-      updateFields.push(`${key} = ?`);
-      updateValues.push(value);
-    }
-  }
-
-  if (updateFields.length === 0) {
-    throw new Error("NO_VALID_FIELDS_TO_UPDATE");
-  }
-
-  updateValues.push(reviewId);
-
-  const [result] = await db.execute(
-    `UPDATE provider_reviews 
-     SET ${updateFields.join(", ")}
-     WHERE review_id = ?`,
-    updateValues
-  );
-
-  if (result.affectedRows === 0) {
-    throw new Error("REVIEW_NOT_FOUND");
-  }
-
-  return { success: true };
-}
-
-/**
- * Delete a provider review
- * @param {string} reviewId - Review ID
- * @returns {Promise<Object>} Success status
- */
-export async function deleteProviderReview(reviewId) {
-  const db = await getPrimaryPool();
-
-  const [result] = await db.execute(
-    "DELETE FROM provider_reviews WHERE review_id = ?",
-    [reviewId]
-  );
-
-  if (result.affectedRows === 0) {
-    throw new Error("REVIEW_NOT_FOUND");
-  }
-
-  return { success: true };
 }
 
 /**

@@ -22,7 +22,7 @@ export function useProviderUser() {
 
       // Obtener información del proveedor
       const providersResponse = await fetch(
-        `/api/providers/user/${profile.user.user_id}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/providers/user/${profile.user.user_id}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -47,7 +47,7 @@ export function useProviderUser() {
       
       try {
         const ratingResponse = await fetch(
-          `/api/reviews/provider/${providerInfo.provider_id}/rating`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/reviews/provider/${providerInfo.provider_id}/rating`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
@@ -67,7 +67,7 @@ export function useProviderUser() {
       let completedJobs = 0;
       try {
         const requestsResponse = await fetch(
-          `/api/service-requests/provider/${providerInfo.provider_id}?status=completed`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/service-requests/provider/${providerInfo.provider_id}?status=completed`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
@@ -153,11 +153,42 @@ export function useProviderUser() {
     }
   };
 
+  /**
+   * Actualiza el perfil del proveedor en el backend
+   */
+  const updateProviderProfile = async (updates: {
+    workname?: string;
+    email?: string;
+    Foto?: string;
+  }) => {
+    if (!provider) {
+      throw new Error("No hay proveedor para actualizar");
+    }
+
+    try {
+      const response = await apiClient.updateProviderProfile(
+        Number(provider.id),
+        updates
+      );
+
+      if (!response?.provider) {
+        throw new Error("No se pudo actualizar el perfil");
+      }
+
+      // Refrescar los datos del proveedor
+      await fetchProvider();
+    } catch (err) {
+      console.error('Error updating provider profile:', err);
+      throw err;
+    }
+  };
+
   return { 
     provider, 
     loading, 
     error, 
     updateProvider,
+    updateProviderProfile,
     refetch: fetchProvider,
   };
 }

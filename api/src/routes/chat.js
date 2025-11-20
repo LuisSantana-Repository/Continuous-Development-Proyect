@@ -1,44 +1,29 @@
 import express from "express";
 import { authenticate } from "../middleware/auth.js";
 import {
-  getOrCreateChat,
   getChatById,
   getUserChats,
   sendMessage,
   getChatMessages,
   markMessagesAsRead,
-    getProviderChat,
-    getProviderName,
-    getUserName,
-    getProviderIdUsingUserId
+  getProviderChat,
+  getProviderName,
+  getUserName,
+  getProviderIdUsingUserId,
 } from "../services/chat.js";
 
 export const router = express.Router();
 
 /**
  * POST /chats
- * get existing chat between user and provider
+ * DEPRECATED: Chats are now automatically created with service requests
+ * Each service request has its own dedicated chat
  */
-router.post("/", authenticate, async (req, res) => {
-  try {
-    const { providerId } = req.body;
-    const userId = req.user.sub;
-
-    if (!providerId) {
-      return res.status(400).json({ error: "provider id is required" });
-    }
-
-    const chat = await getOrCreateChat(userId, providerId);
-
-    res.status(200).json({
-      success: true,
-      data: chat,
-    });
-  } catch (error) {
-    console.error("Error creating/getting chat:", error);
-    res.status(500).json({ error: "server error" });
-  }
-});
+// router.post("/", authenticate, async (req, res) => {
+//   return res.status(410).json({
+//     error: "This endpoint is deprecated. Chats are now created automatically with service requests."
+//   });
+// });
 
 /**
  * GET /chats
@@ -49,33 +34,32 @@ router.get("/", authenticate, async (req, res) => {
     const userId = req.user.sub;
     const chats = await getUserChats(userId);
 
-
     for (const chat of chats) {
-        console.log("Fetching provider name for chat:", chat.chat_id);
-        const providerName = await getProviderName(chat.provider_id);
-        console.log("Provider name fetched:", providerName);
-        chat.chat_name = providerName;
+      console.log("Fetching provider name for chat:", chat.chat_id);
+      const providerName = await getProviderName(chat.provider_id);
+      console.log("Provider name fetched:", providerName);
+      chat.chat_name = providerName;
     }
 
     const isProvider = req.user.provider || false;
     if (isProvider) {
-        console.log("User is a provider, fetching provider chats");
-        const provider_id = await getProviderIdUsingUserId(userId);
-        console.log("Provider ID:", provider_id);
-        const providerChats = await getProviderChat(provider_id);
-        
-        for (const chat of providerChats) {
-            console.log("Fetching user name for chat:", chat.chat_id);
-            const userName = await getUserName(chat.user_id);
-            chat.chat_name = userName;
-        }
-        chats.push(...providerChats);
+      console.log("User is a provider, fetching provider chats");
+      const provider_id = await getProviderIdUsingUserId(userId);
+      console.log("Provider ID:", provider_id);
+      const providerChats = await getProviderChat(provider_id);
+
+      for (const chat of providerChats) {
+        console.log("Fetching user name for chat:", chat.chat_id);
+        const userName = await getUserName(chat.user_id);
+        chat.chat_name = userName;
+      }
+      chats.push(...providerChats);
     }
 
     // Eliminar información confidencial
-    chats.forEach(chat => {
-        delete chat.user_id;
-        delete chat.provider_id;
+    chats.forEach((chat) => {
+      delete chat.user_id;
+      delete chat.provider_id;
     });
 
     res.json({
@@ -126,7 +110,9 @@ router.get("/:chatId/messages", authenticate, async (req, res) => {
     const { chatId } = req.params;
     const userId = req.user.sub;
     const limit = parseInt(req.query.limit) || 50;
-    const lastTimestamp = req.query.lastTimestamp ? parseInt(req.query.lastTimestamp) : null;
+    const lastTimestamp = req.query.lastTimestamp
+      ? parseInt(req.query.lastTimestamp)
+      : null;
 
     // Verify user has access to this chat
     const chat = await getChatById(chatId);
@@ -170,7 +156,9 @@ router.post("/:chatId/messages", authenticate, async (req, res) => {
     }
 
     if (content.length > 5000) {
-      return res.status(400).json({ error: "message is too long (max 5000 characters)" });
+      return res
+        .status(400)
+        .json({ error: "message is too long (max 5000 characters)" });
     }
 
     // Verify user has access to this chat
@@ -179,7 +167,12 @@ router.post("/:chatId/messages", authenticate, async (req, res) => {
       return res.status(403).json({ error: "forbidden" });
     }
 
-    const message = await sendMessage(chatId, userId, content.trim(), isProvider);
+    const message = await sendMessage(
+      chatId,
+      userId,
+      content.trim(),
+      isProvider
+    );
 
     res.status(201).json({
       success: true,

@@ -22,7 +22,7 @@ export function useProviderRequests() {
 
       // Obtener el providerId desde la tabla providers
       const providersResponse = await fetch(
-        `/api/providers/user/${profile.user.user_id}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/providers/user/${profile.user.user_id}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -84,6 +84,9 @@ export function useProviderRequests() {
           createdAt: req.created_at,
           chatId: req.chat_id || undefined, // ✅ Incluir chatId de la respuesta del backend
           rejectionReason: undefined, // TODO: Agregar campo en backend
+          // ✅ Nuevos flags para ocultar botones
+          hasProviderReview: Boolean(req.has_provider_review),
+          hasProviderReport: Boolean(req.has_provider_report),
           history: [
             {
               action: 'created',
