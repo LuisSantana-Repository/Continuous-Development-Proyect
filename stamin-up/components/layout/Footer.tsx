@@ -8,9 +8,9 @@ export default function Footer() {
       { label: "Servicios", href: "/services" },
     ],
     legal: [
-      { label: "Términos de uso", href: "/terms" },
-      { label: "Privacidad", href: "/privacy" },
-      { label: "Soporte", href: "/support" },
+      { label: "Términos de uso", href: "/" },
+      { label: "Privacidad", href: "/" },
+      { label: "Soporte", href: "/" },
     ],
   };
 
