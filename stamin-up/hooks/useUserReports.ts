@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { API_BASE_URL } from "@/lib/config";
+import { API_BASE_URL } from "../lib/config";
 
 
 export interface CreateUserReportData {

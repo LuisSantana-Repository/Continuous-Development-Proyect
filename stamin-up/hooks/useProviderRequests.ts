@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/apiClient";
 import type { ProviderRequest } from "@/types";
-import { API_BASE_URL } from "@/lib/config";
+import { API_BASE_URL } from "../lib/config";
 
 export function useProviderRequests() {
   const [requests, setRequests] = useState<ProviderRequest[]>([]);

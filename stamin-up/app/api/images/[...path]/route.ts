@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { API_BASE_URL } from '@/lib/config';
+import { API_BASE_URL } from '../../../../lib/config';
 
 /**
  * Proxy para servir imágenes desde el backend
