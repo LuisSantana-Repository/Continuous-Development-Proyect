@@ -1,6 +1,6 @@
 -- ./init-db-primary.sql
-CREATE DATABASE IF NOT EXISTS `my-sql-rds-hot`;
-USE `my-sql-rds-hot`;
+CREATE DATABASE IF NOT EXISTS `my_sql_rds_hot`;
+USE `my_sql_rds_hot`;
 
 -- Tabla de usuarios
 CREATE TABLE IF NOT EXISTS `users` (
