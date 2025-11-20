@@ -28,11 +28,11 @@ terraform init
 terraform apply
 
 
-scp -i ./terraform/aws-ec2 init-db-primary.sql ubuntu@ec2-18-208-142-148.compute-1.amazonaws.com:~/
-scp -i ./terraform/aws-ec2 init-db-secondary.sql ubuntu@ec2-18-208-142-148.compute-1.amazonaws.com:~/
+scp -i ./terraform/aws-ec2 init-db-primary.sql ubuntu@ec2-3-90-109-253.compute-1.amazonaws.com:~/
+scp -i ./terraform/aws-ec2 init-db-secondary.sql ubuntu@ec2-3-90-109-253.compute-1.amazonaws.com:~/
 
 pwd:hello
-ssh -i ./terraform/aws-ec2 ubuntu@ec2-18-208-142-148.compute-1.amazonaws.com
+ssh -i ./terraform/aws-ec2 ubuntu@ec2-3-90-109-253.compute-1.amazonaws.com
 
 sudo apt-get install -y mysql-client
 

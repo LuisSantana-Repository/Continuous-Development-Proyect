@@ -22,6 +22,7 @@ export function initializeWebSocket(httpServer) {
             origin: allowedOrigins,
             credentials: true,
         },
+        path: "/api/socket.io/",
         pingTimeout: 60000,
         pingInterval: 25000,
     });

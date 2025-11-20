@@ -38,7 +38,7 @@ export function useProviderReviews() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/provider-reviews`, {
+      const response = await fetch(`${API_BASE_URL}/provider-reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export function useProviderReviews() {
     try {
       // Obtener las reviews creadas por el provider autenticado
       const response = await fetch(
-        `${API_BASE_URL}/api/provider-reviews/my-reviews`,
+        `${API_BASE_URL}/provider-reviews/my-reviews`,
         {
           credentials: "include",
         }
@@ -111,7 +111,7 @@ export function useProviderReviews() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/provider-reviews/user/${userId}?page=${page}&pageSize=${pageSize}`,
+        `${API_BASE_URL}/provider-reviews/user/${userId}?page=${page}&pageSize=${pageSize}`,
         {
           credentials: "include",
         }
@@ -147,7 +147,7 @@ export function useProviderReviews() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/provider-reviews/provider/${providerId}?page=${page}&pageSize=${pageSize}`,
+        `${API_BASE_URL}/provider-reviews/provider/${providerId}?page=${page}&pageSize=${pageSize}`,
         {
           credentials: "include",
         }
@@ -176,7 +176,7 @@ export function useProviderReviews() {
   const getUserRating = async (userId: string) => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/provider-reviews/user/${userId}/rating`
+        `${API_BASE_URL}/provider-reviews/user/${userId}/rating`
       );
 
       if (!response.ok) {

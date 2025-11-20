@@ -31,7 +31,7 @@ export function useProviderReports() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/provider-reports`, {
+      const response = await fetch(`${API_BASE_URL}/provider-reports`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,7 +65,7 @@ export function useProviderReports() {
   ): Promise<boolean> => {
     try {
       // Obtener todos los reportes del proveedor
-      const response = await fetch(`${API_BASE_URL}/api/provider-reports/my-reports`, {
+      const response = await fetch(`${API_BASE_URL}/provider-reports/my-reports`, {
         credentials: "include",
       });
 
@@ -97,7 +97,7 @@ export function useProviderReports() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/provider-reports/my-reports?page=${page}&pageSize=${pageSize}`,
+        `${API_BASE_URL}/provider-reports/my-reports?page=${page}&pageSize=${pageSize}`,
         {
           credentials: "include",
         }

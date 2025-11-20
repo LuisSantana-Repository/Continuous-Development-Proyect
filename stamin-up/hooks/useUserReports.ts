@@ -31,7 +31,7 @@ export function useUserReports() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/user-reports`, {
+      const response = await fetch(`${API_BASE_URL}/user-reports`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,7 +65,7 @@ export function useUserReports() {
   ): Promise<boolean> => {
     try {
       // Obtener todos los reportes del usuario
-      const response = await fetch(`${API_BASE_URL}/api/user-reports/my-reports`, {
+      const response = await fetch(`${API_BASE_URL}/user-reports/my-reports`, {
         credentials: "include",
       });
 
@@ -97,7 +97,7 @@ export function useUserReports() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/user-reports/my-reports?page=${page}&pageSize=${pageSize}`,
+        `${API_BASE_URL}/user-reports/my-reports?page=${page}&pageSize=${pageSize}`,
         {
           credentials: "include",
         }

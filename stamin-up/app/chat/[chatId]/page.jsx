@@ -37,7 +37,7 @@ export default function ChatPage() {
 
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/users/me`, {
+        const res = await fetch(`${API_BASE_URL}/users/me`, {
           method: 'GET',
           credentials: 'include',
         });

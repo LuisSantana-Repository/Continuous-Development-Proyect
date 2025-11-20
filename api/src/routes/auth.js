@@ -44,6 +44,9 @@ router.post("/logout", (req, res) => {
       secure: true,
       sameSite: "Strict",
     });
+    //eliminar tambien en el cliente
+    res.cookie("token", "", { maxAge: 0 });
+    
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     console.error("Logout error:", error);

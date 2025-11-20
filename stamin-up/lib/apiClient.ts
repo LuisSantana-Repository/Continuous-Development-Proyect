@@ -42,7 +42,7 @@ export const apiClient = {
    */
   async getServices(page: number = 1, pageSize: number = 10): Promise<Service[]> {
     try {
-  const response = await fetch(`${API_BASE_URL}/api/services/providers?page=${page}&pageSize=${pageSize}`, {
+  const response = await fetch(`${API_BASE_URL}/services/providers?page=${page}&pageSize=${pageSize}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -139,7 +139,7 @@ export const apiClient = {
    */
   async getServiceById(id: string): Promise<Service | null> {
     try {
-  const response = await fetch(`${API_BASE_URL}/api/services/${id}`);
+  const response = await fetch(`${API_BASE_URL}/services/${id}`);
       
       if (!response.ok) {
         if (response.status === 404) {
@@ -158,11 +158,11 @@ export const apiClient = {
 
       // Construir URLs de imágenes (usar ruta /api/images en el backend)
       const imageUrl = item.IMAGE 
-        ? `${API_BASE_URL}/api/images/${item.IMAGE}`
+        ? `${API_BASE_URL}/images/${item.IMAGE}`
         : '/images/placeholder-service.jpg';
       
       const avatarUrl = item.user_photo 
-        ? `${API_BASE_URL}/api/images/${item.user_photo}`
+        ? `${API_BASE_URL}/images/${item.user_photo}`
         : '/images/placeholder-avatar.jpg';
 
       // Obtener rating del proveedor
@@ -306,7 +306,7 @@ export const apiClient = {
    */
   async getCategories(): Promise<Category[]> {
     try {
-  const response = await fetch(`${API_BASE_URL}/api/services?pageSize=100`, {
+  const response = await fetch(`${API_BASE_URL}/services?pageSize=100`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -356,7 +356,7 @@ export const apiClient = {
     payload: Omit<ServiceRequest, 'requestId' | 'createdAt' | 'status'>
   ): Promise<ServiceRequestResponse> {
     try {
-  const response = await fetch(`${API_BASE_URL}/api/service-requests`, {
+  const response = await fetch(`${API_BASE_URL}/service-requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -429,7 +429,7 @@ export const apiClient = {
     };
   }): Promise<{ message: string; userId?: string }> {
     try {
-  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -456,7 +456,7 @@ export const apiClient = {
    * @returns Promise con el resultado del login
    */
   async login(email: string, password: string): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -485,7 +485,7 @@ export const apiClient = {
       work?: any;
     }
   }> {
-  const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+  const response = await fetch(`${API_BASE_URL}/users/me`, {
       method: 'GET',
       credentials: 'include', // Envía las cookies con el token
     });
@@ -499,7 +499,7 @@ export const apiClient = {
    * @returns Promise con el resultado del logout
    */
   async logout(): Promise<{ message: string }> {
-  const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+  const response = await fetch(`${API_BASE_URL}/auth/logout`, {
       method: 'POST',
       credentials: 'include', // Importante para enviar y limpiar cookies
     });
@@ -530,7 +530,7 @@ export const apiClient = {
       work?: any;
     }
   }> {
-  const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+  const response = await fetch(`${API_BASE_URL}/users/me`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -571,7 +571,7 @@ export const apiClient = {
   }> {
     try {
       const response = await fetch(
-  `${API_BASE_URL}/api/reviews/provider/${providerId}?page=${page}&pageSize=${pageSize}`,
+  `${API_BASE_URL}/reviews/provider/${providerId}?page=${page}&pageSize=${pageSize}`,
         {
           method: 'GET',
           headers: {
@@ -635,7 +635,7 @@ export const apiClient = {
   }> {
     try {
       const response = await fetch(
-  `${API_BASE_URL}/api/reviews/user/${userId}?page=${page}&pageSize=${pageSize}`,
+  `${API_BASE_URL}/reviews/user/${userId}?page=${page}&pageSize=${pageSize}`,
         {
           method: 'GET',
           headers: {
@@ -688,7 +688,7 @@ export const apiClient = {
   }> {
     try {
       const response = await fetch(
-  `${API_BASE_URL}/api/reviews/provider/${providerId}/rating`,
+  `${API_BASE_URL}/reviews/provider/${providerId}/rating`,
         {
           method: 'GET',
           headers: {
@@ -736,7 +736,7 @@ export const apiClient = {
     };
   }> {
     try {
-  let url = `${API_BASE_URL}/api/service-requests/user/${userId}?page=${page}&pageSize=${pageSize}`;
+  let url = `${API_BASE_URL}/service-requests/user/${userId}?page=${page}&pageSize=${pageSize}`;
       if (status) {
         url += `&status=${status}`;
       }
@@ -804,7 +804,7 @@ export const apiClient = {
     };
   }> {
     try {
-  let url = `${API_BASE_URL}/api/service-requests/provider/${providerId}?page=${page}&pageSize=${pageSize}`;
+  let url = `${API_BASE_URL}/service-requests/provider/${providerId}?page=${page}&pageSize=${pageSize}`;
       if (status) {
         url += `&status=${status}`;
       }
@@ -860,7 +860,7 @@ export const apiClient = {
     }
   ): Promise<any> {
     try {
-  const response = await fetch(`${API_BASE_URL}/api/service-requests/${requestId}`, {
+  const response = await fetch(`${API_BASE_URL}/service-requests/${requestId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -883,7 +883,7 @@ export const apiClient = {
    */
   async getServiceRequestById(requestId: string): Promise<any> {
     try {
-  const response = await fetch(`${API_BASE_URL}/api/service-requests/${requestId}`, {
+  const response = await fetch(`${API_BASE_URL}/service-requests/${requestId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -910,7 +910,7 @@ export const apiClient = {
     comment?: string;
   }): Promise<any> {
     try {
-  const response = await fetch(`${API_BASE_URL}/api/reviews`, {
+  const response = await fetch(`${API_BASE_URL}/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -941,7 +941,7 @@ export const apiClient = {
   async getProviderCalendar(providerId: number, month: string): Promise<any> {
     try {
       const response = await fetch(
-  `${API_BASE_URL}/api/providers/${providerId}/calendar?month=${month}`,
+  `${API_BASE_URL}/providers/${providerId}/calendar?month=${month}`,
         {
           method: 'GET',
           headers: {
@@ -974,7 +974,7 @@ export const apiClient = {
       Foto?: string;
     }
   ): Promise<any> {
-  const response = await fetch(`${API_BASE_URL}/api/providers/${providerId}`, {
+  const response = await fetch(`${API_BASE_URL}/providers/${providerId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -998,7 +998,7 @@ export const apiClient = {
    */
   async processOrderPayment(orderId: string): Promise<any> {
     try {
-  const response = await fetch(`${API_BASE_URL}/api/service-requests/${orderId}`, {
+  const response = await fetch(`${API_BASE_URL}/service-requests/${orderId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

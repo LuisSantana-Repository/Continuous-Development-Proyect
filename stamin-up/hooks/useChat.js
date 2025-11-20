@@ -43,6 +43,7 @@ export function useChat(userId = null) {
   useEffect(() => {
     // For Socket.IO: empty string or undefined will connect to current domain
     const newSocket = io(API_BASE_URL || undefined, {
+      path: "/api/socket.io/",
       withCredentials: true,
       reconnection: true,
       reconnectionDelay: 1000,
