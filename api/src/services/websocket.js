@@ -18,6 +18,7 @@ export function initializeWebSocket(httpServer) {
     ].filter(Boolean); // Remove undefined values
 
     const io = new Server(httpServer, {
+        path: "/api/socket.io/", // ✅ Use /api prefix for Socket.IO path
         cors: {
             origin: allowedOrigins,
             credentials: true,
