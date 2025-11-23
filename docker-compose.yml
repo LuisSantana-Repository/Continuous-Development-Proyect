@@ -118,7 +118,7 @@ services:
     environment:
       - NODE_ENV=development
       # For client-side API calls (browser)
-      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - NEXT_PUBLIC_API_URL=http://localhost:3000/api
       # For server-side API calls (SSR/SSG/Image Optimization)
       - API_URL=http://api-gateway:3000/api
       # Disable Next.js telemetry
