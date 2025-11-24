@@ -13,6 +13,11 @@ variable "instance_type" {
   type        = string
 }
 
+variable "instance_type_web" {
+  description = "EC2 instance type"
+  type        = string
+}
+
 variable "app_sg_id" {
   description = "Security group ID for EC2 instances"
   type        = string

@@ -52,7 +52,7 @@ resource "aws_launch_template" "api" {
 resource "aws_launch_template" "web" {
   name_prefix   = "${var.project_name}-web-"
   image_id      = var.ami_id
-  instance_type = var.instance_type
+  instance_type = var.instance_type_web
   key_name      = aws_key_pair.main.key_name
 
   vpc_security_group_ids = [var.app_sg_id]
@@ -101,7 +101,7 @@ resource "aws_launch_template" "web" {
 # Web Instance
 resource "aws_instance" "web" {
   ami           = aws_launch_template.web.image_id
-  instance_type = aws_launch_template.web.instance_type
+  instance_type_web = aws_launch_template.web.instance_type_web
   vpc_security_group_ids = [var.app_sg_id]
 
   launch_template {
@@ -164,7 +164,7 @@ resource "aws_instance" "web" {
 # EC2 para Stamin-Up Frontend
 # resource "aws_instance" "stamin_up" {
 #   ami           =  data.aws_ami.ubuntu.id
-#   instance_type = var.instance_type
+#   instance_type_web = var.instance_type_web
 #   key_name      = aws_key_pair.main.key_name
 
 #   vpc_security_group_ids = [aws_security_group.app_sg.id]
@@ -327,7 +327,7 @@ resource "aws_autoscaling_policy" "web_scale_up" {
   name                   = "${var.project_name}-web-scale-up"
   scaling_adjustment     = 1
   adjustment_type        = "ChangeInCapacity"
-  cooldown               = 300
+  cooldown               = 180
   autoscaling_group_name = aws_autoscaling_group.web.name
 }
 
@@ -338,9 +338,9 @@ resource "aws_cloudwatch_metric_alarm" "web_cpu_high" {
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "120"
+  period              = "30"
   statistic           = "Average"
-  threshold           = "70"
+  threshold           = "40"
   alarm_description   = "This metric monitors WEB EC2 CPU utilization"
   alarm_actions       = [aws_autoscaling_policy.web_scale_up.arn]
 
