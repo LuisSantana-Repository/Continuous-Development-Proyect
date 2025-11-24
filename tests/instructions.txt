@@ -1,0 +1,15 @@
+Requisitos:
+- Java 8+
+- Jmeter ($env:PATH += ";C:\apache-jmeter-5.6.3\bin")
+
+jmeter -n -t load_test.jmx -JUSERS=100 -JRAMP_UP=30 -JDURATION=60 -l .\results\warmup.jtl
+jmeter -g results/warmup.jtl -o results/report
+start results/report/index.html
+
+o
+
+.\run-tests.ps1
+
+
+En el archivo run-tests.ps1 puedes editar la cantidad de usuarios simulados y la duracion de la prueba.
+En load_test.jmx se debe agregar la direccion del alb cada vez que se reinicie la aplicacion.

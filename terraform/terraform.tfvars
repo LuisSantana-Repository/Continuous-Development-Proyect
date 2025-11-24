@@ -2,6 +2,7 @@
 aws_region   = "us-east-1"
 project_name = "stamin-up"
 instance_type = "t2.micro"
+instance_type_web = "t3.medium"
 
 # IMPORTANTE: Cambia este valor por el nombre de tu key pair en AWS
 key_name = "lorem_ipsum"

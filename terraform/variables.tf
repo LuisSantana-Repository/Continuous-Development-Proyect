@@ -40,6 +40,12 @@ variable "instance_type" {
   default     = "t2.micro"
 }
 
+variable "instance_type_web" {
+  description = "EC2 instance type"
+  type        = string
+  default     = "t3.medium"
+}
+
 variable "docker_image_tag" {
   description = "Docker image tag to use from ECR (e.g., latest, v1.0.0, 20231115-120000)"
   type        = string
