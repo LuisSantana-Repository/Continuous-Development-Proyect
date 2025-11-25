@@ -43,7 +43,7 @@ variable "instance_type" {
 variable "instance_type_web" {
   description = "EC2 instance type"
   type        = string
-  default     = "t3.medium"
+  default     = "t2.medium"
 }
 
 variable "docker_image_tag" {

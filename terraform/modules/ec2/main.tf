@@ -101,7 +101,7 @@ resource "aws_launch_template" "web" {
 # Web Instance
 resource "aws_instance" "web" {
   ami           = aws_launch_template.web.image_id
-  instance_type_web = aws_launch_template.web.instance_type_web
+  instance_type = aws_launch_template.web.instance_type
   vpc_security_group_ids = [var.app_sg_id]
 
   launch_template {

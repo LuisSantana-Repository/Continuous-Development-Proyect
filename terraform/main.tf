@@ -106,6 +106,7 @@ module "ec2" {
   ssh_public_key_path   = "${path.module}/aws-ec2.pub"
   alb_dns_name          = module.lb.alb_dns_name
   iam_instance_profile_name = module.iam.instance_profile_name
+  instance_type_web     = var.instance_type_web
 
   # Auto Scaling configuration
   api_min_size          = var.api_min_size
