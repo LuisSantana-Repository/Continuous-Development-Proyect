@@ -11,8 +11,8 @@ Write-Host "Ejecutando pruebas de estres" -ForegroundColor Cyan
 jmeter -n `
   -t .\load_test.jmx `
   -JUSERS=1000 `
-  -JRAMP_UP=600 `
-  -JDURATION=660 `
+  -JRAMP_UP=30 `
+  -JDURATION=60 `
   -l .\results\baseline.jtl `
   -e `
   -o .\results\baseline-report\
