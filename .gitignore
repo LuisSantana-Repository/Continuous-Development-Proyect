@@ -93,7 +93,7 @@ jest-cache/
 
 # testing
 /coverage
-results/
+*results/
 /docs
 
 # next.js

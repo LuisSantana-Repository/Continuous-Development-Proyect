@@ -10,7 +10,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="BASE_URL" elementType="Argument">
             <stringProp name="Argument.name">BASE_URL</stringProp>
-            <stringProp name="Argument.value">stamin-up-alb-280048384.us-east-1.elb.amazonaws.com</stringProp>
+            <stringProp name="Argument.value">stamin-up-alb-17363456.us-east-1.elb.amazonaws.com</stringProp>
           </elementProp>
           <elementProp name="USERS" elementType="Argument">
             <stringProp name="Argument.name">USERS</stringProp>
@@ -50,8 +50,8 @@
       <hashTree>
 
         <!-- HTTP Request: Get Services -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /services" enabled="true">
-        <!-- <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/services" enabled="true"> -->
+        <!-- <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /services" enabled="true"> -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/services" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="page" elementType="HTTPArgument">
@@ -70,8 +70,8 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">${BASE_URL}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/services</stringProp>
-          <!-- <stringProp name="HTTPSampler.path">/api/services</stringProp> -->
+          <!-- <stringProp name="HTTPSampler.path">/services</stringProp> -->
+          <stringProp name="HTTPSampler.path">/api/services</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
         </HTTPSamplerProxy>
@@ -87,8 +87,8 @@
         </hashTree>
 
         <!-- HTTP Request: Get Provider Services -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /services/providers" enabled="true">
-        <!-- <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/services/providers" enabled="true"> -->
+        <!-- <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /services/providers" enabled="true"> -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/services/providers" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="page" elementType="HTTPArgument">
@@ -104,8 +104,8 @@
             </collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">${BASE_URL}</stringProp>
-          <stringProp name="HTTPSampler.path">/services/providers</stringProp>
-          <!-- <stringProp name="HTTPSampler.path">/api/services/providers</stringProp> -->
+          <!-- <stringProp name="HTTPSampler.path">/services/providers</stringProp> -->
+          <stringProp name="HTTPSampler.path">/api/services/providers</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
         </HTTPSamplerProxy>
