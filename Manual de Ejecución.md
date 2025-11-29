@@ -158,129 +158,254 @@ EXIT;
 
 ## 10. Flujo sugerido para probar el sistema
 
-### 10.1. Pruebas Unitarias y de Integración
+Este flujo describe cómo un usuario final probaría todas las funcionalidades de la aplicación web **Stamin-Up**.
 
-Ejecutar las pruebas automatizadas del backend:
+### 10.1. Acceso Inicial
+
+1. Abrir el navegador y acceder a:
+   - **Local:** `http://localhost:3001`
+   - **AWS:** `https://<ALB-DNS>`
+
+2. Verificar que la página de inicio carga correctamente
+   - Se muestra el landing page
+   - Se visualizan los servicios destacados
+   - El diseño es responsive (probar en diferentes tamaños de pantalla)
+
+---
+
+### 10.2. Registro y Autenticación
+
+**Registro de nuevo usuario:**
+1. Click en "Registrarse" o "Sign Up"
+2. Completar el formulario con:
+   - Nombre de usuario
+   - Email
+   - Contraseña
+   - Confirmar contraseña
+3. Enviar el formulario
+4. Verificar que se crea la cuenta exitosamente
+5. Verificar redirección automática al perfil o dashboard
+
+**Inicio de sesión:**
+1. Click en "Iniciar Sesión" o "Login"
+2. Ingresar credenciales:
+   - Email
+   - Contraseña
+3. Click en "Entrar"
+4. Verificar que se redirige al dashboard o home del usuario autenticado
+5. Verificar que aparece el nombre del usuario en el header/navbar
+
+**Cerrar sesión:**
+1. Click en el menú de usuario
+2. Seleccionar "Cerrar Sesión" o "Logout"
+3. Verificar redirección a la página de inicio
+
+---
+
+### 10.3. Exploración de Servicios
+
+1. **Página de servicios:**
+   - Navegar a la sección de servicios
+   - Verificar que se muestran los servicios disponibles
+   - Probar filtros/búsqueda de servicios
+
+2. **Detalle de servicio:**
+   - Click en un servicio específico
+   - Verificar que se muestra:
+     - Nombre del servicio
+     - Descripción
+     - Precio
+     - Proveedores que ofrecen el servicio
+     - Imágenes relacionadas
+     - Reseñas y calificaciones
+
+---
+
+### 10.4. Búsqueda y Selección de Proveedores
+
+1. **Explorar proveedores:**
+   - Navegar a la sección de proveedores
+   - Ver listado de proveedores disponibles
+   - Filtrar por ubicación, calificación, o servicio
+
+2. **Perfil del proveedor:**
+   - Click en un proveedor
+   - Verificar información mostrada:
+     - Nombre y foto de perfil
+     - Servicios que ofrece
+     - Calificación promedio
+     - Reseñas de otros usuarios
+     - Disponibilidad
+
+3. **Solicitar servicio:**
+   - Seleccionar un servicio del proveedor
+   - Click en "Solicitar" o "Contratar"
+   - Completar detalles de la solicitud:
+     - Fecha/hora preferida
+     - Ubicación
+     - Notas adicionales
+   - Enviar solicitud
+
+---
+
+### 10.5. Chat y Comunicación
+
+1. **Iniciar chat con proveedor:**
+   - Desde el perfil del proveedor, click en "Chatear" o "Mensajes"
+   - Verificar que se abre la interfaz de chat
+
+2. **Enviar mensajes:**
+   - Escribir y enviar un mensaje
+   - Verificar que el mensaje se envía correctamente
+   - Verificar que aparece en el historial de chat
+   - Probar envío de mensajes en tiempo real (si hay WebSockets)
+
+3. **Notificaciones:**
+   - Verificar que se reciben notificaciones de nuevos mensajes
+   - Verificar contador de mensajes no leídos
+
+---
+
+### 10.6. Proceso de Pago
+
+1. **Revisar carrito/orden:**
+   - Verificar detalles del servicio a pagar
+   - Revisar precio total
+   - Aplicar cupones/descuentos (si aplica)
+
+2. **Realizar pago:**
+   - Click en "Proceder al pago"
+   - Ingresar información de pago:
+     - Número de tarjeta
+     - Fecha de expiración
+     - CVV
+     - Nombre del titular
+   - Confirmar pago
+
+3. **Confirmación:**
+   - Verificar mensaje de confirmación de pago exitoso
+   - Verificar recibo/comprobante
+   - Verificar notificación por email (si está configurado)
+
+---
+
+### 10.7. Gestión de Reseñas
+
+1. **Dejar una reseña:**
+   - Después de completar un servicio, navegar al perfil del proveedor
+   - Click en "Dejar reseña" o "Escribir opinión"
+   - Completar:
+     - Calificación (estrellas)
+     - Comentario escrito
+     - Subir fotos (si aplica)
+   - Enviar reseña
+
+2. **Ver reseñas:**
+   - Navegar a la sección de reseñas del proveedor
+   - Verificar que se muestran todas las reseñas
+   - Verificar ordenamiento (más recientes, mejor calificadas, etc.)
+
+---
+
+### 10.8. Perfil de Usuario
+
+1. **Acceder al perfil:**
+   - Click en el avatar o nombre de usuario
+   - Seleccionar "Mi Perfil" o "Profile"
+
+2. **Editar información:**
+   - Actualizar datos personales:
+     - Nombre
+     - Email
+     - Teléfono
+     - Dirección
+   - Cambiar foto de perfil
+   - Actualizar contraseña
+   - Guardar cambios
+
+3. **Historial:**
+   - Ver historial de servicios contratados
+   - Ver historial de pagos
+   - Ver reseñas realizadas
+   - Descargar facturas/recibos
+
+---
+
+### 10.9. Gestión de Imágenes
+
+1. **Subir imágenes:**
+   - Desde perfil de usuario o al crear reseña
+   - Click en "Subir imagen" o botón de carga
+   - Seleccionar archivo desde el dispositivo
+   - Verificar previsualización
+   - Confirmar subida
+
+2. **Visualizar imágenes:**
+   - Verificar que las imágenes se muestran correctamente
+   - Probar zoom/vista ampliada
+   - Verificar carga rápida de imágenes
+
+---
+
+### 10.10. Reportes y Moderación
+
+1. **Reportar proveedor:**
+   - Desde perfil del proveedor, buscar opción de "Reportar"
+   - Seleccionar motivo del reporte
+   - Agregar descripción
+   - Enviar reporte
+
+2. **Reportar usuario:**
+   - Similar proceso desde perfil de otro usuario
+   - Verificar confirmación de envío
+
+---
+
+### 10.11. Verificaciones Finales
+
+**Funcionalidad general:**
+- [ ] Todas las páginas cargan correctamente
+- [ ] No hay errores en la consola del navegador (F12)
+- [ ] Las imágenes se cargan correctamente
+- [ ] Los formularios validan datos correctamente
+- [ ] Los mensajes de error son claros y útiles
+- [ ] La navegación entre páginas es fluida
+
+**Responsividad:**
+- [ ] Probar en desktop (1920x1080, 1366x768)
+- [ ] Probar en tablet (768x1024)
+- [ ] Probar en móvil (375x667, 414x896)
+- [ ] Menú de navegación funciona en móvil
+
+**Performance:**
+- [ ] Las páginas cargan en menos de 3 segundos
+- [ ] Las transiciones son suaves
+- [ ] No hay lag al escribir o hacer click
+
+**Seguridad:**
+- [ ] No se puede acceder a rutas protegidas sin autenticación
+- [ ] La sesión expira correctamente
+- [ ] Los datos sensibles no son visibles en la URL
+
+---
+
+### 10.12. Pruebas de Carga (Opcional)
+
+Para pruebas de estrés y rendimiento del sistema:
 
 ```bash
-cd api
+cd tests
 
-# Ejecutar todas las pruebas
-npm test
+# Ejecutar JMeter (requiere Java 8+ instalado)
+jmeter -n -t load_test.jmx -JUSERS=100 -JRAMP_UP=30 -JDURATION=60 -l ./results/test.jtl
 
-# Ejecutar pruebas en modo watch (desarrollo)
-npm run test:watch
-
-# Verificar conexiones a servicios
-npm run test:connections
-```
-
-Las pruebas cubren los siguientes endpoints:
-- `/api/auth` - Autenticación
-- `/api/health` - Estado del sistema
-- `/api/providers` - Gestión de proveedores
-- `/api/reviews` - Reseñas
-- `/api/services` - Servicios
-- `/api/chat` - Chat
-- `/api/images` - Gestión de imágenes
-- `/api/payment` - Pagos
-- `/api/provider-reports` - Reportes de proveedores
-
-### 10.2. Verificación de Servicios Locales
-
-```bash
-# Verificar API
-curl http://localhost:3000/api/health
-
-# Verificar Frontend
-curl http://localhost:3001
-```
-
-### 10.3. Pruebas de Carga con JMeter
-
-**Requisitos previos:**
-- Java 8+
-- Apache JMeter instalado
-
-**Configurar JMeter en PATH (Windows):**
-```powershell
-$env:PATH += ";C:\apache-jmeter-5.6.3\bin"
-```
-
-**Actualizar configuración:**
-Editar `tests/load_test.jmx` y actualizar la dirección del ALB o endpoint del servidor.
-
-**Ejecutar pruebas de carga:**
-
-```bash
-# Opción 1: Comando manual
-jmeter -n -t load_test.jmx -JUSERS=100 -JRAMP_UP=30 -JDURATION=60 -l ./results/warmup.jtl
-
-# Generar reporte HTML
-jmeter -g results/warmup.jtl -o results/report
+# Generar reporte
+jmeter -g results/test.jtl -o results/report
 
 # Abrir reporte
 start results/report/index.html
 ```
 
-```powershell
-# Opción 2: Script PowerShell (Windows)
-cd tests
-.\run-tests.ps1
-```
-
-**Parámetros configurables:**
-- `USERS`: Número de usuarios simulados (default: 100)
-- `RAMP_UP`: Tiempo de rampa en segundos (default: 30)
-- `DURATION`: Duración de la prueba en segundos (default: 60)
-
-### 10.4. Verificación en AWS
-
-Una vez desplegado en AWS, verificar:
-
-```bash
-# Verificar health del ALB
-curl https://<ALB-DNS>/api/health
-
-# Verificar respuesta del frontend
-curl https://<ALB-DNS>
-```
-
-### 10.5. Flujo Completo Recomendado
-
-1. **Desarrollo Local:**
-   ```bash
-   # Levantar servicios
-   docker-compose up -d
-
-   # Ejecutar pruebas unitarias
-   cd api && npm test
-
-   # Verificar endpoints locales
-   curl http://localhost:3000/api/health
-   ```
-
-2. **Pre-deployment:**
-   ```bash
-   # Ejecutar suite completa de pruebas
-   npm test
-   npm run test:connections
-   ```
-
-3. **Post-deployment:**
-   ```bash
-   # Verificar servicios en AWS
-   curl https://<ALB-DNS>/api/health
-
-   # Ejecutar pruebas de carga
-   cd tests
-   jmeter -n -t load_test.jmx -JUSERS=50 -JRAMP_UP=20 -JDURATION=60 -l ./results/prod-test.jtl
-   ```
-
-4. **Monitoreo:**
-   - Revisar logs de CloudWatch
-   - Verificar métricas de RDS
-   - Monitorear estado de instancias EC2
-   - Revisar alarmas configuradas
+**Nota:** Actualizar `tests/load_test.jmx` con la URL correcta del ALB antes de ejecutar.
 
 ---
