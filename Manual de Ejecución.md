@@ -155,3 +155,152 @@ EXIT;
 ```
 
 ---
+
+## 10. Flujo sugerido para probar el sistema
+
+Este flujo describe cómo un usuario final probaría todas las funcionalidades de la aplicación web **Stamin-Up**.
+
+### 10.1. Acceso Inicial
+
+1. Abrir el navegador y acceder a:
+   - **Local:** `http://localhost:3001`
+   - **AWS:** `https://<ALB-DNS>`
+
+2. Verificar que la página de inicio carga correctamente
+   - Se muestra el landing page
+   - Se visualizan los servicios destacados
+   - El diseño es responsive (probar en diferentes tamaños de pantalla)
+
+---
+
+### 10.2. Registro y Autenticación
+
+**Registro de nuevo usuario:**
+1. Click en "Registrarse" o "Sign Up"
+2. Completar el formulario con:
+   - Nombre de usuario
+   - Email
+   - Contraseña
+   - Confirmar contraseña
+3. Enviar el formulario
+4. Verificar que se crea la cuenta exitosamente
+5. Verificar redirección automática al perfil o dashboard
+
+**Inicio de sesión:**
+1. Click en "Iniciar Sesión" o "Login"
+2. Ingresar credenciales:
+   - Email
+   - Contraseña
+3. Click en "Entrar"
+4. Verificar que se redirige al dashboard o home del usuario autenticado
+5. Verificar que aparece el nombre del usuario en el header/navbar
+
+**Cerrar sesión:**
+1. Click en el menú de usuario
+2. Seleccionar "Cerrar Sesión" o "Logout"
+3. Verificar redirección a la página de inicio
+
+---
+
+### 10.3. Exploración de Servicios
+
+1. **Página de servicios:**
+   - Navegar a la sección de servicios
+   - Verificar que se muestran los servicios disponibles
+   - Probar filtros/búsqueda de servicios
+
+2. **Detalle de servicio:**
+   - Click en un servicio específico
+   - Verificar que se muestra:
+     - Nombre del servicio
+     - Descripción
+     - Precio
+     - Proveedores que ofrecen el servicio
+     - Imágenes relacionadas
+     - Reseñas y calificaciones
+
+3. **Solicitar servicio:**
+   - Click en "Contratar"
+   - Completar detalles de la solicitud:
+     - Fecha/hora preferida
+     - Ubicación
+     - Notas adicionales
+   - Enviar solicitud
+
+---
+
+### 10.5. Chat y Comunicación
+
+1. **Iniciar chat con proveedor:**
+   - Desde Mi perfil, click en "Chatear" o "Mensajes"
+   - Verificar que se abre la interfaz de chat
+
+2. **Enviar mensajes:**
+   - Escribir y enviar un mensaje
+   - Verificar que el mensaje se envía correctamente
+   - Verificar que aparece en el historial de chat
+   - Probar envío de mensajes en tiempo real 
+
+---
+
+### 10.6. Proceso de Pago
+
+1. **Revisar carrito/orden:**
+   - Verificar detalles del servicio a pagar
+   - Revisar precio total
+
+2. **Realizar pago:**
+   - Click en "Proceder al pago"
+   - Ingresar información de pago:
+     - Número de tarjeta
+     - Fecha de expiración
+     - CVV
+     - Nombre del titular
+   - Confirmar pago
+
+---
+
+### 10.7. Gestión de Reseñas
+
+1. **Dejar una reseña:**
+   - Después de completar un servicio, navegar al perfil del proveedor
+   - Click en "Dejar reseña" o "Escribir opinión"
+   - Completar:
+     - Calificación (estrellas)
+     - Comentario escrito
+   - Enviar reseña
+
+2. **Ver reseñas:**
+   - Navegar a la sección de reseñas del proveedor
+   - Verificar que se muestran todas las reseñas
+
+---
+
+### 10.8. Perfil de Usuario
+
+1. **Acceder al perfil:**
+   - Click en el avatar o nombre de usuario
+   - Seleccionar "Mi Perfil" o "Profile"
+
+2. **Editar información:**
+   - Actualizar datos personales
+   - Cambiar foto de perfil
+   - Guardar cambios
+
+3. **Historial:**
+   - Ver historial de servicios contratados
+   - Ver historial de pagos
+   - Ver reseñas realizadas
+---
+
+
+### 10.10. Reportes y Moderación
+
+1. **Reportar proveedor:**
+   - Desde Mi perfil, buscar opción de "Reportar"
+   - Agregar descripción
+   - Enviar reporte
+
+2. **Reportar usuario:**
+   - Similar proceso al de reportar provedor pero en una seccion de usuario
+   - Verificar confirmación de envío
