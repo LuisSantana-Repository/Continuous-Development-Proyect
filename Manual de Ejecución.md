@@ -271,8 +271,6 @@ Este flujo describe cómo un usuario final probaría todas las funcionalidades d
 
 3. **Historial:**
    - Ver historial de servicios contratados
-   - Ver historial de pagos
-   - Ver reseñas realizadas
 ---
 
 
