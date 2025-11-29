@@ -169,7 +169,6 @@ Este flujo describe cómo un usuario final probaría todas las funcionalidades d
 2. Verificar que la página de inicio carga correctamente
    - Se muestra el landing page
    - Se visualizan los servicios destacados
-   - El diseño es responsive (probar en diferentes tamaños de pantalla)
 
 ---
 
@@ -243,24 +242,7 @@ Este flujo describe cómo un usuario final probaría todas las funcionalidades d
 
 ---
 
-### 10.6. Proceso de Pago
-
-1. **Revisar carrito/orden:**
-   - Verificar detalles del servicio a pagar
-   - Revisar precio total
-
-2. **Realizar pago:**
-   - Click en "Proceder al pago"
-   - Ingresar información de pago:
-     - Número de tarjeta
-     - Fecha de expiración
-     - CVV
-     - Nombre del titular
-   - Confirmar pago
-
----
-
-### 10.7. Gestión de Reseñas
+### 10.6. Gestión de Reseñas
 
 1. **Dejar una reseña:**
    - Después de completar un servicio, navegar al perfil del proveedor
@@ -276,7 +258,7 @@ Este flujo describe cómo un usuario final probaría todas las funcionalidades d
 
 ---
 
-### 10.8. Perfil de Usuario
+### 10.7. Perfil de Usuario
 
 1. **Acceder al perfil:**
    - Click en el avatar o nombre de usuario
@@ -294,7 +276,7 @@ Este flujo describe cómo un usuario final probaría todas las funcionalidades d
 ---
 
 
-### 10.10. Reportes y Moderación
+### 10.8. Reportes y Moderación
 
 1. **Reportar proveedor:**
    - Desde Mi perfil, buscar opción de "Reportar"
@@ -302,5 +284,5 @@ Este flujo describe cómo un usuario final probaría todas las funcionalidades d
    - Enviar reporte
 
 2. **Reportar usuario:**
-   - Similar proceso al de reportar provedor pero en una seccion de usuario
+   - Similar proceso al de reportar provedor pero en una seccion de provedor
    - Verificar confirmación de envío
