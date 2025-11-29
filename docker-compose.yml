@@ -33,7 +33,7 @@ services:
       MYSQL_PASSWORD: 3deAsada.
     volumes:
       - ./volumes/mysql-primary:/var/lib/mysql
-      - ./init-db-primary.sql:/docker-entrypoint-initdb.d/init.sql
+      - .DB_Backup/init-db-primary.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
     healthcheck:
@@ -54,7 +54,7 @@ services:
       MYSQL_PASSWORD: 3deAsada.
     volumes:
       - ./volumes/mysql-secondary:/var/lib/mysql
-      - ./init-db-secondary.sql:/docker-entrypoint-initdb.d/init.sql
+      - .DB_Backup/init-db-secondary.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
     healthcheck:
